@@ -6,7 +6,10 @@
     "ml-engineer",
     "data-engineer",
     "astronomer",
-    "frontend-dev"
+    "frontend-dev",
+    "retrieval-engineer",
+    "devops",
+    "technical-writer"
   ],
   "defaultPersona": "ml-engineer"
 }
