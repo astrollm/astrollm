@@ -22,8 +22,9 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 COPY pyproject.toml /tmp/
 RUN cd /tmp && uv pip install --system -r pyproject.toml
 
-# Flash Attention (requires CUDA at build time)
+# GPU-only training dependencies (flash-attn, unsloth, xformers, auto-gptq, autoawq)
 RUN uv pip install --system flash-attn --no-build-isolation
+RUN uv pip install --system "unsloth[colab-new]>=2024.11" "xformers>=0.0.28" "auto-gptq>=0.7.0" "autoawq>=0.2.0"
 
 # Working directory
 WORKDIR /workspace/astrollm

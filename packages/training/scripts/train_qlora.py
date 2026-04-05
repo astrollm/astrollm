@@ -2,7 +2,7 @@
 AstroLLM QLoRA Training Script
 
 Usage:
-    python packages/training/scripts/train_qlora.py --config configs/llama3.1-8b-qlora-astro-sft-v001.yaml
+    uv run python packages/training/scripts/train_qlora.py --config configs/qwen3-8b-qlora-astro-sft-v001.yaml
 
 Supports:
     - QLoRA and LoRA fine-tuning
@@ -135,7 +135,7 @@ def train(
     # Check for GPU
     if torch.cuda.is_available():
         gpu_name = torch.cuda.get_device_name(0)
-        gpu_mem = torch.cuda.get_device_properties(0).total_mem / 1e9
+        gpu_mem = torch.cuda.get_device_properties(0).total_memory / 1e9
         console.print(f"\n[green]GPU: {gpu_name} ({gpu_mem:.1f} GB)[/green]")
     else:
         console.print("\n[red]No GPU detected! Training will be extremely slow.[/red]")

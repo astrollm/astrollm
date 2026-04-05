@@ -39,7 +39,7 @@ Prompt assembly → LLM generates cited answer
 - Build params: `m=32, ef_construction=256`
 - Query params: `hnsw.ef_search=100` (tune up for precision, down for speed)
 - Use **halfvec** (float16) for 2x memory savings with minimal quality loss
-- Embedding dimension: 1024 (BGE-large) or 768 (SPECTER2)
+- Embedding dimension: 1024 (BGE-large), 768 (SPECTER2), or 3584 (GTE-Qwen2-7B — note storage implications)
 
 ## Embedding Strategy
 - **Phase 1**: Start with SPECTER2 for paper-level embeddings (science-specific, proven)

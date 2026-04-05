@@ -31,7 +31,7 @@ CREATE TABLE chunks (
 );
 
 -- Indexes for efficient retrieval
-CREATE INDEX idx_chunks_embedding ON chunks USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
+CREATE INDEX idx_chunks_embedding ON chunks USING hnsw (embedding vector_cosine_ops) WITH (m = 32, ef_construction = 256);
 CREATE INDEX idx_chunks_paper_id ON chunks(paper_id);
 CREATE INDEX idx_papers_arxiv_id ON papers(arxiv_id);
 CREATE INDEX idx_papers_categories ON papers USING GIN(categories);

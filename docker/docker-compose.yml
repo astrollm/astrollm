@@ -29,33 +29,33 @@ services:
     volumes:
       - embedder_cache:/data
 
-  # API server (Elysia)
-  api:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.api
-    ports:
-      - "3001:3001"
-    environment:
-      DATABASE_URL: postgres://astrollm:${DB_PASSWORD:-astrollm_dev}@db:5432/astrollm
-      EMBEDDER_URL: http://embedder:8081
-      INFERENCE_URL: http://inference:8080
-      ADS_API_KEY: ${ADS_API_KEY}
-    depends_on:
-      db:
-        condition: service_healthy
+  # API server (Elysia) — Phase 2: uncomment when Dockerfile.api exists
+  # api:
+  #   build:
+  #     context: .
+  #     dockerfile: docker/Dockerfile.api
+  #   ports:
+  #     - "3001:3001"
+  #   environment:
+  #     DATABASE_URL: postgres://astrollm:${DB_PASSWORD:-astrollm_dev}@db:5432/astrollm
+  #     EMBEDDER_URL: http://embedder:8081
+  #     INFERENCE_URL: http://inference:8080
+  #     ADS_API_KEY: ${ADS_API_KEY}
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
 
-  # Web frontend (TanStack Start)
-  web:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.web
-    ports:
-      - "3000:3000"
-    environment:
-      API_URL: http://api:3001
-    depends_on:
-      - api
+  # Web frontend (TanStack Start) — Phase 2: uncomment when Dockerfile.web exists
+  # web:
+  #   build:
+  #     context: .
+  #     dockerfile: docker/Dockerfile.web
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     API_URL: http://api:3001
+  #   depends_on:
+  #     - api
 
   # Inference server (llama.cpp for dev, vLLM for production)
   # Uncomment when model is ready

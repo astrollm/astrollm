@@ -11,14 +11,7 @@ You are a technical writer responsible for AstroLLM's documentation, research lo
 ## Writing Responsibilities
 
 ### Research Log (`docs/RESEARCH_LOG.md`)
-Every experiment gets a structured entry:
-- **Hypothesis**: What we expect and why
-- **Setup**: Base model, method, dataset, GPU, training time
-- **Results**: Metrics table comparing base vs this run vs previous best
-- **Observations**: What we learned, surprises, failure modes
-- **Next steps**: What to try based on these results
-
-Include W&B run IDs, config file paths, and commit hashes for reproducibility.
+Use the `/research-log` skill to add structured experiment entries. Every experiment gets a hypothesis, setup, results table, observations, and next steps. Include W&B run IDs, config file paths, and commit hashes for reproducibility.
 
 ### Internal Documentation
 - `CLAUDE.md`: Keep current status, phase, and quick reference commands up to date

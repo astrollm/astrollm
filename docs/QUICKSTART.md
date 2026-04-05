@@ -54,7 +54,7 @@ print('SIMBAD working:', result['MAIN_ID'][0])
 "
 ```
 
-## Phase 0: Learn by Building
+## Phase 0 (continued): Learn by Building
 
 ### Week 1-2: NanoGPT on Astronomy Text
 

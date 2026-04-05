@@ -24,7 +24,7 @@ NASA ADS Search: "TRAPPIST-1 atmosphere JWST"
 =============================================
 
  #  Year  Citations  Bibcode              Title
- 1  2025       142   2025Natur.123..456L  "No thick satisfies the..."
+ 1  2025       142   2025Natur.123..456L  "No thick CO2 atmosphere on TRAPPIST-1c..."
  2  2024       298   2024ApJ...967L..12G  "Broadband transmission..."
  3  2024       187   2024Natur.618..753Z  "Secondary atmospheres..."
  ...

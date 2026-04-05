@@ -44,10 +44,10 @@ A living document tracking experiments, findings, and decisions.
 **Goal**: Establish baseline scores for unmodified base models on our evaluation suite.
 
 **Models to evaluate**:
-- [ ] Llama 3.1 8B Instruct
-- [ ] Llama 3.1 70B Instruct (if budget allows)
-- [ ] Qwen 2.5 7B Instruct
-- [ ] Mistral 7B v0.3 Instruct
+- [ ] Qwen3-8B (primary base model)
+- [ ] Qwen3-4B (smaller experiment)
+- [ ] Qwen 2.5 7B Instruct (comparison)
+- [ ] Mistral 7B v0.3 Instruct (comparison)
 
 **Metrics**: AstroMLab-1, Astro-QA, custom pedagogy eval, perplexity on held-out astro text
 
@@ -74,6 +74,6 @@ A living document tracking experiments, findings, and decisions.
 
 | Date | Decision | Rationale |
 |------|----------|-----------|
-| TBD | Start with Llama 3.1 8B | Best base model performance at 8B scale, strong community support |
+| TBD | Start with Qwen3-8B | Apache 2.0 license, strong fine-tuning results at 4B/8B scale, dual thinking mode |
 | TBD | QLoRA for initial experiments | Cloud-only, need to minimize GPU costs per experiment |
 | TBD | Researcher-first audience | Highest value differentiation, tool integration is unique angle |

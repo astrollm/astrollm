@@ -2,7 +2,7 @@
 name = "astrollm"
 version = "0.1.0"
 description = "A domain-specialized Large Language Model for Astronomy & Astrophysics"
-readme = "docs/ARCHITECTURE.md"
+readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0"
 
