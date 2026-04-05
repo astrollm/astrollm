@@ -38,7 +38,6 @@ theme:
 
 plugins:
   - search
-  - awesome-pages
 
 markdown_extensions:
   - admonition
@@ -50,8 +49,6 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
-  - pymdownx.arithmatex:
-      generic: true
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
@@ -64,12 +61,9 @@ markdown_extensions:
   - toc:
       permalink: true
 
-extra_javascript:
-  - https://unpkg.com/katex@0/dist/katex.min.js
-  - https://unpkg.com/katex@0/dist/contrib/auto-render.min.js
-
-extra_css:
-  - https://unpkg.com/katex@0/dist/katex.min.css
+# KaTeX math support — add when docs start using equations:
+# See https://squidfunk.github.io/mkdocs-material/reference/math/
+# Requires: pymdownx.arithmatex extension + custom JS snippet in docs/javascripts/katex.js
 
 nav:
   - Home: index.md

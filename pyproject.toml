@@ -71,8 +71,7 @@ training = [
 
 docs = [
     "mkdocs-material>=9.6",
-    "mkdocs-awesome-pages-plugin>=2.10",
-    "pymdown-extensions>=10.0",
+    "pymdown-extensions>=10.7",
 ]
 
 [tool.uv]

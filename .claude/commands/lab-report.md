@@ -22,6 +22,7 @@ Examples:
    - **Reading log** (what materials were covered)
 3. Create `docs/lab/week-{XX}.md` using the template from `docs/lab/index.md`
 4. Add a row to the Lab Report Index table in `docs/lab/index.md`
+5. Add the new report to the `nav:` section in `mkdocs.yml` under "Lab Reports"
 5. If any experiment results are mentioned, suggest creating an experiment report via the experiment template in `docs/research/experiments/index.md`
 
 ## Guidelines

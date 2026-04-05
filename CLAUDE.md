@@ -206,7 +206,7 @@ See `docs/V1_FINAL_PLAN.md` for Phase 1 execution details. See `docs/MASTER_PLAN
 - **Building MCP servers for astronomy tools**: Use the `example-skills:mcp-builder` built-in skill
 - **Writing a weekly lab report**: Use `/lab-report` at the end of each week to document observations and learnings
 - **After any significant implementation**: Use the `simplify` built-in skill to review code quality
-- **Previewing docs site**: Run `uv run mkdocs serve` to preview at http://localhost:8000
+- **Previewing docs site**: Run `uv sync --group docs && uv run mkdocs serve` to preview at http://localhost:8000
 
 ### Active Configuration
 - **Personas** (`.claude/personas/`): astronomer, data-engineer, ml-engineer, frontend-dev, retrieval-engineer, devops, technical-writer

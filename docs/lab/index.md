@@ -23,7 +23,7 @@ Create a new file: `docs/lab/week-XX.md`
 # Week XX Lab Report
 
 **Date**: YYYY-MM-DD to YYYY-MM-DD
-**Phase**: 0 / 1 / 2
+**Phase**: 0 / 1 / 2 / 3 / 4+
 **Hours spent**: X hrs
 
 ## What I Built

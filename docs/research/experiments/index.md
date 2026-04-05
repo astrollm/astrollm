@@ -27,7 +27,7 @@ Detailed reports for each experiment. Each experiment gets its own page when res
 
 ## Hypothesis
 
-What we expect to happen and why.
+What we expect to happen and why. (For baseline experiments, use `## Goal` instead.)
 
 ## Setup
 
