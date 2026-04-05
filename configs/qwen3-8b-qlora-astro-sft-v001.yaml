@@ -1,0 +1,98 @@
+# AstroLLM Training Config — First QLoRA Experiment
+# Config: qwen3-8b-qlora-astro-sft-v001.yaml
+
+experiment:
+  name: "AstroLLM v0.1 — First QLoRA SFT (Qwen3-8B)"
+  hypothesis: "QLoRA SFT on curated astronomy Q&A pairs will improve AstroMLab-1 benchmark score by 3-5 points over base Qwen3-8B Instruct"
+  expected_outcome: "Measurable improvement on AstroMLab-1 over base model"
+  date: "TBD"
+  wandb_run: null
+
+model:
+  base_model: "Qwen/Qwen3-8B"
+  model_type: "qwen3"
+  torch_dtype: "bfloat16"
+  attn_implementation: "flash_attention_2"
+
+# QLoRA configuration
+quantization:
+  load_in_4bit: true
+  bnb_4bit_quant_type: "nf4"
+  bnb_4bit_use_double_quant: true
+  bnb_4bit_compute_dtype: "bfloat16"
+
+# LoRA adapter configuration
+lora:
+  r: 64
+  lora_alpha: 128
+  lora_dropout: 0.05
+  bias: "none"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+  task_type: "CAUSAL_LM"
+
+# Training hyperparameters
+training:
+  num_train_epochs: 3
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 4
+  gradient_accumulation_steps: 4  # Effective batch size: 16
+  learning_rate: 2.0e-4
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.05
+  weight_decay: 0.01
+  max_grad_norm: 1.0
+  max_seq_length: 4096
+  bf16: true
+  gradient_checkpointing: true
+  group_by_length: true
+  dataloader_num_workers: 4
+  logging_steps: 10
+  eval_strategy: "steps"
+  eval_steps: 250
+  save_strategy: "steps"
+  save_steps: 500
+  save_total_limit: 3
+  load_best_model_at_end: true
+  metric_for_best_model: "eval_loss"
+
+# Data configuration
+data:
+  train_file: "data/sft/train.jsonl"
+  eval_file: "data/sft/eval.jsonl"
+  chat_template: "qwen3"
+  # CRITICAL: Mask loss on user/system tokens
+  train_on_completions_only: true
+  system_message: "You are AstroLLM, an astronomy and astrophysics research assistant. Provide accurate, well-sourced answers. When uncertain, acknowledge limitations. Cite relevant papers when possible."
+
+# Experiment tracking
+wandb:
+  project: "astrollm"
+  entity: null  # Set to your W&B username
+  tags:
+    - "qlora"
+    - "sft"
+    - "qwen3-8b"
+    - "v001"
+  log_model: "checkpoint"
+
+# Checkpointing (spot instance safety)
+checkpointing:
+  output_dir: "models/qwen3-8b-qlora-sft-v001"
+  resume_from_checkpoint: null  # Set to checkpoint path for resumption
+  push_to_hub: false
+  hub_model_id: null
+
+# Cloud GPU configuration
+infrastructure:
+  recommended_gpu: "NVIDIA A100 80GB"  # or RTX 4090 24GB for budget
+  estimated_time_a100: "2-4 hours"
+  estimated_time_4090: "6-10 hours"
+  estimated_cost_spot: "$3-8"
+  provider: "runpod"  # or "lambda"

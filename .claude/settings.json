@@ -1,0 +1,12 @@
+{
+  "project": "astrollm",
+  "description": "Domain-specialized LLM for Astronomy & Astrophysics",
+  "version": "0.1.0",
+  "personas": [
+    "ml-engineer",
+    "data-engineer",
+    "astronomer",
+    "frontend-dev"
+  ],
+  "defaultPersona": "ml-engineer"
+}

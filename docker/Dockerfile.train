@@ -1,0 +1,38 @@
+# AstroLLM Training Docker Image
+# Pre-built image for RunPod / Lambda Labs
+# Build: docker build -f docker/Dockerfile.train -t astrollm-train .
+
+FROM nvidia/cuda:12.4.1-devel-ubuntu22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+
+# System dependencies
+RUN apt-get update && apt-get install -y \
+    python3.11 python3.11-venv python3-pip \
+    git wget curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN ln -sf /usr/bin/python3.11 /usr/bin/python
+
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Python dependencies
+COPY pyproject.toml /tmp/
+RUN cd /tmp && uv pip install --system -r pyproject.toml
+
+# Flash Attention (requires CUDA at build time)
+RUN uv pip install --system flash-attn --no-build-isolation
+
+# Working directory
+WORKDIR /workspace/astrollm
+
+# Copy training code and configs
+COPY packages/training/ packages/training/
+COPY packages/evaluation/ packages/evaluation/
+COPY configs/ configs/
+
+# Entrypoint
+ENTRYPOINT ["python"]
+CMD ["packages/training/scripts/train_qlora.py", "--config", "configs/qwen3-8b-qlora-astro-sft-v001.yaml"]

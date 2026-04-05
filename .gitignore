@@ -1,0 +1,56 @@
+# Data (large files)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/eval/*
+!data/eval/.gitkeep
+data/sft/*.jsonl
+!data/sft/schema.json
+
+# Models (large files)
+models/*
+!models/.gitkeep
+*.bin
+*.safetensors
+*.gguf
+*.pt
+*.pth
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+uv.lock
+
+# Node
+node_modules/
+.next/
+.vinxi/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# W&B
+wandb/
+
+# Docker
+*.log
+
+# Jupyter
+.ipynb_checkpoints/
