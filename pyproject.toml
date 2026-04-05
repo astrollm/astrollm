@@ -69,6 +69,12 @@ training = [
     "autoawq>=0.2.0",
 ]
 
+docs = [
+    "mkdocs-material>=9.6",
+    "mkdocs-awesome-pages-plugin>=2.10",
+    "pymdown-extensions>=10.0",
+]
+
 [tool.uv]
 # triton is a torch transitive dep that only has Linux wheels
 override-dependencies = [
