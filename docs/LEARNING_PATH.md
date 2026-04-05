@@ -1,6 +1,8 @@
 # AstroLLM Learning Path
 
-A structured curriculum to go from "reading about LLMs" to "shipping a fine-tuned astronomy model."
+A structured curriculum to go from "reading about LLMs" to "shipping a fine-tuned astronomy model." This is the standalone pedagogical journey — study transformers from scratch, then fine-tuning, then RAG.
+
+> For the build-aligned path (study what you're building each week, following V1_FINAL_PLAN sequencing), see `LEARNING_PATH_V1.md`.
 
 ---
 

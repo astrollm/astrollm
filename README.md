@@ -165,7 +165,8 @@ See [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md) for detailed API patterns and
 | [`docs/MASTER_PLAN.md`](docs/MASTER_PLAN.md) | Long-term vision (Phase 1-5) |
 | [`docs/ARCHITECTURE_V2.md`](docs/ARCHITECTURE_V2.md) | Technical deep dive: ADS strategy, model family, multimodal |
 | [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md) | Per-database API patterns and code examples |
-| [`docs/LEARNING_PATH.md`](docs/LEARNING_PATH.md) | Structured study curriculum for LLM engineering |
+| [`docs/LEARNING_PATH.md`](docs/LEARNING_PATH.md) | Standalone study curriculum (transformers → fine-tuning → RAG) |
+| [`docs/LEARNING_PATH_V1.md`](docs/LEARNING_PATH_V1.md) | Build-aligned study path (study what you're building each week) |
 | [`docs/RESEARCH_LOG.md`](docs/RESEARCH_LOG.md) | Experiment tracking and decision log |
 
 ## Acknowledgments
