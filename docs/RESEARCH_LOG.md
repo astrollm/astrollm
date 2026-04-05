@@ -2,6 +2,8 @@
 
 A living document tracking experiments, findings, and decisions.
 
+> **Tip**: Use the `/research-log` skill in Claude Code to add structured entries automatically.
+
 ---
 
 ## Experiment Template

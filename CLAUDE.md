@@ -191,18 +191,32 @@ See `docs/V1_FINAL_PLAN.md` for Phase 1 execution details. See `docs/MASTER_PLAN
 
 ## Claude Code Configuration
 
-### Active
-- **CLAUDE.md** — project conventions, architecture, quick reference (this file)
+### Workflow — Use the Right Tool for the Task
+- **Starting a training experiment**: Use `/train` to generate config YAML, then `/research-log` to document the hypothesis before running
+- **Evaluating a checkpoint**: Use `/eval` with the model path and benchmark name
+- **Checking data health**: Use `/data-status` to scan all data directories
+- **Searching for papers**: Use `/ads-search` during development and SFT curation
+- **Writing Python code**: Rules in `.claude/rules/python.md` auto-activate — type hints, ruff, uv, httpx
+- **Working on the web UI**: Rules in `.claude/rules/web.md` auto-activate — bun, TS strict, Biome
+- **Writing docs**: Rules in `.claude/rules/docs.md` auto-activate — never modify V1_FINAL_PLAN or MASTER_PLAN
+- **Building SFT data generation scripts**: Use the `claude-api` built-in skill (triggers on `import anthropic`)
+- **Building the web UI**: Use the `example-skills:frontend-design` built-in skill for high-quality components
+- **Testing the web app**: Use the `example-skills:webapp-testing` built-in skill for Playwright testing
+- **Writing the arXiv paper or workshop submission**: Use the `example-skills:doc-coauthoring` built-in skill
+- **Building MCP servers for astronomy tools**: Use the `example-skills:mcp-builder` built-in skill
+- **After any significant implementation**: Use the `simplify` built-in skill to review code quality
+
+### Active Configuration
 - **Personas** (`.claude/personas/`): astronomer, data-engineer, ml-engineer, frontend-dev, retrieval-engineer, devops, technical-writer
 - **Skills** (`.claude/commands/`): `/train`, `/eval`, `/research-log`, `/data-status`, `/ads-search`
-- **Rules** (`.claude/rules/`): path-scoped rules for python, web, training, docs, data-pipeline
-- **Settings** (`.claude/settings.json`): permissions, persona config
+- **Rules** (`.claude/rules/`): path-scoped for python, web, training, docs, data-pipeline
+- **Settings** (`.claude/settings.json`): permissions (safe tools allowed, destructive ops denied)
 - **Memory** (`.claude/memory/`): persistent project context across sessions
 
 ### Deferred — Set Up When Needed
-- **MCP Servers** (`.mcp.json`): When Phase 1 tool integration starts, create MCP servers for NASA ADS and SIMBAD. This makes astronomy tools available as native Claude Code tools, replacing the `/ads-search` skill with a real live tool. Use the `example-skills:mcp-builder` skill to create them.
-- **Hooks**: When Python code exists in the repo, add a `PostToolUse` hook on `Edit|Write` for `*.py` files that runs `ruff check --fix`. Configure in `.claude/settings.json` under `hooks.PostToolUse`.
-- **Custom Agents** (`.claude/agents/`): When the evaluation suite is built (Phase 1 weeks 7-8), create a `benchmark-runner` agent that runs eval on a checkpoint and posts results to the research log. When the data pipeline is built, create a `data-validator` agent that checks dataset health.
+- **MCP Servers** (`.mcp.json`): When Phase 1 tool integration starts, create MCP servers for NASA ADS and SIMBAD to make them native Claude Code tools. Use `example-skills:mcp-builder`.
+- **Hooks** (`settings.json → hooks`): When Python code exists, add `PostToolUse` hook on `Edit|Write` for `*.py` that runs `ruff check --fix`.
+- **Custom Agents** (`.claude/agents/`): Phase 1+ — `benchmark-runner` agent for eval, `data-validator` agent for dataset health checks.
 
 ---
 
