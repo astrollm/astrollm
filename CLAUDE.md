@@ -189,6 +189,23 @@ See `docs/V1_FINAL_PLAN.md` for Phase 1 execution details. See `docs/MASTER_PLAN
 
 ---
 
+## Claude Code Configuration
+
+### Active
+- **CLAUDE.md** — project conventions, architecture, quick reference (this file)
+- **Personas** (`.claude/personas/`): astronomer, data-engineer, ml-engineer, frontend-dev, retrieval-engineer, devops, technical-writer
+- **Skills** (`.claude/commands/`): `/train`, `/eval`, `/research-log`, `/data-status`, `/ads-search`
+- **Rules** (`.claude/rules/`): path-scoped rules for python, web, training, docs, data-pipeline
+- **Settings** (`.claude/settings.json`): permissions, persona config
+- **Memory** (`.claude/memory/`): persistent project context across sessions
+
+### Deferred — Set Up When Needed
+- **MCP Servers** (`.mcp.json`): When Phase 1 tool integration starts, create MCP servers for NASA ADS and SIMBAD. This makes astronomy tools available as native Claude Code tools, replacing the `/ads-search` skill with a real live tool. Use the `example-skills:mcp-builder` skill to create them.
+- **Hooks**: When Python code exists in the repo, add a `PostToolUse` hook on `Edit|Write` for `*.py` files that runs `ruff check --fix`. Configure in `.claude/settings.json` under `hooks.PostToolUse`.
+- **Custom Agents** (`.claude/agents/`): When the evaluation suite is built (Phase 1 weeks 7-8), create a `benchmark-runner` agent that runs eval on a checkpoint and posts results to the research log. When the data pipeline is built, create a `data-validator` agent that checks dataset health.
+
+---
+
 ## Current Status
 
 **Phase**: 0 — Foundation & Learning

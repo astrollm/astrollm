@@ -11,5 +11,34 @@
     "devops",
     "technical-writer"
   ],
-  "defaultPersona": "ml-engineer"
+  "defaultPersona": "ml-engineer",
+  "permissions": {
+    "allow": [
+      "read",
+      "edit",
+      "write",
+      "glob",
+      "grep",
+      "bash:uv *",
+      "bash:bun *",
+      "bash:git status",
+      "bash:git diff*",
+      "bash:git log*",
+      "bash:git add*",
+      "bash:git branch*",
+      "bash:docker compose*",
+      "bash:ruff *",
+      "bash:ls *",
+      "bash:mkdir *",
+      "bash:cat *",
+      "bash:head *",
+      "bash:wc *"
+    ],
+    "deny": [
+      "bash:rm -rf /*",
+      "bash:git push --force*",
+      "bash:git reset --hard*",
+      "bash:git checkout -- ."
+    ]
+  }
 }
