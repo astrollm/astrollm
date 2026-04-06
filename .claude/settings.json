@@ -1,47 +1,32 @@
 {
-  "project": "astrollm",
-  "description": "Domain-specialized LLM for Astronomy & Astrophysics",
-  "version": "0.1.0",
-  "personas": [
-    "ml-engineer",
-    "data-engineer",
-    "astronomer",
-    "frontend-dev",
-    "retrieval-engineer",
-    "devops",
-    "technical-writer",
-    "mentor",
-    "product-strategist"
-  ],
-  "defaultPersona": "ml-engineer",
   "permissions": {
     "allow": [
-      "read",
-      "edit",
-      "write",
-      "glob",
-      "grep",
-      "bash:uv *",
-      "bash:bun *",
-      "bash:git status",
-      "bash:git diff*",
-      "bash:git log*",
-      "bash:git add*",
-      "bash:git branch*",
-      "bash:docker compose*",
-      "bash:ruff *",
-      "bash:ls *",
-      "bash:mkdir *",
-      "bash:cat *",
-      "bash:head *",
-      "bash:wc *"
+      "Read",
+      "Edit",
+      "Write",
+      "Glob",
+      "Grep",
+      "Bash(uv *)",
+      "Bash(bun *)",
+      "Bash(git status)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git add*)",
+      "Bash(git branch*)",
+      "Bash(docker compose*)",
+      "Bash(ruff *)",
+      "Bash(ls *)",
+      "Bash(mkdir *)",
+      "Bash(cat *)",
+      "Bash(head *)",
+      "Bash(wc *)"
     ],
     "deny": [
-      "bash:rm -rf *",
-      "bash:git push --force*",
-      "bash:git reset --hard*",
-      "bash:git checkout -- .",
-      "bash:git clean -fd*"
+      "Bash(rm -rf *)",
+      "Bash(git push --force*)",
+      "Bash(git reset --hard*)",
+      "Bash(git checkout -- .)",
+      "Bash(git clean -fd*)"
     ]
   }
 }
