@@ -9,7 +9,8 @@
     "frontend-dev",
     "retrieval-engineer",
     "devops",
-    "technical-writer"
+    "technical-writer",
+    "mentor"
   ],
   "defaultPersona": "ml-engineer",
   "permissions": {
