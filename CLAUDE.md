@@ -204,11 +204,13 @@ See `docs/V1_FINAL_PLAN.md` for Phase 1 execution details. See `docs/MASTER_PLAN
 - **Testing the web app**: Use the `example-skills:webapp-testing` built-in skill for Playwright testing
 - **Writing the arXiv paper or workshop submission**: Use the `example-skills:doc-coauthoring` built-in skill
 - **Building MCP servers for astronomy tools**: Use the `example-skills:mcp-builder` built-in skill
+- **Writing a weekly lab report**: Use `/lab-report` at the end of each week to document observations and learnings
 - **After any significant implementation**: Use the `simplify` built-in skill to review code quality
+- **Previewing docs site**: Run `uv sync --group docs && uv run mkdocs serve` to preview at http://localhost:8000
 
 ### Active Configuration
 - **Personas** (`.claude/personas/`): astronomer, data-engineer, ml-engineer, frontend-dev, retrieval-engineer, devops, technical-writer
-- **Skills** (`.claude/commands/`): `/train`, `/eval`, `/research-log`, `/data-status`, `/ads-search`
+- **Skills** (`.claude/commands/`): `/train`, `/eval`, `/research-log`, `/lab-report`, `/data-status`, `/ads-search`
 - **Rules** (`.claude/rules/`): path-scoped for python, web, training, docs, data-pipeline
 - **Settings** (`.claude/settings.json`): permissions (safe tools allowed, destructive ops denied)
 - **Memory** (`.claude/memory/`): persistent project context across sessions

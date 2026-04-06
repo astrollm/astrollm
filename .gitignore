@@ -49,6 +49,9 @@ Thumbs.db
 # W&B
 wandb/
 
+# mkdocs build output
+site/
+
 # Docker
 *.log
 

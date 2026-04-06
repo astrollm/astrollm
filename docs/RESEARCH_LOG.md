@@ -2,7 +2,8 @@
 
 A living document tracking experiments, findings, and decisions.
 
-> **Tip**: Use the `/research-log` skill in Claude Code to add structured entries automatically.
+!!! tip "Claude Code users"
+    Use the `/research-log` command to add structured entries automatically.
 
 ---
 
@@ -11,6 +12,7 @@ A living document tracking experiments, findings, and decisions.
 ```
 ### EXP-XXX: [Title]
 **Date**: YYYY-MM-DD
+**Type**: training | retrieval | data | evaluation | infrastructure
 **W&B Run**: [link]
 **Config**: configs/[filename].yaml
 
@@ -24,11 +26,13 @@ A living document tracking experiments, findings, and decisions.
 - Training time:
 
 **Results**:
-| Metric | Base Model | This Run | Delta |
-|--------|-----------|----------|-------|
-| AstroMLab-1 | | | |
-| Astro-QA | | | |
-| Perplexity (astro) | | | |
+| Metric | Base Model | Previous Best | This Run | Delta |
+|--------|-----------|---------------|----------|-------|
+| AstroMLab-1 (subset) | | | | |
+| Grounding accuracy | | | | |
+| Tool routing F1 | | | | |
+| Abstention recall | | | | |
+| Pedagogy score | | | | |
 
 **Observations**: What we learned.
 
