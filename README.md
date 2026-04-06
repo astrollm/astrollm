@@ -162,7 +162,7 @@ See [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md) for detailed API patterns and
 |----------|---------|
 | [`CLAUDE.md`](CLAUDE.md) | Project conventions and quick reference |
 | [`docs/V1_FINAL_PLAN.md`](docs/V1_FINAL_PLAN.md) | Phase 1 execution plan (12-week scope) |
-| [`docs/MASTER_PLAN.md`](docs/MASTER_PLAN.md) | Long-term vision (Phase 1-5) |
+| [`docs/MASTER_PLAN.md`](docs/MASTER_PLAN.md) | Long-term vision (Phase 0-4+) |
 | [`docs/ARCHITECTURE_V2.md`](docs/ARCHITECTURE_V2.md) | Technical deep dive: ADS strategy, model family, multimodal |
 | [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md) | Per-database API patterns and code examples |
 | [`docs/LEARNING_PATH.md`](docs/LEARNING_PATH.md) | Standalone study curriculum (transformers → fine-tuning → RAG) |

@@ -71,6 +71,9 @@ Can you: Explain why semantic search finds related papers that keyword search mi
 3. **RAG survey paper**: "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks" (Lewis et al., 2020)
    - You just built a RAG system — now understand the theory behind it
 
+4. **Paper**: "Attention Is All You Need" (Vaswani et al., 2017) — arxiv.org/abs/1706.03762
+   - The foundational transformer paper — read alongside Raschka Ch. 3 for the implementation perspective
+
 ### Key Concepts
 - Attention mechanism: what it computes and why it matters
 - Autoregressive generation: how the model produces one token at a time

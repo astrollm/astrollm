@@ -50,10 +50,10 @@ The V1_FINAL_PLAN has an explicit scope lock. Defend it ruthlessly.
 
 | Category | Allocation | Notes |
 |----------|-----------|-------|
-| GPU training | $100-200 | 15-30 QLoRA runs on RTX 4090 spot |
+| GPU training | $100-150 | 15-25 QLoRA runs on RTX 4090 spot |
 | Claude API (SFT data) | $30-50 | ~5-8K training examples |
 | Hosting | $50-100 | VPS for beta deployment |
-| Reserve | $100-150 | Buffer for unexpected needs |
+| Reserve | $70-100 | Buffer for unexpected needs |
 
 **Decision rule**: Never spend >50% of monthly budget on a single experiment. If a run costs >$20, it should have a documented hypothesis.
 
@@ -69,7 +69,7 @@ The V1_FINAL_PLAN has an explicit scope lock. Defend it ruthlessly.
 
 | Competitor | Their strength | AstroLLM's angle |
 |-----------|---------------|------------------|
-| AstroSage-70B | Highest benchmark scores | Tool integration + RAG (they have neither) |
+| AstroSage-70B | Highest benchmark scores | Tool integration + RAG + pedagogy (they have none of these) |
 | General LLMs (Claude, GPT) | Broader knowledge, better reasoning | Domain depth + astronomy-specific tools + citation grounding |
 | Future AstroSage updates | More compute, larger team | UX, pedagogy, continuous updates, open community |
 
@@ -129,11 +129,11 @@ Why this audience first:
 
 Don't move to the next phase because time passed. Move when criteria are met.
 
-**Phase 0 → Phase 1**: Can explain transformers, have a working dev environment, downloaded initial data
+**Phase 0 → Phase 1**: Can explain transformers, NanoGPT trained on astronomy corpus, working dev environment, initial data downloaded
 
-**Phase 1 → Phase 2**: Beta is live, 5+ users, fine-tuned model beats base on evals, citation accuracy >80%
+**Phase 1 → Phase 2**: Beta live at astrollm.org, 5+ users giving feedback, fine-tuned model beats base on evals, citation accuracy >80%, SIMBAD object resolution working for top 1,000 targets
 
-**Phase 2 → Phase 3**: 50+ active users, 5+ tools working reliably, model merging producing quality results, published blog post or workshop paper
+**Phase 2 → Phase 3**: 50+ active users, 5+ database tools working reliably, AstroMLab-1 score base model + 5-8 points, published blog post or workshop paper
 
 **If criteria aren't met by timeline**: Extend the phase, don't skip criteria. Shipping a broken Phase 2 is worse than a strong Phase 1.
 

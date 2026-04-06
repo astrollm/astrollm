@@ -213,7 +213,7 @@ See `docs/V1_FINAL_PLAN.md` for Phase 1 execution details. See `docs/MASTER_PLAN
 - **Skills** (`.claude/commands/`): `/train`, `/eval`, `/research-log`, `/lab-report`, `/data-status`, `/ads-search`
 - **Rules** (`.claude/rules/`): path-scoped for python, web, training, docs, data-pipeline
 - **Settings** (`.claude/settings.json`): permissions (safe tools allowed, destructive ops denied)
-- **Memory** (`.claude/memory/`): persistent project context across sessions
+- **Memory** (`~/.claude/projects/.../memory/`): persistent project context across sessions (user-local, not in repo)
 
 ### Deferred — Set Up When Needed
 - **MCP Servers** (`.mcp.json`): When Phase 1 tool integration starts, create MCP servers for NASA ADS and SIMBAD to make them native Claude Code tools. Use `example-skills:mcp-builder`.

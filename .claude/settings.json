@@ -37,10 +37,11 @@
       "bash:wc *"
     ],
     "deny": [
-      "bash:rm -rf /*",
+      "bash:rm -rf *",
       "bash:git push --force*",
       "bash:git reset --hard*",
-      "bash:git checkout -- ."
+      "bash:git checkout -- .",
+      "bash:git clean -fd*"
     ]
   }
 }
