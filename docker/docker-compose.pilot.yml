@@ -1,0 +1,36 @@
+# AstroLLM — Pilot Retrieval Stack (weeks 1-2 of V1_FINAL_PLAN)
+# Isolated from the main dev stack: host port 5433 (the default 5432 may be taken
+# by another local project) and a dedicated volume, so it never collides with or
+# mutates any other database.
+#
+# IMPORTANT: always pass `-p astrollm-pilot`. This file lives in docker/, so without
+# an explicit project name Compose derives the name "docker" — which can collide with
+# any *other* project whose compose also lives in a docker/ dir, recreating the wrong
+# containers. The explicit project name guarantees isolation.
+#
+# Usage (from repo root):
+#   docker compose -p astrollm-pilot -f docker/docker-compose.pilot.yml up -d
+#   docker compose -p astrollm-pilot -f docker/docker-compose.pilot.yml down      # stop, keep data
+#   docker compose -p astrollm-pilot -f docker/docker-compose.pilot.yml down -v   # stop, wipe data
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: astrollm-pilot-db
+    environment:
+      POSTGRES_DB: astrollm
+      POSTGRES_USER: astrollm
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-astrollm_dev}
+    ports:
+      - "5433:5432"
+    volumes:
+      - pilot_pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U astrollm"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pilot_pgdata:

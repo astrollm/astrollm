@@ -7,11 +7,13 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;  -- For fuzzy text search
 -- Paper metadata
 CREATE TABLE papers (
     id SERIAL PRIMARY KEY,
-    arxiv_id VARCHAR(20) UNIQUE NOT NULL,
+    bibcode VARCHAR(19) UNIQUE,        -- NASA ADS identifier (primary id for ADS-sourced papers)
+    arxiv_id VARCHAR(20) UNIQUE,       -- nullable: ADS abstracts may lack an arXiv id
     title TEXT NOT NULL,
     authors TEXT[] NOT NULL,
     abstract TEXT,
     categories TEXT[],
+    year INTEGER,
     published_date DATE,
     updated_date DATE,
     citation_count INTEGER DEFAULT 0,
@@ -26,14 +28,16 @@ CREATE TABLE chunks (
     content TEXT NOT NULL,
     token_count INTEGER,
     chunk_index INTEGER,  -- Position within paper
-    embedding vector(1024),  -- BGE-large dimension
+    embedding vector(384),  -- BGE-small-en-v1.5 dimension
     created_at TIMESTAMP DEFAULT NOW()
 );
 
 -- Indexes for efficient retrieval
 CREATE INDEX idx_chunks_embedding ON chunks USING hnsw (embedding vector_cosine_ops) WITH (m = 32, ef_construction = 256);
 CREATE INDEX idx_chunks_paper_id ON chunks(paper_id);
+CREATE INDEX idx_papers_bibcode ON papers(bibcode);
 CREATE INDEX idx_papers_arxiv_id ON papers(arxiv_id);
+CREATE INDEX idx_papers_year ON papers(year DESC);
 CREATE INDEX idx_papers_categories ON papers USING GIN(categories);
 CREATE INDEX idx_papers_published ON papers(published_date DESC);
 

@@ -1,0 +1,49 @@
+# Pilot retrieval eval — candidate query set (exoplanet atmospheres)
+#
+# DRAFT FOR REVIEW. 30 candidate queries seeded with named targets and molecule/process
+# topics that the "abs:\"exoplanet atmosphere\"" ADS corpus should be able to answer.
+#
+# expected_bibcodes is intentionally EMPTY: a query only "counts" once it is grounded in
+# the corpus you actually ingest. To fill them after running ingest_ads.py:
+#   1) uv run python packages/rag/src/pilot_retrieval.py "<query>" --k 10
+#   2) confirm which returned bibcodes are truly relevant (and add known-relevant ones
+#      that did NOT appear — those are the recall misses worth measuring), then list them.
+# eval_retrieval.py skips any query whose expected_bibcodes is empty (and reports it),
+# so this file runs as-is and the score reflects only the queries you have curated.
+
+queries:
+  # ── Named targets (transmission / emission) ──
+  - { id: q01, target: "WASP-39b",     query: "JWST CO2 detection in WASP-39b transmission spectrum", expected_bibcodes: [] }
+  - { id: q02, target: "WASP-39b",     query: "sulfur dioxide photochemistry in WASP-39b", expected_bibcodes: [] }
+  - { id: q03, target: "K2-18b",       query: "methane and CO2 in the sub-Neptune K2-18b", expected_bibcodes: [] }
+  - { id: q04, target: "K2-18b",       query: "dimethyl sulfide biosignature claim K2-18b Hycean", expected_bibcodes: [] }
+  - { id: q05, target: "TRAPPIST-1e",  query: "does TRAPPIST-1e have a secondary atmosphere", expected_bibcodes: [] }
+  - { id: q06, target: "TRAPPIST-1b",  query: "TRAPPIST-1b dayside thermal emission bare rock", expected_bibcodes: [] }
+  - { id: q07, target: "HD 189733b",   query: "sodium absorption and haze in HD 189733b", expected_bibcodes: [] }
+  - { id: q08, target: "HD 209458b",   query: "water vapor and hydrogen escape from HD 209458b", expected_bibcodes: [] }
+  - { id: q09, target: "55 Cancri e",  query: "55 Cancri e lava world outgassed atmosphere", expected_bibcodes: [] }
+  - { id: q10, target: "GJ 1214b",     query: "GJ 1214b flat featureless spectrum high metallicity haze", expected_bibcodes: [] }
+  - { id: q11, target: "WASP-121b",    query: "thermal inversion and metal emission in ultra-hot Jupiter WASP-121b", expected_bibcodes: [] }
+  - { id: q12, target: "WASP-96b",     query: "cloud-free water detection in WASP-96b with NIRISS", expected_bibcodes: [] }
+  - { id: q13, target: "LTT 9779b",    query: "reflective clouds high albedo ultra-hot Neptune LTT 9779b", expected_bibcodes: [] }
+  - { id: q14, target: "GJ 486b",      query: "GJ 486b water vapor rocky planet or stellar contamination", expected_bibcodes: [] }
+  - { id: q15, target: "LHS 475b",     query: "LHS 475b atmosphere constraints terrestrial", expected_bibcodes: [] }
+  - { id: q16, target: "TOI-270d",     query: "TOI-270d sub-Neptune atmospheric metallicity", expected_bibcodes: [] }
+  - { id: q17, target: "WASP-17b",     query: "silicate clouds quartz in WASP-17b", expected_bibcodes: [] }
+  - { id: q18, target: "WASP-43b",     query: "WASP-43b phase curve nightside clouds", expected_bibcodes: [] }
+
+  # ── Molecules / species ──
+  - { id: q19, target: "CO2",          query: "carbon dioxide detection exoplanet transmission spectrum", expected_bibcodes: [] }
+  - { id: q20, target: "SO2",          query: "sulfur dioxide photochemical product hot Jupiter", expected_bibcodes: [] }
+  - { id: q21, target: "H2O",          query: "water vapor abundance hot Jupiter atmosphere", expected_bibcodes: [] }
+  - { id: q22, target: "CH4",          query: "methane detection sub-Neptune atmosphere", expected_bibcodes: [] }
+  - { id: q23, target: "CO",           query: "carbon monoxide high-resolution cross-correlation exoplanet", expected_bibcodes: [] }
+  - { id: q24, target: "Na",           query: "neutral sodium D lines exoplanet atmosphere", expected_bibcodes: [] }
+
+  # ── Processes / methods ──
+  - { id: q25, target: "escape",       query: "atmospheric escape hydrogen outflow evaporating exoplanet", expected_bibcodes: [] }
+  - { id: q26, target: "clouds",       query: "clouds and hazes muting transmission features", expected_bibcodes: [] }
+  - { id: q27, target: "retrieval",    query: "Bayesian atmospheric retrieval free chemistry transmission spectra", expected_bibcodes: [] }
+  - { id: q28, target: "C/O ratio",    query: "carbon to oxygen ratio metallicity planet formation tracer", expected_bibcodes: [] }
+  - { id: q29, target: "emission",     query: "dayside emission spectrum thermal structure hot Jupiter", expected_bibcodes: [] }
+  - { id: q30, target: "phase curve",  query: "thermal phase curve heat redistribution exoplanet", expected_bibcodes: [] }

@@ -13,7 +13,7 @@ Weekly lab reports documenting observations, learnings, and informal notes from 
 
 | Week | Date | Phase | Title | Key Takeaway |
 |------|------|-------|-------|-------------|
-| — | — | — | *No reports yet* | — |
+| [01](week-01.md) | 2026-05-31 | 1 | Pilot retrieval prototype | Hybrid BM25+dense pipeline works end-to-end; real Recall@10/MRR pending an ADS key |
 
 ## Weekly Lab Report Template
 
