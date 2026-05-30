@@ -9,6 +9,8 @@ Base Model → [CPT] → SFT → [Model Merge] → [DPO] → Evaluation → Quan
               ^opt            ^recommended     ^Phase3+
 ```
 
+> **Note:** Bases are multimodal (Qwen3.5-9B, Gemma 4 E4B) — confirm loader class before first run.
+
 ## Quick Start
 
 ```bash
@@ -35,11 +37,13 @@ python scripts/merge_model.py \
 
 ## Supported Methods
 
-| Method | GPU Required | Training Time (8B) | Quality | Use Case |
+| Method | GPU Required | Training Time (9B) | Quality | Use Case |
 |--------|-------------|-------------------|---------|----------|
-| QLoRA | 24GB (RTX 4090) | 6-10 hrs | 80-90% of full | Experimentation |
-| LoRA | 80GB (A100) | 3-5 hrs | 90-95% of full | Production |
-| Full | 4x80GB | 10-20 hrs | 100% | Research |
+| QLoRA | 24GB (RTX 4090) | TBD | 80-90% of full | Experimentation |
+| LoRA | 80GB (A100) | TBD | 90-95% of full | Production |
+| Full | 4x80GB | TBD | 100% | Research |
+
+_Training times TBD — re-measure on first 9B run (carried-over 8B figures removed)._
 
 ## Experiment Workflow
 

@@ -150,6 +150,10 @@ def train(
     # tokenizer.pad_token = tokenizer.eos_token
     #
     # 2. Load model with quantization
+    # TODO(vlm): Qwen3.5-9B and Gemma 4 E4B are natively multimodal (Image-Text-to-Text),
+    #   not plain-text causal LMs. Confirm the correct loader class before the first run —
+    #   AutoModelForCausalLM may not be right (e.g. an *ForConditionalGeneration / VLM class),
+    #   and LoRA target_modules must match that architecture's module names.
     # bnb_config = setup_quantization(cfg)
     # model = AutoModelForCausalLM.from_pretrained(
     #     cfg["model"]["base_model"],

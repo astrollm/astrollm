@@ -11,8 +11,9 @@ experiment:
 
 model:
   # Verified against Hugging Face (2026-05-30): post-trained repo is "Qwen/Qwen3.5-9B"
-  # (no -Instruct suffix); pretrained variant is "Qwen/Qwen3.5-9B-Base". Base-vs-instruct
-  # is a later methods decision — defaulting to the post-trained repo here.
+  # (no -Instruct suffix); pretrained variant is "Qwen/Qwen3.5-9B-Base".
+  # Post-trained repo chosen deliberately to preserve tool-calling; base-vs-instruct
+  # to be confirmed during SFT curation.
   base_model: "Qwen/Qwen3.5-9B"
   model_type: "qwen3"
   torch_dtype: "bfloat16"
@@ -96,7 +97,7 @@ checkpointing:
 # Cloud GPU configuration
 infrastructure:
   recommended_gpu: "NVIDIA A100 80GB"  # or RTX 4090 24GB for budget
-  estimated_time_a100: "2-4 hours"
-  estimated_time_4090: "6-10 hours"
-  estimated_cost_spot: "$3-8"
+  estimated_time_a100: "TBD — re-measure on first 9B run"
+  estimated_time_4090: "TBD — re-measure on first 9B run"
+  estimated_cost_spot: "TBD — re-measure on first 9B run"
   provider: "runpod"  # or "lambda"

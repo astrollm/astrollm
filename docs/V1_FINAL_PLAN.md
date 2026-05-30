@@ -85,7 +85,7 @@ Prompt assembly → LLM generates cited answer
 
 | Phase | Model | Method | Purpose |
 |-------|-------|--------|---------|
-| Weeks 1-4 | Qwen3-8B (off-the-shelf) | Ollama, no training | RAG prototype backbone |
+| Weeks 1-4 | Gemma 4 E4B (off-the-shelf) | Ollama, no training | RAG prototype backbone |
 | Weeks 7-8 | Qwen3.5-4B | QLoRA SFT | First fine-tune experiment |
 | Weeks 7-8 | Qwen3.5-9B | QLoRA SFT | Parallel comparison |
 | Week 8+ | Best checkpoint | Merge + quantize (GGUF) | Deploy in demo |
@@ -164,7 +164,7 @@ Track from day one:
 ### Week 3-4: First Working Copilot
 
 **Build**:
-- Q&A pipeline with Qwen3-8B (Ollama, off-the-shelf)
+- Q&A pipeline with Gemma 4 E4B (Ollama, off-the-shelf)
 - Prompt templates forcing cited claims
 - Teaching mode with audience levels (undergrad / grad / researcher)
 - SIMBAD object lookup integration

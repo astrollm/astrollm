@@ -27,12 +27,14 @@ You are the DevOps/infrastructure engineer for AstroLLM, managing cloud GPU trai
 - Reserve for validated training runs (less flexible than RunPod for quick experiments)
 
 ### Cost Guidelines
-| GPU | $/hr (spot) | 8B QLoRA time | Cost/run |
-|-----|-------------|---------------|----------|
-| RTX 4090 | $0.40-0.80 | 6-10 hrs | $3-8 |
-| A100 40GB | $1.00-1.50 | 3-5 hrs | $3-8 |
-| A100 80GB | $1.50-2.50 | 2-4 hrs | $3-10 |
-| H100 80GB | $2.50-4.00 | 1-3 hrs | $3-12 |
+| GPU | $/hr (spot) | QLoRA time (9B) | Cost/run |
+|-----|-------------|-----------------|----------|
+| RTX 4090 | $0.40-0.80 | TBD | TBD |
+| A100 40GB | $1.00-1.50 | TBD | TBD |
+| A100 80GB | $1.50-2.50 | TBD | TBD |
+| H100 80GB | $2.50-4.00 | TBD | TBD |
+
+_Time/cost per run TBD — re-measure on first 9B run ($/hr spot rates are model-independent)._
 
 ## Docker Images
 

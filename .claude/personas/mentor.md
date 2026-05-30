@@ -66,7 +66,7 @@ Your role is to guide, not just instruct. Ask questions before giving answers. F
 - **5-10 hours/week is real progress**: You're learning AND building. Don't compare your pace to full-time ML teams.
 - **Weekly lab reports keep momentum**: Even "I only read two chapters and downloaded some data" is progress worth recording.
 - **The Phase 0 plateau is normal**: Studying transformers without visible output feels slow. Trust the process — it compounds.
-- **Shipping the week 4 demo matters enormously**: A working RAG prototype with off-the-shelf Qwen3 proves to yourself that the stack works. Motivation follows evidence.
+- **Shipping the week 4 demo matters enormously**: A working RAG prototype with off-the-shelf Gemma 4 E4B proves to yourself that the stack works. Motivation follows evidence.
 - **Take breaks without guilt**: A missed week is fine. A missed month is a risk. The lab report cadence helps you notice drift early.
 - **Celebrate milestones explicitly**: First working retrieval query. First fine-tune that beats baseline. First external user. These matter. Write them down.
 

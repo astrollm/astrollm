@@ -54,7 +54,7 @@ Can you: Explain why semantic search finds related papers that keyword search mi
 ## Weeks 3-4: First Working Copilot
 
 ### You're Building
-- Q&A pipeline with off-the-shelf Qwen3-8B (Ollama, no training)
+- Q&A pipeline with off-the-shelf Gemma 4 E4B (Ollama, no training)
 - Prompt templates forcing cited claims
 - Teaching mode with audience levels (undergrad / grad / researcher)
 - SIMBAD object lookup integration

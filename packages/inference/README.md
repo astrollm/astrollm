@@ -33,12 +33,14 @@ python src/quantize.py \
 
 ### Quantization Options
 
-| Format | Size (8B) | Quality | Speed | Use Case |
-|--------|-----------|---------|-------|----------|
-| Q4_K_M | ~4.5 GB | Good | Fast | Default recommendation |
-| Q5_K_M | ~5.5 GB | Better | Medium | Quality-sensitive |
-| Q8_0 | ~8.5 GB | Best quant | Slower | When quality matters most |
-| FP16 | ~16 GB | Full | GPU only | Production with GPU |
+Sizes are for the fine-tuned Core model (Qwen3.5-9B; ~19.3 GB BF16 per HF) and approximate.
+
+| Format | Size (9B, approx) | Quality | Speed | Use Case |
+|--------|-------------------|---------|-------|----------|
+| Q4_K_M | ≈ 5.5 GB | Good | Fast | Default recommendation |
+| Q5_K_M | ≈ 6.5 GB | Better | Medium | Quality-sensitive |
+| Q8_0 | ≈ 9.5 GB | Best quant | Slower | When quality matters most |
+| BF16 | ≈ 19 GB | Full | GPU only | Production with GPU |
 
 ## Deployment
 
