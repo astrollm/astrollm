@@ -33,7 +33,7 @@ What we expect to happen and why. (For baseline experiments, use `## Goal` inste
 
 | Parameter | Value |
 |-----------|-------|
-| Base model | Qwen3-8B |
+| Base model | Qwen3.5-9B |
 | Method | QLoRA r=64 |
 | Dataset | data/sft/train.jsonl (N examples) |
 | GPU | RTX 4090 (RunPod spot) |

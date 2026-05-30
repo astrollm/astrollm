@@ -50,10 +50,10 @@ A living document tracking experiments, findings, and decisions.
 **Goal**: Establish baseline scores for unmodified base models on our evaluation suite.
 
 **Models to evaluate**:
-- [ ] Qwen3-8B (primary base model)
-- [ ] Qwen3-4B (smaller experiment)
-- [ ] Qwen 2.5 7B Instruct (comparison)
-- [ ] Mistral 7B v0.3 Instruct (comparison)
+- [ ] Qwen3.5-9B (primary base model)
+- [ ] Qwen3.5-4B (smaller experiment)
+- [ ] Gemma 4 E4B (Track B cross-family comparison)
+- [ ] Qwen 2.5 7B Instruct (prior-generation comparison)
 
 **Metrics**: AstroMLab-1, Astro-QA, custom pedagogy eval, perplexity on held-out astro text
 
@@ -83,3 +83,7 @@ A living document tracking experiments, findings, and decisions.
 | TBD | Start with Qwen3-8B | Apache 2.0 license, strong fine-tuning results at 4B/8B scale, dual thinking mode |
 | TBD | QLoRA for initial experiments | Cloud-only, need to minimize GPU costs per experiment |
 | TBD | Researcher-first audience | Highest value differentiation, tool integration is unique angle |
+| 2026-04-23 | Upgrade base models from Qwen3-4B/8B to **Qwen3.5-4B/9B** | Qwen3.5 released Feb 2026 (Apache 2.0, natively multimodal, 262K ctx). Same family preserves plan/tooling/eval continuity. V1_FINAL_PLAN.md remains frozen; this Decision Log entry overrides it. |
+| 2026-04-23 | Add **Gemma 4 E4B** as Track B comparison arm | Gemma 4 released Apr 2, 2026. Unsloth day-0 support (~2× faster training, ~60% less memory). Cheap cross-family data point via existing week 7-8 experiment matrix. Dense variant only — Gemma 4 MoE has a known 3D-tensor QLoRA bug. |
+| 2026-04-24 | **Watch**: Qwen3.6 dense 4B/9B variants | As of 2026-04-24, only Qwen3.6-27B (dense, coding-focused) and Qwen3.6-35B-A3B (MoE) are released as open weights; 4B/9B are "expected" but not shipped. If dense 4B/9B land before week 7, revisit base-model choice. Otherwise ship v1 on Qwen3.5 and evaluate 3.6 in Phase 2. |
+| 2026-05-30 | Repo-wide reconcile to Qwen3.5 base + verified HF repo IDs | Propagated the Qwen3.5-4B/9B + Gemma 4 E4B Track-B decision across all configs, docs, personas, and skill commands, superseding the original Qwen3-4B/8B (and earlier Llama 3.1) references. Note 9B, not 8B — Qwen3.5 has no 8B dense. Verified exact HF repo IDs against Hugging Face: `Qwen/Qwen3.5-9B` and `Qwen/Qwen3.5-4B` (post-trained; no `-Instruct` suffix, `-Base` = pretrained), and `google/gemma-4-E4B-it` (capital `E4B`). |

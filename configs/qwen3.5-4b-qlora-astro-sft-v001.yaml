@@ -1,27 +1,28 @@
-# AstroLLM Training Config — First QLoRA Experiment
-# Config: qwen3-8b-qlora-astro-sft-v001.yaml
+# AstroLLM Training Config — Smaller Variant (Qwen3.5-4B)
+# Config: qwen3.5-4b-qlora-astro-sft-v001.yaml
+# Runs alongside the 9B primary to study scale effects on the same SFT mixture.
 
 experiment:
-  name: "AstroLLM v0.1 — First QLoRA SFT (Qwen3-8B)"
-  hypothesis: "QLoRA SFT on curated astronomy Q&A pairs will improve AstroMLab-1 benchmark score by 3-5 points over base Qwen3-8B Instruct"
-  expected_outcome: "Measurable improvement on AstroMLab-1 over base model"
+  name: "AstroLLM v0.1 — QLoRA SFT (Qwen3.5-4B)"
+  hypothesis: "Qwen3.5-4B QLoRA SFT will lag 9B on AstroMLab-1 but may be competitive on grounding/tool routing where retrieval carries the load"
+  expected_outcome: "Establishes a small-model baseline; informs Nano tier decisions in Phase 3"
   date: "TBD"
   wandb_run: null
 
 model:
-  base_model: "Qwen/Qwen3-8B"
+  # Verified against Hugging Face (2026-05-30): post-trained repo is "Qwen/Qwen3.5-4B"
+  # (no -Instruct suffix); pretrained variant is "Qwen/Qwen3.5-4B-Base".
+  base_model: "Qwen/Qwen3.5-4B"
   model_type: "qwen3"
   torch_dtype: "bfloat16"
   attn_implementation: "flash_attention_2"
 
-# QLoRA configuration
 quantization:
   load_in_4bit: true
   bnb_4bit_quant_type: "nf4"
   bnb_4bit_use_double_quant: true
   bnb_4bit_compute_dtype: "bfloat16"
 
-# LoRA adapter configuration
 lora:
   r: 64
   lora_alpha: 128
@@ -37,12 +38,11 @@ lora:
     - "down_proj"
   task_type: "CAUSAL_LM"
 
-# Training hyperparameters
 training:
   num_train_epochs: 3
-  per_device_train_batch_size: 4
-  per_device_eval_batch_size: 4
-  gradient_accumulation_steps: 4  # Effective batch size: 16
+  per_device_train_batch_size: 8   # 4B fits larger batches than 9B
+  per_device_eval_batch_size: 8
+  gradient_accumulation_steps: 2   # Effective batch size: 16
   learning_rate: 2.0e-4
   lr_scheduler_type: "cosine"
   warmup_ratio: 0.05
@@ -62,37 +62,32 @@ training:
   load_best_model_at_end: true
   metric_for_best_model: "eval_loss"
 
-# Data configuration
 data:
   train_file: "data/sft/train.jsonl"
   eval_file: "data/sft/eval.jsonl"
   chat_template: "qwen3"
-  # CRITICAL: Mask loss on user/system tokens
   train_on_completions_only: true
   system_message: "You are AstroLLM, an astronomy and astrophysics research assistant. Provide accurate, well-sourced answers. When uncertain, acknowledge limitations. Cite relevant papers when possible."
 
-# Experiment tracking
 wandb:
   project: "astrollm"
-  entity: null  # Set to your W&B username
+  entity: null
   tags:
     - "qlora"
     - "sft"
-    - "qwen3-8b"
+    - "qwen3.5-4b"
     - "v001"
   log_model: "checkpoint"
 
-# Checkpointing (spot instance safety)
 checkpointing:
-  output_dir: "models/qwen3-8b-qlora-sft-v001"
-  resume_from_checkpoint: null  # Set to checkpoint path for resumption
+  output_dir: "models/qwen3.5-4b-qlora-sft-v001"
+  resume_from_checkpoint: null
   push_to_hub: false
   hub_model_id: null
 
-# Cloud GPU configuration
 infrastructure:
-  recommended_gpu: "NVIDIA A100 80GB"  # or RTX 4090 24GB for budget
-  estimated_time_a100: "2-4 hours"
-  estimated_time_4090: "6-10 hours"
-  estimated_cost_spot: "$3-8"
-  provider: "runpod"  # or "lambda"
+  recommended_gpu: "NVIDIA RTX 4090 24GB"  # 4B fits on cheaper GPU
+  estimated_time_a100: "1-2 hours"
+  estimated_time_4090: "3-5 hours"
+  estimated_cost_spot: "$2-4"
+  provider: "runpod"

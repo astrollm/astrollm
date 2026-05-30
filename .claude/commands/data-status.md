@@ -66,8 +66,8 @@ data/eval/         125 examples    1.2 MB
   Pedagogy:        35
 
 models/            1 checkpoint    4.5 GB
-  qwen3-8b-qlora-sft-v001/final   2026-04-20
-  astrollm-8b-v001-q4_k_m.gguf    2.5 GB
+  qwen3.5-9b-qlora-sft-v001/final 2026-04-20
+  astrollm-9b-v001-q4_k_m.gguf    2.5 GB
 ```
 
 3. Flag any issues:

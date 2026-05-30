@@ -110,7 +110,7 @@ astrollm/
 ### Training Conventions
 - Every training run has a config YAML in `configs/`
 - Config naming: `{model}-{method}-{dataset}-{version}.yaml`
-  - Example: `qwen3-8b-qlora-astro-sft-v001.yaml`
+  - Example: `qwen3.5-9b-qlora-astro-sft-v001.yaml`
 - Checkpoints saved to `models/{run_id}/`
 - W&B project: `astrollm`
 - Always log: loss curves, learning rate, GPU memory, eval metrics
@@ -161,7 +161,7 @@ uv run python packages/data-pipeline/src/process_papers.py --input data/raw/ --o
 uv run python packages/data-pipeline/src/generate_sft.py --input data/processed/ --output data/sft/
 
 # Training (cloud, Phase 1)
-uv run python packages/training/scripts/train_qlora.py --config configs/qwen3-8b-qlora-astro-sft-v001.yaml
+uv run python packages/training/scripts/train_qlora.py --config configs/qwen3.5-9b-qlora-astro-sft-v001.yaml
 
 # Evaluation (Phase 1)
 uv run python packages/evaluation/src/run_benchmark.py --model models/latest/ --benchmark astrolab-1
@@ -180,7 +180,7 @@ cd packages/web && bun dev
 | Phase | Name | Timeline | Key Deliverables |
 |-------|------|----------|-----------------|
 | **0** | Foundation & Learning | Pre-v1 | NanoGPT on astro corpus, study transformers, env setup |
-| **1 (v1)** | Retrieval-Grounded Copilot | Months 1-3 | Qwen3-4B/8B QLoRA SFT, RAG + ADS/SIMBAD, beta at astrollm.org |
+| **1 (v1)** | Retrieval-Grounded Copilot | Months 1-3 | Qwen3.5-4B/9B QLoRA SFT + Gemma 4 E4B Track B, RAG + ADS/SIMBAD, beta at astrollm.org |
 | **2 (v2)** | Serious Astronomy Model | Months 4-8 | Full LoRA 8B, DPO, expanded tools (NED/PDS/Gaia/MAST), TanStack Start web app |
 | **3 (v3)** | Scientific Tool Ecosystem | Months 9-18 | Model family (Nano 3B + Core 8B + Pro 32B), continuous learning, tool-use SFT |
 | **4+ (v4+)** | Multimodal Knowledge House | Year 2+ | AION-1 vision bridge, Ultra 70B, agent workflows |

@@ -54,7 +54,7 @@ Can you: Explain why semantic search finds related papers that keyword search mi
 ## Weeks 3-4: First Working Copilot
 
 ### You're Building
-- Q&A pipeline with off-the-shelf Qwen3-8B (Ollama, no training)
+- Q&A pipeline with off-the-shelf Gemma 4 E4B (Ollama, no training)
 - Prompt templates forcing cited claims
 - Teaching mode with audience levels (undergrad / grad / researcher)
 - SIMBAD object lookup integration
@@ -123,8 +123,8 @@ Can you: Explain the LoRA decomposition? Describe why 4-bit quantization works? 
 ## Weeks 7-8: Fine-Tuning Experiments
 
 ### You're Building
-- QLoRA on Qwen3-4B (conservative run + 2 variants)
-- QLoRA on Qwen3-8B (conservative run + 2 variants)
+- QLoRA on Qwen3.5-4B (conservative run + 2 variants)
+- QLoRA on Qwen3.5-9B (conservative run + 2 variants)
 - Experiment matrix: base size x data mixture x LoRA rank x learning rate
 - All tracked in W&B
 - Week 8 gate: which checkpoint goes into the demo?

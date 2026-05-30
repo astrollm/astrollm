@@ -36,4 +36,4 @@ COPY configs/ configs/
 
 # Entrypoint
 ENTRYPOINT ["python"]
-CMD ["packages/training/scripts/train_qlora.py", "--config", "configs/qwen3-8b-qlora-astro-sft-v001.yaml"]
+CMD ["packages/training/scripts/train_qlora.py", "--config", "configs/qwen3.5-9b-qlora-astro-sft-v001.yaml"]

@@ -4,6 +4,8 @@
 > For v1 execution scope, see **V1_FINAL_PLAN.md** — which narrows to Core-only, ADS + SIMBAD + thin
 > Exoplanet Archive, and defers the model family, multimodal, and distillation work to later phases.
 > This document remains valid as the long-term technical reference for Phases 2-5.
+>
+> **Staleness note:** The model-family candidates named below (Llama 3.1/3.2, Qwen 2.5, Mistral, DeepSeek-V3) predate the Qwen3.5 / Gemma 4 (2026) base-model decision and are pending a Phase-2 refresh.
 
 Addressing: ADS data leverage, model family tiers, multimodal strategy, and distillation architecture.
 

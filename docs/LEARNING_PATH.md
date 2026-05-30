@@ -170,7 +170,7 @@ Can you: Launch a LoRA training run end-to-end? Generate valid SFT data in the c
 ## Weeks 9-12: Your First Real Fine-Tune
 
 ### Goal
-Fine-tune Qwen3-8B on your astronomy dataset and evaluate rigorously.
+Fine-tune Qwen3.5-9B on your astronomy dataset and evaluate rigorously.
 
 ### Week 9-10: Training
 - [ ] Prepare final SFT dataset (10K+ pairs minimum)
@@ -180,7 +180,7 @@ Fine-tune Qwen3-8B on your astronomy dataset and evaluate rigorously.
 - [ ] Run 2-3 iterations adjusting: learning rate, LoRA rank, epochs
 
 ### Week 11: Evaluation
-- [ ] Run AstroMLab-1 benchmark on your model vs base Qwen3-8B
+- [ ] Run AstroMLab-1 benchmark on your model vs base Qwen3.5-9B
 - [ ] Run Astro-QA benchmark
 - [ ] Qualitative evaluation: ask 20 astronomy questions, compare responses
 - [ ] Check for catastrophic forgetting: test on general knowledge too

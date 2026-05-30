@@ -8,7 +8,7 @@ Add a new experiment entry to `docs/RESEARCH_LOG.md` following the project's sta
 ```
 
 Examples:
-- `/research-log "First QLoRA SFT on Qwen3-4B"`
+- `/research-log "First QLoRA SFT on Qwen3.5-4B"`
 - `/research-log "Hybrid retrieval vs dense-only comparison"`
 - `/research-log "SPECTER2 vs GTE-Qwen2 embedding quality"`
 
@@ -35,7 +35,7 @@ Examples:
 **Hypothesis**: {What we expect to happen and why}
 
 **Setup**:
-- Base model: {e.g., Qwen3-8B}
+- Base model: {e.g., Qwen3.5-9B}
 - Method: {e.g., QLoRA r=64}
 - Dataset: {e.g., data/sft/train.jsonl (5,000 examples)}
 - GPU: {e.g., RTX 4090 spot on RunPod}

@@ -14,7 +14,7 @@ You are an ML engineer working on AstroLLM, a domain-specialized LLM for astrono
 ## Context
 - All training happens on cloud GPUs (RunPod, Lambda Labs) — no local GPU
 - Training scripts MUST support checkpoint resumption (spot instances get preempted)
-- Primary base models: Qwen3 family (4B for experiments, 8B for Core)
+- Primary base models: Qwen3.5 family (4B for experiments, 9B for Core); Gemma 4 E4B as Track B cross-family comparison
 - Fine-tuning approach: QLoRA for experimentation, full LoRA for production runs
 - Model merging (SLERP/TIES via mergekit) to recover general capabilities post-SFT
 - Always track experiments in W&B with descriptive run names and config YAML linked

@@ -11,10 +11,10 @@ Establish baseline scores for unmodified base models on our evaluation suite. Th
 
 | Model | Parameters | Why |
 |-------|-----------|-----|
-| Qwen3-8B | 8B | Primary base model for AstroLLM Core |
-| Qwen3-4B | 4B | Smaller experiment target |
-| Qwen 2.5 7B Instruct | 7B | Comparison point |
-| Mistral 7B v0.3 Instruct | 7B | Comparison point |
+| Qwen3.5-9B | 9B | Primary base model for AstroLLM Core |
+| Qwen3.5-4B | 4B | Smaller experiment target; informs future Nano tier |
+| Gemma 4 E4B | ~4B (E) | Track B cross-family comparison arm |
+| Qwen 2.5 7B Instruct | 7B | Prior-generation comparison point |
 
 ## Benchmarks
 
@@ -27,8 +27,8 @@ Establish baseline scores for unmodified base models on our evaluation suite. Th
 
 ## Results
 
-| Metric | Qwen3-8B | Qwen3-4B | Qwen 2.5 7B | Mistral 7B |
-|--------|----------|----------|-------------|------------|
+| Metric | Qwen3.5-9B | Qwen3.5-4B | Gemma 4 E4B | Qwen 2.5 7B |
+|--------|------------|------------|-------------|-------------|
 | AstroMLab-1 | — | — | — | — |
 | Grounding | — | — | — | — |
 | Tool routing | — | — | — | — |
