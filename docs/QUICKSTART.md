@@ -244,11 +244,11 @@ curl -X POST https://cloud.lambdalabs.com/api/v1/instance-operations/launch \
 
 | GPU | $/hr (spot) | QLoRA time (9B) | Cost per run |
 |-----|-------------|-----------------|--------------|
-| RTX 4090 | $0.40-0.80 | TBD | TBD |
-| A100 40GB | $1.00-1.50 | TBD | TBD |
-| A100 80GB | $1.50-2.50 | TBD | TBD |
-| H100 80GB | $2.50-4.00 | TBD | TBD |
+| RTX 4090 | $0.40-0.80 | TBD — re-measure on first 9B run | TBD — re-measure on first 9B run |
+| A100 40GB | $1.00-1.50 | TBD — re-measure on first 9B run | TBD — re-measure on first 9B run |
+| A100 80GB | $1.50-2.50 | TBD — re-measure on first 9B run | TBD — re-measure on first 9B run |
+| H100 80GB | $2.50-4.00 | TBD — re-measure on first 9B run | TBD — re-measure on first 9B run |
 
-_Time/cost per run TBD — re-measure on first 9B run ($/hr spot rates are model-independent)._
+_$/hr spot rates are model-independent._
 
 Budget tip: Use RTX 4090 spot instances for experimentation. Save A100/H100 for validated runs.

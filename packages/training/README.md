@@ -39,11 +39,9 @@ python scripts/merge_model.py \
 
 | Method | GPU Required | Training Time (9B) | Quality | Use Case |
 |--------|-------------|-------------------|---------|----------|
-| QLoRA | 24GB (RTX 4090) | TBD | 80-90% of full | Experimentation |
-| LoRA | 80GB (A100) | TBD | 90-95% of full | Production |
-| Full | 4x80GB | TBD | 100% | Research |
-
-_Training times TBD — re-measure on first 9B run (carried-over 8B figures removed)._
+| QLoRA | 24GB (RTX 4090) | TBD — re-measure on first 9B run | 80-90% of full | Experimentation |
+| LoRA | 80GB (A100) | TBD — re-measure on first 9B run | 90-95% of full | Production |
+| Full | 4x80GB | TBD — re-measure on first 9B run | 100% | Research |
 
 ## Experiment Workflow
 
