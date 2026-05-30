@@ -16,21 +16,21 @@ Base Model → [CPT] → SFT → [Model Merge] → [DPO] → Evaluation → Quan
 python scripts/validate_data.py --input data/sft/train.jsonl
 
 # 2. Dry run (print config, check GPU)
-python scripts/train_qlora.py --config configs/llama3.1-8b-qlora-astro-sft-v001.yaml --dry-run
+python scripts/train_qlora.py --config configs/qwen3.5-9b-qlora-astro-sft-v001.yaml --dry-run
 
 # 3. Train
-python scripts/train_qlora.py --config configs/llama3.1-8b-qlora-astro-sft-v001.yaml
+python scripts/train_qlora.py --config configs/qwen3.5-9b-qlora-astro-sft-v001.yaml
 
 # 4. Resume from checkpoint (if spot instance preempted)
-python scripts/train_qlora.py --config configs/llama3.1-8b-qlora-astro-sft-v001.yaml \
-  --resume models/llama3.1-8b-qlora-sft-v001/checkpoint-1500
+python scripts/train_qlora.py --config configs/qwen3.5-9b-qlora-astro-sft-v001.yaml \
+  --resume models/qwen3.5-9b-qlora-sft-v001/checkpoint-1500
 
 # 5. Merge LoRA adapter with base model
 python scripts/merge_model.py \
-  --base meta-llama/Llama-3.1-8B-Instruct \
-  --adapter models/llama3.1-8b-qlora-sft-v001/final/ \
+  --base Qwen/Qwen3.5-9B \
+  --adapter models/qwen3.5-9b-qlora-sft-v001/final/ \
   --method slerp --ratio 0.5 \
-  --output models/astrollm-8b-v001-merged/
+  --output models/astrollm-9b-v001-merged/
 ```
 
 ## Supported Methods

@@ -2,7 +2,7 @@
 AstroLLM QLoRA Training Script
 
 Usage:
-    uv run python packages/training/scripts/train_qlora.py --config configs/qwen3-8b-qlora-astro-sft-v001.yaml
+    uv run python packages/training/scripts/train_qlora.py --config configs/qwen3.5-9b-qlora-astro-sft-v001.yaml
 
 Supports:
     - QLoRA and LoRA fine-tuning

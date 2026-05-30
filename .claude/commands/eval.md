@@ -8,8 +8,8 @@ Run the evaluation suite against a model checkpoint, compare to baselines, and l
 ```
 
 Examples:
-- `/eval models/qwen3-8b-qlora-sft-v001/final --benchmark all`
-- `/eval Qwen/Qwen3-8B --benchmark astrolab` (baseline eval)
+- `/eval models/qwen3.5-9b-qlora-sft-v001/final --benchmark all`
+- `/eval Qwen/Qwen3.5-9B --benchmark astrolab` (baseline eval)
 - `/eval models/latest --benchmark custom`
 
 ## Evaluation Suite
@@ -17,7 +17,7 @@ Examples:
 ### AstroMLab-1 Benchmark
 - 4,425 MCQs from Annual Review of Astronomy and Astrophysics
 - Measures: astronomical knowledge recall across subfields
-- Baseline targets: Qwen3-8B base (TBD), AstroSage-8B ~80.9%
+- Baseline targets: Qwen3.5-9B base (TBD), AstroSage-8B ~80.9%
 - Run: `uv run python packages/evaluation/src/run_benchmark.py --model {path} --benchmark astrolab-1`
 
 ### Custom Evaluation Tracks (25+ examples each)
@@ -54,7 +54,7 @@ Track these error categories from day one:
 
 ## Comparison Template
 ```
-| Metric                  | Base (Qwen3-8B) | Previous Best | This Run | Delta |
+| Metric                  | Base (Qwen3.5-9B) | Previous Best | This Run | Delta |
 |-------------------------|-----------------|---------------|----------|-------|
 | AstroMLab-1 (subset)    |                 |               |          |       |
 | Grounding accuracy       |                 |               |          |       |

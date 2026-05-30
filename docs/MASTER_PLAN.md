@@ -49,7 +49,7 @@ Streamlit beta    Proper web app     Public service       Agent workflows
 
 ### Deliverables
 - AstroLLM Core beta at astrollm.org
-- Qwen3-4B/8B fine-tuned on 5,000-8,000 astronomy SFT examples
+- Qwen3.5-4B/9B fine-tuned on 5,000-8,000 astronomy SFT examples
 - Three-stage retrieval pipeline (hybrid recall → reranking → astronomy-aware filtering)
 - ADS paper search + SIMBAD object lookup at orchestration layer
 - Thin Exoplanet Archive integration
@@ -77,7 +77,7 @@ Streamlit beta    Proper web app     Public service       Agent workflows
 ### 2.1 Model Improvements
 
 **Larger, better fine-tune:**
-- Full LoRA (not QLoRA) on Qwen3-8B with expanded SFT dataset (15,000-25,000 examples)
+- Full LoRA (not QLoRA) on Qwen3.5-9B with expanded SFT dataset (15,000-25,000 examples)
 - Model merging experiments (SLERP/TIES with instruct model) to preserve general capabilities
 - DPO alignment using researcher feedback from v1 beta
 - Explore continued pre-training (CPT) on astronomy corpus if SFT-only hits a ceiling
@@ -299,7 +299,7 @@ arXiv RSS → Download → Extract → Chunk → Embed → Index (pgvector)
 
 | Component | Phase 1 | Phase 2 | Phase 3 | Phase 4+ |
 |-----------|---------|---------|---------|----------|
-| **Models** | Qwen3-4B/8B QLoRA | Qwen3-8B full LoRA + merge | + Nano (3B) + Pro (32B) | + Ultra (70B) + MoE |
+| **Models** | Qwen3.5-4B/9B QLoRA | Qwen3.5-9B full LoRA + merge | + Nano (3B) + Pro (32B) | + Ultra (70B) + MoE |
 | **Training** | SFT only | SFT + DPO | + CPT + distillation | + multimodal adapters |
 | **Retrieval** | BM25+dense hybrid | + SPECTER2 + ColBERTv2 | + continuous indexing | + multimodal retrieval |
 | **Tools** | ADS + SIMBAD (orchestration) | + NED + NEA + PDS + Gaia | Tool-use SFT | Agent orchestration |
@@ -389,7 +389,7 @@ The default is open. Premium features exist only if sustainability requires it.
 | Scope creep from exciting new ideas | Diluted execution | All | Scope lock in V1 Final Plan; defer list is explicit |
 | Budget insufficient for scaling | Can't reach Phase 3-4 | 3+ | Build community first; apply for grants; seek institutional collaboration |
 | AstroSage releases a tool-integrated version | Differentiation eroded | 2-3 | Move fast on v1; build community lock-in; focus on UX not just capability |
-| Base model obsolescence (Qwen3 superseded) | Need to re-train | 2+ | Architecture-agnostic design; SFT data is model-independent; keep adapters modular |
+| Base model obsolescence (Qwen3.5 superseded) | Need to re-train | 2+ | Architecture-agnostic design; SFT data is model-independent; keep adapters modular |
 
 ---
 

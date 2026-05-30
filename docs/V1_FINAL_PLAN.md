@@ -17,7 +17,7 @@ It is NOT: a benchmark competitor to AstroSage, a model family, a multimodal sys
 
 ### In v1
 
-- One model tier: **Core** (Qwen3-4B first experiment, Qwen3-8B follow-up)
+- One model tier: **Core** (Qwen3.5-4B first experiment, Qwen3.5-9B follow-up)
 - One retrieval stack: **ADS papers + SIMBAD objects + Exoplanet Archive (thin)**
 - Two live tools at orchestration layer: `ads_search` + `simbad_query`
 - One UX feature: audience-adaptive explanation depth (undergrad / grad / researcher)
@@ -86,8 +86,8 @@ Prompt assembly → LLM generates cited answer
 | Phase | Model | Method | Purpose |
 |-------|-------|--------|---------|
 | Weeks 1-4 | Qwen3-8B (off-the-shelf) | Ollama, no training | RAG prototype backbone |
-| Weeks 7-8 | Qwen3-4B | QLoRA SFT | First fine-tune experiment |
-| Weeks 7-8 | Qwen3-8B | QLoRA SFT | Parallel comparison |
+| Weeks 7-8 | Qwen3.5-4B | QLoRA SFT | First fine-tune experiment |
+| Weeks 7-8 | Qwen3.5-9B | QLoRA SFT | Parallel comparison |
 | Week 8+ | Best checkpoint | Merge + quantize (GGUF) | Deploy in demo |
 
 ### SFT Dataset (5,000-8,000 examples)
@@ -198,8 +198,8 @@ Track from day one:
 ### Week 7-8: Fine-Tuning Experiments
 
 **Run (Track B — Learning)**:
-- QLoRA on Qwen3-4B (conservative run + 2 variants)
-- QLoRA on Qwen3-8B (conservative run + 2 variants)
+- QLoRA on Qwen3.5-4B (conservative run + 2 variants)
+- QLoRA on Qwen3.5-9B (conservative run + 2 variants)
 - Small experiment matrix: base size × data mixture × LoRA rank × learning rate
 - All tracked in W&B with documented hypotheses
 
@@ -274,7 +274,7 @@ With a working beta in hand:
 
 1. **Improve retrieval** — reranking, query rewriting, SPECTER2 embeddings
 2. **Expand data** — full ADS corpus, more SFT examples from logged interactions
-3. **Scale the model** — Qwen3-8B full LoRA, model merging experiments
+3. **Scale the model** — Qwen3.5-9B full LoRA, model merging experiments
 4. **Add tools** — NED, PDS, Astropy calculations (tool-use SFT now justified)
 5. **Distill down** — Nano (3B) for mobile/lightweight use
 6. **Multimodal bridge** — AION-1 encoder + projection layer for FITS images

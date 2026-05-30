@@ -1,0 +1,93 @@
+# AstroLLM Training Config — Smaller Variant (Qwen3.5-4B)
+# Config: qwen3.5-4b-qlora-astro-sft-v001.yaml
+# Runs alongside the 9B primary to study scale effects on the same SFT mixture.
+
+experiment:
+  name: "AstroLLM v0.1 — QLoRA SFT (Qwen3.5-4B)"
+  hypothesis: "Qwen3.5-4B QLoRA SFT will lag 9B on AstroMLab-1 but may be competitive on grounding/tool routing where retrieval carries the load"
+  expected_outcome: "Establishes a small-model baseline; informs Nano tier decisions in Phase 3"
+  date: "TBD"
+  wandb_run: null
+
+model:
+  # Verified against Hugging Face (2026-05-30): post-trained repo is "Qwen/Qwen3.5-4B"
+  # (no -Instruct suffix); pretrained variant is "Qwen/Qwen3.5-4B-Base".
+  base_model: "Qwen/Qwen3.5-4B"
+  model_type: "qwen3"
+  torch_dtype: "bfloat16"
+  attn_implementation: "flash_attention_2"
+
+quantization:
+  load_in_4bit: true
+  bnb_4bit_quant_type: "nf4"
+  bnb_4bit_use_double_quant: true
+  bnb_4bit_compute_dtype: "bfloat16"
+
+lora:
+  r: 64
+  lora_alpha: 128
+  lora_dropout: 0.05
+  bias: "none"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+  task_type: "CAUSAL_LM"
+
+training:
+  num_train_epochs: 3
+  per_device_train_batch_size: 8   # 4B fits larger batches than 9B
+  per_device_eval_batch_size: 8
+  gradient_accumulation_steps: 2   # Effective batch size: 16
+  learning_rate: 2.0e-4
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.05
+  weight_decay: 0.01
+  max_grad_norm: 1.0
+  max_seq_length: 4096
+  bf16: true
+  gradient_checkpointing: true
+  group_by_length: true
+  dataloader_num_workers: 4
+  logging_steps: 10
+  eval_strategy: "steps"
+  eval_steps: 250
+  save_strategy: "steps"
+  save_steps: 500
+  save_total_limit: 3
+  load_best_model_at_end: true
+  metric_for_best_model: "eval_loss"
+
+data:
+  train_file: "data/sft/train.jsonl"
+  eval_file: "data/sft/eval.jsonl"
+  chat_template: "qwen3"
+  train_on_completions_only: true
+  system_message: "You are AstroLLM, an astronomy and astrophysics research assistant. Provide accurate, well-sourced answers. When uncertain, acknowledge limitations. Cite relevant papers when possible."
+
+wandb:
+  project: "astrollm"
+  entity: null
+  tags:
+    - "qlora"
+    - "sft"
+    - "qwen3.5-4b"
+    - "v001"
+  log_model: "checkpoint"
+
+checkpointing:
+  output_dir: "models/qwen3.5-4b-qlora-sft-v001"
+  resume_from_checkpoint: null
+  push_to_hub: false
+  hub_model_id: null
+
+infrastructure:
+  recommended_gpu: "NVIDIA RTX 4090 24GB"  # 4B fits on cheaper GPU
+  estimated_time_a100: "1-2 hours"
+  estimated_time_4090: "3-5 hours"
+  estimated_cost_spot: "$2-4"
+  provider: "runpod"

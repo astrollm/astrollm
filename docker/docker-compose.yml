@@ -61,7 +61,7 @@ services:
   # Uncomment when model is ready
   # inference:
   #   image: ghcr.io/ggerganov/llama.cpp:server
-  #   command: -m /models/astrollm-8b-q4_k_m.gguf --port 8080 --host 0.0.0.0
+  #   command: -m /models/astrollm-9b-q4_k_m.gguf --port 8080 --host 0.0.0.0
   #   ports:
   #     - "8080:8080"
   #   volumes:

@@ -1,15 +1,19 @@
-# AstroLLM Training Config — First QLoRA Experiment
-# Config: qwen3-8b-qlora-astro-sft-v001.yaml
+# AstroLLM Training Config — First QLoRA Experiment (Qwen3.5-9B)
+# Config: qwen3.5-9b-qlora-astro-sft-v001.yaml
+# Supersedes: qwen3-8b-qlora-astro-sft-v001.yaml (2026-04-23 model update)
 
 experiment:
-  name: "AstroLLM v0.1 — First QLoRA SFT (Qwen3-8B)"
-  hypothesis: "QLoRA SFT on curated astronomy Q&A pairs will improve AstroMLab-1 benchmark score by 3-5 points over base Qwen3-8B Instruct"
+  name: "AstroLLM v0.1 — First QLoRA SFT (Qwen3.5-9B)"
+  hypothesis: "QLoRA SFT on curated astronomy Q&A pairs will improve AstroMLab-1 benchmark score by 3-5 points over base Qwen3.5-9B Instruct"
   expected_outcome: "Measurable improvement on AstroMLab-1 over base model"
   date: "TBD"
   wandb_run: null
 
 model:
-  base_model: "Qwen/Qwen3-8B"
+  # Verified against Hugging Face (2026-05-30): post-trained repo is "Qwen/Qwen3.5-9B"
+  # (no -Instruct suffix); pretrained variant is "Qwen/Qwen3.5-9B-Base". Base-vs-instruct
+  # is a later methods decision — defaulting to the post-trained repo here.
+  base_model: "Qwen/Qwen3.5-9B"
   model_type: "qwen3"
   torch_dtype: "bfloat16"
   attn_implementation: "flash_attention_2"
@@ -78,13 +82,13 @@ wandb:
   tags:
     - "qlora"
     - "sft"
-    - "qwen3-8b"
+    - "qwen3.5-9b"
     - "v001"
   log_model: "checkpoint"
 
 # Checkpointing (spot instance safety)
 checkpointing:
-  output_dir: "models/qwen3-8b-qlora-sft-v001"
+  output_dir: "models/qwen3.5-9b-qlora-sft-v001"
   resume_from_checkpoint: null  # Set to checkpoint path for resumption
   push_to_hub: false
   hub_model_id: null

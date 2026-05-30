@@ -34,7 +34,7 @@ python run_benchmark.py --model models/latest/ --benchmark astrolab-1
 # Compare two models
 python run_benchmark.py \
   --model models/v002/ \
-  --compare meta-llama/Llama-3.1-8B-Instruct \
+  --compare Qwen/Qwen3.5-9B \
   --benchmark all
 ```
 

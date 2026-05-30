@@ -8,8 +8,8 @@ Create a new training configuration and launch script for a fine-tuning experime
 ```
 
 Examples:
-- `/train qwen3-8b qlora astro-sft-v001 "first astronomy QLoRA experiment"`
-- `/train qwen3-4b qlora astro-sft-v001 "smaller model comparison"`
+- `/train qwen3.5-9b qlora astro-sft-v001 "first astronomy QLoRA experiment"`
+- `/train qwen3.5-4b qlora astro-sft-v001 "smaller model comparison"`
 
 ## Workflow
 1. Generate a config YAML in `configs/` following the naming convention: `{model}-{method}-{dataset}-{version}.yaml`
@@ -29,7 +29,7 @@ experiment:
   wandb_run: null
 
 model:
-  base_model: "Qwen/Qwen3-8B"  # or Qwen/Qwen3-4B
+  base_model: "Qwen/Qwen3.5-9B"  # or Qwen/Qwen3.5-4B, or google/gemma-4-E4B-it (Track B)
   model_type: "qwen3"
   torch_dtype: "bfloat16"
   attn_implementation: "flash_attention_2"

@@ -79,10 +79,10 @@ uv run python scripts/prepare_nanogpt_data.py \
 ### Week 3-4: Baseline Evaluation
 
 ```bash
-# Evaluate base Qwen3-8B on astronomy benchmarks
+# Evaluate base Qwen3.5-9B on astronomy benchmarks
 # (Requires GPU — use RunPod for this)
 uv run python packages/evaluation/src/run_benchmark.py \
-  --model Qwen/Qwen3-8B \
+  --model Qwen/Qwen3.5-9B \
   --benchmark astrolab-1 \
   --output docs/baselines/
 ```
@@ -146,7 +146,7 @@ uv run python packages/rag/src/ingest.py \
 # 3. Run:
 
 uv run python packages/training/scripts/train_qlora.py \
-  --config configs/qwen3-8b-qlora-astro-sft-v001.yaml
+  --config configs/qwen3.5-9b-qlora-astro-sft-v001.yaml
 
 # Option B: Use the Docker image
 docker build -f docker/Dockerfile.train -t astrollm-train .
@@ -157,9 +157,9 @@ docker build -f docker/Dockerfile.train -t astrollm-train .
 
 ```bash
 uv run python packages/evaluation/src/run_benchmark.py \
-  --model models/qwen3-8b-qlora-sft-v001/final/ \
+  --model models/qwen3.5-9b-qlora-sft-v001/final/ \
   --benchmark all \
-  --compare Qwen/Qwen3-8B
+  --compare Qwen/Qwen3.5-9B
 ```
 
 ### Merge and quantize
@@ -167,14 +167,14 @@ uv run python packages/evaluation/src/run_benchmark.py \
 ```bash
 # Merge LoRA adapter with base model
 uv run python packages/training/scripts/merge_model.py \
-  --base Qwen/Qwen3-8B \
-  --adapter models/qwen3-8b-qlora-sft-v001/final/ \
-  --output models/astrollm-8b-v001-merged/
+  --base Qwen/Qwen3.5-9B \
+  --adapter models/qwen3.5-9b-qlora-sft-v001/final/ \
+  --output models/astrollm-9b-v001-merged/
 
 # Quantize to GGUF for efficient serving
 uv run python packages/inference/src/quantize.py \
-  --input models/astrollm-8b-v001-merged/ \
-  --output models/astrollm-8b-v001-q4_k_m.gguf \
+  --input models/astrollm-9b-v001-merged/ \
+  --output models/astrollm-9b-v001-q4_k_m.gguf \
   --quant q4_k_m
 ```
 
@@ -183,7 +183,7 @@ uv run python packages/inference/src/quantize.py \
 ```bash
 # Serve with llama.cpp
 uv run python packages/inference/src/serve.py \
-  --model models/astrollm-8b-v001-q4_k_m.gguf \
+  --model models/astrollm-9b-v001-q4_k_m.gguf \
   --port 8080
 
 # In another terminal, test:

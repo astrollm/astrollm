@@ -1,0 +1,98 @@
+# AstroLLM Training Config — Track B Comparison (Gemma 4 E4B)
+# Config: gemma4-e4b-qlora-astro-sft-v001.yaml
+# Purpose: Cross-family comparison arm against Qwen3.5 primaries. Uses Unsloth for
+# faster training / lower memory per Gemma 4 fine-tuning guide.
+
+experiment:
+  name: "AstroLLM v0.1 — QLoRA SFT (Gemma 4 E4B, Track B)"
+  hypothesis: "Gemma 4 E4B via Unsloth will match or beat Qwen3.5-4B on AstroMLab-1 at lower training cost, informing base-model choice for Phase 2"
+  expected_outcome: "Head-to-head data point: Qwen3.5-4B vs Gemma 4 E4B on identical SFT mixture and eval bundle"
+  date: "TBD"
+  wandb_run: null
+
+model:
+  # Verified against Hugging Face (2026-05-30): instruct repo is "google/gemma-4-E4B-it"
+  # (capital E4B); pretrained variant is "google/gemma-4-E4B".
+  base_model: "google/gemma-4-E4B-it"
+  model_type: "gemma4"
+  torch_dtype: "bfloat16"
+  attn_implementation: "flash_attention_2"
+  # Prefer Unsloth loader — ~2x faster training, ~60% less memory vs vanilla HF
+  use_unsloth: true
+
+quantization:
+  load_in_4bit: true
+  bnb_4bit_quant_type: "nf4"
+  bnb_4bit_use_double_quant: true
+  bnb_4bit_compute_dtype: "bfloat16"
+
+lora:
+  # Per Unsloth Gemma 4 guide
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  bias: "none"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+  task_type: "CAUSAL_LM"
+
+training:
+  num_train_epochs: 3
+  per_device_train_batch_size: 8
+  per_device_eval_batch_size: 8
+  gradient_accumulation_steps: 2   # Effective batch size: 16
+  learning_rate: 2.0e-4
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.05
+  weight_decay: 0.01
+  max_grad_norm: 1.0
+  max_seq_length: 4096
+  bf16: true
+  gradient_checkpointing: true
+  group_by_length: true
+  dataloader_num_workers: 4
+  logging_steps: 10
+  eval_strategy: "steps"
+  eval_steps: 250
+  save_strategy: "steps"
+  save_steps: 500
+  save_total_limit: 3
+  load_best_model_at_end: true
+  metric_for_best_model: "eval_loss"
+
+data:
+  train_file: "data/sft/train.jsonl"
+  eval_file: "data/sft/eval.jsonl"
+  chat_template: "gemma"
+  train_on_completions_only: true
+  system_message: "You are AstroLLM, an astronomy and astrophysics research assistant. Provide accurate, well-sourced answers. When uncertain, acknowledge limitations. Cite relevant papers when possible."
+
+wandb:
+  project: "astrollm"
+  entity: null
+  tags:
+    - "qlora"
+    - "sft"
+    - "gemma4-e4b"
+    - "track-b"
+    - "v001"
+  log_model: "checkpoint"
+
+checkpointing:
+  output_dir: "models/gemma4-e4b-qlora-sft-v001"
+  resume_from_checkpoint: null
+  push_to_hub: false
+  hub_model_id: null
+
+infrastructure:
+  recommended_gpu: "NVIDIA RTX 4090 24GB"  # 8-10GB VRAM needed with QLoRA per Unsloth
+  estimated_time_a100: "1-2 hours"
+  estimated_time_4090: "2-4 hours"  # Unsloth 2x speedup factored in
+  estimated_cost_spot: "$1-3"
+  provider: "runpod"

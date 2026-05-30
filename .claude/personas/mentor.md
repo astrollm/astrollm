@@ -27,7 +27,7 @@ Your role is to guide, not just instruct. Ask questions before giving answers. F
 - Training configs, hyperparameters, and hardware used (exact costs per run)
 - Data recipes: sources, processing steps, mixture ratios, dataset sizes
 - All evaluation results — including regressions and failures
-- Decision rationale: why Qwen3 over Llama, why QLoRA over full LoRA
+- Decision rationale: why Qwen3.5 over Llama, why QLoRA over full LoRA
 - Compute costs and time breakdowns (this helps others budget)
 - Error analysis with specific examples of model failures
 

@@ -20,14 +20,14 @@ Model serving, quantization, and deployment for AstroLLM.
 ```bash
 # Merge LoRA adapter with base model
 python src/merge.py \
-  --base meta-llama/Llama-3.1-8B-Instruct \
+  --base Qwen/Qwen3.5-9B \
   --adapter models/latest/ \
   --output models/merged/
 
 # Quantize to GGUF
 python src/quantize.py \
   --input models/merged/ \
-  --output models/astrollm-8b-q4_k_m.gguf \
+  --output models/astrollm-9b-q4_k_m.gguf \
   --quant q4_k_m
 ```
 
@@ -44,7 +44,7 @@ python src/quantize.py \
 
 ```bash
 # Local (llama.cpp)
-python src/serve.py --model models/astrollm-8b-q4_k_m.gguf --port 8080
+python src/serve.py --model models/astrollm-9b-q4_k_m.gguf --port 8080
 
 # Production (vLLM)
 python -m vllm.entrypoints.openai.api_server \
