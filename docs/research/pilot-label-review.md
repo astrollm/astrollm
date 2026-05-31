@@ -10,7 +10,7 @@ ranker), read the abstracts, and decide keep / remove / add against the query's 
 genuine retrieval misses (relevant paper exists but isn't retrieved) separately from labeling
 errors — only the latter change the labels.
 
-**Review complete (28 of 30 queries scored; q15 has no in-corpus target).** Final numbers,
+**Review complete (29 of 30 queries scored; q15 has no in-corpus target).** Final numbers,
 reported split because the two query kinds mean different things:
 
 | set | n | Recall@10 | MRR |
@@ -141,7 +141,7 @@ as future work, not built here.
 
 ## Outcome & follow-ups
 
-- Labels in `pilot_exoplanet_atmospheres.yaml` are now reviewed (28/30 scored; q15 absent).
+- Labels in `pilot_exoplanet_atmospheres.yaml` are now reviewed (29/30 scored; q15 absent).
 - Numbers: named-target **0.794 / 0.794**, broad known-item **0.542 / 0.381**, all-scored 0.690 / 0.623.
 - Strongest signals for next work: (1) the **named-vs-conceptual gap** motivates reranking / query
   understanding; (2) recurring **single-arm-strong misses** (q12, q11) motivate the dense-vs-lexical-vs-hybrid
