@@ -132,11 +132,284 @@ H6; H7's coverage premise is refuted before retrieval is even run.
 
 ## Results
 
-> **Pending the retrieval readouts** (recorded in the next commit, after this pre-registration is
-> committed — mirroring the pilot's H1–H4 audit trail). The scored experiment is report (a): the
-> original 29 queries with their **frozen** labels, re-scored on the widened 2,500-abstract index,
-> compared against the frozen pilot baseline. H6 evidence (dense-ranks of newly-present on-target
-> docs) is reported alongside.
+The scored experiment is **report (a)**: the original 29 queries with their **frozen** labels,
+re-scored on the widened 2,500-abstract index. Same harness, same labels, same method — only the
+corpus changed. There is no report (b): no originally-unscored query became scorable (membership
+probe), and exhaustively relabeling the named queries on a 5× corpus would balloon each entity's
+relevant set to dozens of papers, turning Recall@10 (which caps at `10/|relevant|`) into a different
+and uninformative metric — the same known-item limitation the pilot flagged for the broad queries.
+Newly-present on-target docs are therefore reported as a **measurement** (their arm ranks) for H6,
+not as new scored gold.
+
+### Headline — pilot → widened, all-scored (H5)
+
+Best per column **bold**. Every arm loses recall and MRR on the *same* queries; the loss is large,
+not slight.
+
+| arm | R@10 (pilot → widened) | R@50 (pilot → widened) | MRR (pilot → widened) |
+|---|---|---|---|
+| dense | 0.724 → 0.529 (**−0.195**) | 0.897 → 0.776 (−0.121) | 0.615 → 0.377 (−0.238) |
+| lexical | 0.713 → 0.437 (**−0.276**) | 0.931 → 0.810 (−0.121) | 0.580 → 0.288 (−0.292) |
+| hybrid | 0.690 → **0.592** (−0.098) | 0.966 → 0.793 (−0.173) | 0.623 → **0.371** (−0.252) |
+
+The arm ordering **flips**: in the pilot hybrid had the *lowest* R@10; on the widened corpus it has
+the *highest* on every split, and it degrades least (−0.098 vs dense −0.195, lexical −0.276). Lexical
+collapses most — BM25's OR-of-tokens match drowns in 5× more token-matching distractors.
+
+### Aggregate — Recall@10 / MRR by arm and split (widened)
+
+| arm | named R@10 | named MRR | broad R@10 | broad MRR | all R@10 | all MRR |
+|---|---|---|---|---|---|---|
+| dense | 0.637 | 0.490 | 0.375 | 0.217 | 0.529 | 0.377 |
+| lexical | 0.539 | 0.413 | 0.292 | 0.111 | 0.437 | 0.288 |
+| hybrid | **0.716** | 0.456 | **0.417** | **0.251** | **0.592** | 0.371 |
+
+### Recall at depth — Recall@10 vs Recall@50 (widened)
+
+| arm | named @10 | named @50 | broad @10 | broad @50 | all @10 | all @50 |
+|---|---|---|---|---|---|---|
+| dense | 0.637 | 0.853 | 0.375 | 0.667 | 0.529 | 0.776 |
+| lexical | 0.539 | **0.941** | 0.292 | 0.625 | 0.437 | **0.810** |
+| hybrid | 0.716 | 0.853 | 0.417 | 0.708 | 0.592 | 0.793 |
+
+The pilot's depth **inversion** (hybrid highest R@50) is **gone**: hybrid's fused top-50 (0.793) no
+longer realizes the full union (0.948) — at pool=50 on a 2,500-index the fusion drops candidates that
+the *union* keeps. This is the pre-registered pool confound made visible: a fixed pool is now a 2%
+slice, so RRF's fused top-50 leaks recall that lives in the wider union.
+
+### Candidate-set recall & complementarity at pool depth (k=50) (widened)
+
+| slice | union R@50 | dense R@50 | lexical R@50 | Δ(union−dense) | D-only | L-only | both | neither | relevant |
+|---|---|---|---|---|---|---|---|---|---|
+| named | 1.000 | 0.853 | 0.941 | +0.147 | 2 | 3 | 24 | 0 | 29 |
+| broad | 0.875 | 0.667 | 0.625 | +0.208 | 6 | 4 | 7 | 3 | 20 |
+| all | 0.948 | 0.776 | 0.810 | +0.172 | 8 | 7 | 31 | 3 | 49 |
+
+The **union premium grows**: Δ(union−dense) was +0.069 (all) in the pilot, now **+0.172**. The union
+candidate set (what a reranker receives from hybrid stage-1) holds at 0.948 while each single arm's
+pool-50 recall collapses (dense 0.897→0.776, lexical 0.931→0.810). Complementarity is the part of
+the architecture that *improves* with scale.
+
+### Single-arm-exclusive class growth (H6)
+
+The single-arm-only (one arm's pool-50 misses it, the other catches it) doc class **grew 5 → 15** of
+the relevant docs — and bidirectionally (dense-only 2→8, lexical-only 3→7). The cause is **incumbent
+displacement**: 2024–2026 newcomers push the (mostly 2018–2023) gold docs deeper, dropping them out
+of *one* arm's pool-50.
+
+| query | gold doc | pilot tag → widened tag | widened dense# / lex# |
+|---|---|---|---|
+| q05 TRAPPIST-1e | `2020ApJ...901..126W` | both → **dense-only** | #29 / #69 |
+| q07 HD 189733b | `2024ApJ...973L..41I` | both → **dense-only** | #8 / #76 |
+| q11 WASP-121b | `2023ApJ...943L..17M` | both → **lexical-only** (dense-blind) | #70 / #33 |
+| q18 WASP-43b | `2018ApJ...869..107M` | both → **lexical-only** | #84 / #40 |
+| q22 CH4 | `2023ApJ...956L..13M` | both → **lexical-only** | #60 / #17 |
+| q25 escape | `2020ApJ...890...79J` | both → **dense-only** | #36 / #83 |
+| q26 clouds | `2023ApJ...951...96G` | dense-only → **neither** | #55 / #279 |
+| q28 C/O | `2021ApJ...914...12L` | both → **dense-only** | #12 / #176 |
+| q29 emission | `2020ApJ...890..176V` | both → **lexical-only** | #99 / #38 |
+| q29 emission | `2023ApJ...943L..17M` | both → **dense-only** | #20 / #95 |
+| q30 phase curve | `2020AJ....160..137F` | both → **dense-only** | #21 / #60 |
+| q30 phase curve | `2020AJ....160..155W` | both → **dense-only** | #37 / #86 |
+
+Single-arm membership is **query-dependent**, not a property of the paper: `2023ApJ...943L..17M`
+(the WASP-121b JWST phase curve) is *lexical-only* for q11 (dense #70 / lex #33) yet *dense-only* for
+q29 (dense #20 / lex #95) — the same doc, blinded by a different arm depending on the query phrasing.
+
+**q12's ERO is the limiting case.** `2022ApJ...936L..14P` goes from dense #338 / lexical #4 (pilot)
+to **dense #1594 / lexical #31** (widened) — more dense-blind, and its lexical rank slipped past the
+top-10. So the pilot's H1 result (lexical recovers the ERO *into the top-10*) **weakens** at scale:
+lexical now recovers it only into the *pool* (#31 < 50), not the top-10 — q12 is a top-10 miss for
+**all three arms** on the widened corpus. But the architectural point **strengthens**: the ERO is
+still in the hybrid candidate set for a reranker, and q11 joins it as a second dense-blind incumbent
+(dense #70 / lexical #33).
+
+**Newcomers are not the dense-blind ones.** A scan of every named entity's newly-present on-target
+papers shows they overwhelmingly rank dense top-5 (q01 d#1, q05 d#1, q06 d#1, q07 d#1, q09 d#1, q13
+d#1, q14 d#1, q18 d#1) — the *new* relevant docs are mostly dual-found near the top; it is the
+*incumbents* that get displaced into the single-arm tail. The exception confirms the mechanism: a
+generic-abstract tool paper (`2026AJ....171...98B`, "Virga" cloud model) lands dense #1550 / lexical
+#67 — the same generic-abstract → dense-blind mechanism as q12's ERO. And the tail is bidirectional:
+two genuine HD 209458b H₂O detections (`2024A&A...690A..63B` d#4/l#301; `2025AJ....170..223F`
+d#2/l#307) are **lexical**-blind — the mirror of the ERO.
+
+### Bootstrap 95% CIs (widened)
+
+**Marginal 95% CIs** (B=10000, seed=20260531), all-scored slice:
+
+| arm | R@10 mean [95% CI] | MRR mean [95% CI] |
+|---|---|---|
+| dense | 0.529 [0.374, 0.684] | 0.377 [0.231, 0.534] |
+| lexical | 0.437 [0.287, 0.598] | 0.288 [0.167, 0.427] |
+| hybrid | 0.592 [0.431, 0.747] | 0.371 [0.235, 0.518] |
+
+**Paired-difference 95% CIs** (does the CI include 0?):
+
+| comparison | slice | metric | mean Δ [95% CI] | includes 0? |
+|---|---|---|---|---|
+| dense−hybrid | all | R@10 | −0.063 [−0.126, −0.011] | **no** |
+| dense−hybrid | broad | R@10 | −0.042 [−0.125, +0.000] | yes |
+| lexical−hybrid | all | R@10 | −0.155 [−0.276, −0.052] | **no** |
+| dense−hybrid | all | MRR | +0.006 [−0.094, +0.112] | yes |
+| dense−lexical | broad | R@10 | +0.083 [+0.000, +0.208] | yes |
+| dense−lexical | broad | MRR | +0.106 [−0.075, +0.324] | yes |
+
+The decisive change from the pilot: **hybrid > both single arms at R@10 is now statistically
+supported.** dense−hybrid (all R@10) = −0.063 [−0.126, −0.011] and lexical−hybrid = −0.155
+[−0.276, −0.052] both exclude 0. In the pilot every pairwise R@10 CI included 0 (within noise);
+widening adds enough distractor pressure that hybrid's robustness becomes a measurable advantage.
+
+### Per-query (all scored, raw) (widened)
+
+| id | target | kind | gold | dense R@10 (rank) | lexical R@10 (rank) | hybrid R@10 (rank) |
+|---|---|---|---|---|---|---|
+| q01 | WASP-39b | named | 3 | 0.67 (#3) | 0.33 (#5) | 0.67 (#6) |
+| q02 | WASP-39b | named | 1 | 1.00 (#1) | 1.00 (#1) | 1.00 (#1) |
+| q03 | K2-18b | named | 2 | 0.50 (#1) | 0.50 (#1) | 0.50 (#1) |
+| q04 | K2-18b | named | 2 | 1.00 (#6) | 1.00 (#6) | 1.00 (#4) |
+| q05 | TRAPPIST-1e | named | 2 | 0.00 (—) | 0.00 (—) | 0.00 (—) |
+| q06 | TRAPPIST-1b | named | 1 | 1.00 (#2) | 1.00 (#3) | 1.00 (#1) |
+| q07 | HD 189733b | named | 2 | 0.50 (#8) | 0.50 (#6) | 0.50 (#7) |
+| q08 | HD 209458b | named | 3 | 0.67 (#1) | 0.33 (#1) | 1.00 (#3) |
+| q09 | 55 Cancri e | named | 2 | 1.00 (#5) | 0.50 (#5) | 1.00 (#5) |
+| q10 | GJ 1214b | named | 2 | 1.00 (#1) | 0.50 (#4) | 1.00 (#1) |
+| q11 | WASP-121b | named | 1 | 0.00 (—) | 0.00 (—) | 0.00 (—) |
+| q12 | WASP-96b | named | 1 | 0.00 (—) | 0.00 (—) | 0.00 (—) |
+| q13 | LTT 9779b | named | 1 | 1.00 (#2) | 1.00 (#2) | 1.00 (#2) |
+| q14 | GJ 486b | named | 2 | 0.50 (#2) | 1.00 (#1) | 1.00 (#2) |
+| q16 | TOI-270d | named | 1 | 1.00 (#1) | 0.00 (—) | 1.00 (#2) |
+| q17 | WASP-17b | named | 1 | 1.00 (#1) | 1.00 (#1) | 1.00 (#1) |
+| q18 | WASP-43b | named | 2 | 0.00 (—) | 0.50 (#5) | 0.50 (#6) |
+| q19 | CO2 | broad | 1 | 1.00 (#4) | 1.00 (#4) | 1.00 (#1) |
+| q20 | SO2 | broad | 1 | 1.00 (#1) | 1.00 (#3) | 1.00 (#1) |
+| q21 | H2O | broad | 2 | 0.00 (—) | 0.00 (—) | 0.00 (—) |
+| q22 | CH4 | broad | 1 | 0.00 (—) | 0.00 (—) | 0.00 (—) |
+| q23 | CO | broad | 1 | 1.00 (#7) | 1.00 (#4) | 1.00 (#5) |
+| q24 | Na | broad | 2 | 0.00 (—) | 0.00 (—) | 0.00 (—) |
+| q25 | escape | broad | 2 | 0.50 (#1) | 0.00 (—) | 0.50 (#7) |
+| q26 | clouds | broad | 2 | 0.50 (#10) | 0.50 (#2) | 0.50 (#3) |
+| q27 | retrieval | broad | 2 | 0.50 (#9) | 0.00 (—) | 1.00 (#3) |
+| q28 | C/O ratio | broad | 2 | 0.00 (—) | 0.00 (—) | 0.00 (—) |
+| q29 | emission | broad | 2 | 0.00 (—) | 0.00 (—) | 0.00 (—) |
+| q30 | phase curve | broad | 2 | 0.00 (—) | 0.00 (—) | 0.00 (—) |
+
+### Per-query depth & complementarity (k=50) (widened)
+
+| id | target | gold | dense R@10/@50 | lexical R@10/@50 | hybrid R@10/@50 | union R@50 | found-by (docs) |
+|---|---|---|---|---|---|---|---|
+| q01 | WASP-39b | 3 | 0.67/1.00 | 0.33/1.00 | 0.67/1.00 | 1.00 | 3 both |
+| q02 | WASP-39b | 1 | 1.00/1.00 | 1.00/1.00 | 1.00/1.00 | 1.00 | 1 both |
+| q03 | K2-18b | 2 | 0.50/1.00 | 0.50/1.00 | 0.50/1.00 | 1.00 | 2 both |
+| q04 | K2-18b | 2 | 1.00/1.00 | 1.00/1.00 | 1.00/1.00 | 1.00 | 2 both |
+| q05 | TRAPPIST-1e | 2 | 0.00/1.00 | 0.00/0.50 | 0.00/1.00 | 1.00 | 1 both · 1 D-only |
+| q06 | TRAPPIST-1b | 1 | 1.00/1.00 | 1.00/1.00 | 1.00/1.00 | 1.00 | 1 both |
+| q07 | HD 189733b | 2 | 0.50/1.00 | 0.50/0.50 | 0.50/1.00 | 1.00 | 1 both · 1 D-only |
+| q08 | HD 209458b | 3 | 0.67/1.00 | 0.33/1.00 | 1.00/1.00 | 1.00 | 3 both |
+| q09 | 55 Cancri e | 2 | 1.00/1.00 | 0.50/1.00 | 1.00/1.00 | 1.00 | 2 both |
+| q10 | GJ 1214b | 2 | 1.00/1.00 | 0.50/1.00 | 1.00/1.00 | 1.00 | 2 both |
+| q11 | WASP-121b | 1 | 0.00/0.00 | 0.00/1.00 | 0.00/0.00 | 1.00 | 1 L-only |
+| q12 | WASP-96b | 1 | 0.00/0.00 | 0.00/1.00 | 0.00/0.00 | 1.00 | 1 L-only |
+| q13 | LTT 9779b | 1 | 1.00/1.00 | 1.00/1.00 | 1.00/1.00 | 1.00 | 1 both |
+| q14 | GJ 486b | 2 | 0.50/1.00 | 1.00/1.00 | 1.00/1.00 | 1.00 | 2 both |
+| q16 | TOI-270d | 1 | 1.00/1.00 | 0.00/1.00 | 1.00/1.00 | 1.00 | 1 both |
+| q17 | WASP-17b | 1 | 1.00/1.00 | 1.00/1.00 | 1.00/1.00 | 1.00 | 1 both |
+| q18 | WASP-43b | 2 | 0.00/0.50 | 0.50/1.00 | 0.50/0.50 | 1.00 | 1 both · 1 L-only |
+| q19 | CO2 | 1 | 1.00/1.00 | 1.00/1.00 | 1.00/1.00 | 1.00 | 1 both |
+| q20 | SO2 | 1 | 1.00/1.00 | 1.00/1.00 | 1.00/1.00 | 1.00 | 1 both |
+| q21 | H2O | 2 | 0.00/0.00 | 0.00/0.00 | 0.00/0.00 | 0.00 | 2 neither |
+| q22 | CH4 | 1 | 0.00/0.00 | 0.00/1.00 | 0.00/1.00 | 1.00 | 1 L-only |
+| q23 | CO | 1 | 1.00/1.00 | 1.00/1.00 | 1.00/1.00 | 1.00 | 1 both |
+| q24 | Na | 2 | 0.00/0.50 | 0.00/0.50 | 0.00/1.00 | 1.00 | 1 D-only · 1 L-only |
+| q25 | escape | 2 | 0.50/1.00 | 0.00/0.50 | 0.50/0.50 | 1.00 | 1 both · 1 D-only |
+| q26 | clouds | 2 | 0.50/0.50 | 0.50/0.50 | 0.50/0.50 | 0.50 | 1 both · 1 neither |
+| q27 | retrieval | 2 | 0.50/1.00 | 0.00/1.00 | 1.00/1.00 | 1.00 | 2 both |
+| q28 | C/O ratio | 2 | 0.00/0.50 | 0.00/0.50 | 0.00/0.50 | 1.00 | 1 D-only · 1 L-only |
+| q29 | emission | 2 | 0.00/0.50 | 0.00/0.50 | 0.00/0.50 | 1.00 | 1 D-only · 1 L-only |
+| q30 | phase curve | 2 | 0.00/1.00 | 0.00/0.00 | 0.00/0.50 | 1.00 | 2 D-only |
+
+### Decisive queries — arms disagree on top-10 hit/miss (widened)
+
+| id | target | dense (top10 / full) | lexical (top10 / full) | hybrid (top10) |
+|---|---|---|---|---|
+| q16 | TOI-270d | #1 / #1 of 2500 | miss / #12 of 2500 | #2 |
+| q18 | WASP-43b | miss / #14 of 2500 | #5 / #5 of 2500 | #6 |
+| q25 | escape | #1 / #1 of 2500 | miss / #33 of 2500 | #7 |
+| q27 | retrieval | #9 / #9 of 2500 | miss / #11 of 2500 | #3 |
+
+## Interpretation
+
+### H5 — confirmed (strongly)
+
+Widening hurts. On the *same* 29 queries with the *same* labels, every arm loses R@10 (dense −0.195,
+lexical −0.276, hybrid −0.098), R@50 (−0.12 to −0.17), and MRR (−0.24 to −0.29). The mechanism is
+exactly as pre-registered: the 2,000 added papers are distractors that push the (frozen) relevant
+docs deeper, and a fixed pool=50 — now 2% of the index instead of 10% — leaks recall that a
+proportionally-scaled pool would keep. Coverage gains, had any existed, would have accrued to
+newly-scorable queries; there were none (H7). This is the load-bearing controlled result: **scaling
+the corpus while holding pool fixed degrades the original queries**, and the degradation is large
+enough to be visible even at n=29.
+
+### H6 — confirmed, but via displacement, not dense-blind newcomers
+
+The single-arm-exclusive class is **not** a singleton and **scales with the corpus** — 5 → 15
+relevant docs at pool depth, bidirectionally (dense-only 2→8, lexical-only 3→7). The union-recall
+premium over the best single arm grew (+0.069 → +0.172), so hybrid stage-1's value as a candidate
+generator *increases* with scale: the union holds at 0.948 while each arm collapses toward ~0.79.
+**This validates hybrid stage-1 as a growing safety net** — the strategic claim H6 was built to test.
+
+But the *mechanism* is the opposite of H6's literal wording. H6 guessed the class would grow because
+*newly-scorable entity targets* land dense-blind like the ERO. There were no newly-scorable entity
+queries, and the scan shows newcomers are mostly dual-found near the top (dense #1–#5). The class
+grows because **incumbents are displaced**: recent papers crowd the older gold docs out of one arm's
+pool-50 (q11's gold → dense #70/lex #33, dense-blind; q12's ERO → dense #1594). The dense-blind
+*mechanism* recurs (and is mirrored by lexical-blind high-resolution detections), but the population
+that feeds it is the existing relevant set under pressure, not a stream of ERO-like newcomers.
+
+### H7 — falsified by construction (resolved before retrieval)
+
+Neither coverage target enters the widened corpus under the fixed query: q15's LHS 475b is
+phrase-excluded (numFound 0 against `abs:"exoplanet atmosphere"`), q11's canonical inversion papers
+are year-excluded (2016–2017). Widening the citation cut cannot move a query-level bound. The
+coverage miss is a **query-recall** problem, not a corpus-size one — the central, slightly
+uncomfortable finding of this PR, and the reason the appendix exists. Closing these gaps needs a
+*different* lever (query/recall widening), held out of scope to keep the single-variable control.
+
+### "neither" — moved slightly, as flagged
+
+The present-but-unretrieved class went 2 → 3 (q21's H₂O pair persists; q26's
+`2023ApJ...951...96G` fell from dense-only to neither, dense #55 / lex #279). Widening does not fix
+"neither" — it adds to it by displacement, exactly the non-effect pre-registered.
+
+### Implication for the architecture decision and for PR #6
+
+The pilot's recommendation **holds and hardens**: keep hybrid as the stage-1 candidate generator.
+On the widened corpus the case is stronger than on the pilot — hybrid is now the best R@10 arm with
+*statistical* support (paired CIs exclude 0), it degrades least under distractor pressure, and its
+union candidate set is the only readout that resists corpus growth (0.966 → 0.948 while single arms
+fall ~0.12–0.17). The transferable findings are the **fusion-dilution mechanism** (now visible as the
+lost depth-inversion: fused top-50 leaks recall the union keeps, because pool=50 is too shallow a
+fraction) and the **growing, bidirectional complementarity**.
+
+Two concrete follow-ups this experiment motivates, both already implied by the pre-registered
+confounds:
+
+1. **Sweep the pool** (the deliberately-held confound). pool=50 leaking recall at 2% of the index is
+   the most actionable lever here: union R@50 = 0.948 says the recall *exists* in the candidate space;
+   the fused top-50 just doesn't capture it. A pool proportional to corpus size is the obvious test.
+2. **Widen the query, not just the corpus** (the H7 finding). The coverage gaps (LHS 475b, the
+   pre-2018 inversion literature) are query-bounded; object/title resolution or phrase relaxation —
+   not a deeper citation cut — is what reaches them.
+
+### Verdict on the pre-registered hypotheses
+
+- **H5 — confirmed (strongly).** All arms lose R@10/R@50/MRR on the fixed 29 queries; the fixed pool
+  on a 5× index is the mechanism.
+- **H6 — confirmed (strategic claim), mechanism corrected.** The single-arm/dense-blind class scales
+  (5→15) and hybrid's candidate-set premium grows (+0.069→+0.172); but it grows by incumbent
+  displacement, not by dense-blind newcomers as the literal wording guessed.
+- **H7 — falsified by construction.** Coverage targets are query-excluded (q15 phrase, q11 year), not
+  size-excluded; no widening of the citation cut admits them. Resolved at the membership stage.
+- **"neither" — changed slightly (2→3), by displacement**, as anticipated.
 
 ## Reproduce
 
