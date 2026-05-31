@@ -12,6 +12,12 @@
 #   docker compose -p astrollm-pilot -f docker/docker-compose.pilot.yml up -d
 #   docker compose -p astrollm-pilot -f docker/docker-compose.pilot.yml down      # stop, keep data
 #   docker compose -p astrollm-pilot -f docker/docker-compose.pilot.yml down -v   # stop, wipe data
+#
+# The `name:` key below pins the Compose project regardless of directory or -p flag, so
+# isolation is a property of this FILE (the --reset guard protects the app, not Compose).
+# The -p usage above is now belt-and-suspenders.
+
+name: astrollm-pilot
 
 services:
   db:

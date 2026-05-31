@@ -1,8 +1,7 @@
 # Week 01 Lab Report
 
-**Date**: 2026-05-18 to 2026-05-31
+**Date**: 2026-05-30 to 2026-05-31
 **Phase**: 1 (weeks 1-2 — pilot retrieval prototype)
-**Hours spent**: ~10 hrs
 
 ## What I Built
 
@@ -78,9 +77,14 @@ design, used only as a machinery smoke test (embed → pgvector → FTS5 → RRF
 
 ## Next Week
 
-- Obtain ADS token, ingest ~500 abstracts, **review/edit the 30-query set** and fill
-  `expected_bibcodes`, then report the real Recall@10/MRR.
-- Sanity-check dense vs. lexical contribution (ablate one arm of the RRF).
+- **Domain review of the first-pass `expected_bibcodes` labels** — start with the outliers
+  (q12's 0.00 miss, then q07/q08 which are retrieved but ranked deep), then the four 0.50
+  queries (q03, q05, q06, q18), then label the currently-empty q11, q15, and q19–q30.
+  Tracked as a follow-up PR.
+- **Ablation**: dense-only vs. lexical-only vs. hybrid (RRF) on the 500-doc corpus, to
+  quantify each arm's contribution to the number.
+- **Decide whether to widen the ADS slice** / drop the 2018 cutoff to recover pre-2018
+  canonical papers (HD 189733b sodium, WASP-121b inversion, etc.).
 - Still **out of scope** until weeks 5-10: SPECTER2, cross-encoder reranking, SIMBAD alias
   expansion, full-text fetch, section-aware chunking.
 
