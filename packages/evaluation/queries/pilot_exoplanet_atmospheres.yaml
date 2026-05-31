@@ -17,8 +17,13 @@ queries:
   - { id: q04, target: "K2-18b", query: "dimethyl sulfide biosignature claim K2-18b Hycean", expected_bibcodes: ["2023ApJ...956L..13M", "2024ApJ...963L...7W"] }
   - { id: q05, target: "TRAPPIST-1e", query: "does TRAPPIST-1e have a secondary atmosphere", expected_bibcodes: ["2020ApJ...898L..33P", "2020ApJ...901..126W"] }
   - { id: q06, target: "TRAPPIST-1b", query: "TRAPPIST-1b dayside thermal emission bare rock", expected_bibcodes: ["2023ApJ...952L...4I", "2023ApJ...955L..22L"] }
-  - { id: q07, target: "HD 189733b", query: "sodium absorption and haze in HD 189733b", expected_bibcodes: ["2024ApJ...973L..41I"] }
-  - { id: q08, target: "HD 209458b", query: "water vapor and hydrogen escape from HD 209458b", expected_bibcodes: ["2018ApJ...855L..11O", "2020A&A...636A..13L"] }
+  # reviewed 2026-05-31: added 2018A&A...612A..53P (alkali/Na lines in HD 189733b — the missed
+  # sodium facet); kept the quartz-clouds/haze paper. See pilot-label-review.md.
+  - { id: q07, target: "HD 189733b", query: "sodium absorption and haze in HD 189733b", expected_bibcodes: ["2018A&A...612A..53P", "2024ApJ...973L..41I"] }
+  # reviewed 2026-05-31: added 2024ApJ...963L...5X (H2O in HD 209458b) and 2020AJ....159..111C
+  # (escaping H/metals in HD 209458b); removed 2018ApJ...855L..11O (general He-line method, not an
+  # HD 209458b result). Kept the He-triplet escape paper. See pilot-label-review.md.
+  - { id: q08, target: "HD 209458b", query: "water vapor and hydrogen escape from HD 209458b", expected_bibcodes: ["2024ApJ...963L...5X", "2020AJ....159..111C", "2020A&A...636A..13L"] }
   - { id: q09, target: "55 Cancri e", query: "55 Cancri e lava world outgassed atmosphere", expected_bibcodes: ["2023ApJ...954...29P", "2020AJ....160..101J"] }
   - { id: q10, target: "GJ 1214b", query: "GJ 1214b flat featureless spectrum high metallicity haze", expected_bibcodes: ["2023ApJ...951...96G", "2018ApJ...863..165G"] }
   - { id: q11, target: "WASP-121b", query: "thermal inversion and metal emission in ultra-hot Jupiter WASP-121b", expected_bibcodes: [] }
