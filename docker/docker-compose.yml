@@ -12,6 +12,10 @@ services:
     ports:
       - "5432:5432"
     volumes:
+      # NOTE: init.sql only runs on a FRESH volume. The embedding dim is 384 (BGE-small).
+      # If you have a pre-384 `pgdata` volume, either reset it (`down -v` then `up`) or apply
+      # docker/migrations/001_chunks_embedding_to_384.sql once — otherwise indexing/search
+      # fails with a pgvector dimension mismatch.
       - pgdata:/var/lib/postgresql/data
       - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:

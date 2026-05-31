@@ -116,6 +116,9 @@ def _ranks(results: list[tuple[str, float]]) -> dict[str, int]:
 
 def hybrid_search(query: str, k: int = 10, pool: int = 50) -> list[dict[str, Any]]:
     """Dense + lexical retrieval fused with RRF. Returns top-k ranked records."""
+    # Each backend must return at least k candidates, or Recall@k/MRR@k under-report
+    # (e.g. eval --k 100 with a pool of 50 would never see ranks 51-100).
+    pool = max(pool, k)
     dense = dense_search(query, pool)
     lexical = lexical_search(query, pool)
     dense_rank, lexical_rank = _ranks(dense), _ranks(lexical)
