@@ -85,6 +85,7 @@ nav:
       - EXP-000 Baselines: research/experiments/EXP-000-baselines.md
   - Lab Reports:
     - Overview: lab/index.md
+    - Week 01 — Pilot Retrieval: lab/week-01.md
   - Planning:
     - V1 Final Plan: V1_FINAL_PLAN.md
     - Master Plan: MASTER_PLAN.md

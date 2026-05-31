@@ -10,7 +10,7 @@ Query → Embed → Hybrid Search (semantic + keyword) → Rerank → Top-k → 
 
 ## Components
 
-- **Embedding**: BGE-large-en-v1.5 via HF Text Embeddings Inference
+- **Embedding**: BGE-small-en-v1.5 (384-dim, matches `docker/init.sql`) via HF Text Embeddings Inference
 - **Vector Store**: PostgreSQL + pgvector (cosine similarity)
 - **Full-Text**: PostgreSQL ts_vector (keyword search)
 - **Hybrid**: 70/30 semantic/keyword weighting (tunable)

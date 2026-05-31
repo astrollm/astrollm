@@ -1,0 +1,41 @@
+# SYNTHETIC smoke-test query set (see make_fixture.py). Not real science.
+queries:
+  - id: q01
+    query: 'JWST CO2 detection in WASP-39b'
+    expected_bibcodes: [2024TESTWASP39B-CO2]
+  - id: q02
+    query: 'sulfur dioxide photochemistry on WASP-39b'
+    expected_bibcodes: [2024TESTWASP39B-SO2, 2024TESTPHOTOCHEM-1]
+  - id: q03
+    query: 'dimethyl sulfide biosignature K2-18b'
+    expected_bibcodes: [2024TESTK218B--DMS.]
+  - id: q04
+    query: 'does TRAPPIST-1e have an atmosphere'
+    expected_bibcodes: [2024TESTTRAP1E-ATM.]
+  - id: q05
+    query: 'TRAPPIST-1b bare rock thermal emission'
+    expected_bibcodes: [2024TESTTRAP1B-BARE]
+  - id: q06
+    query: 'sodium absorption haze HD 189733b'
+    expected_bibcodes: [2024TESTHD189733-NA]
+  - id: q07
+    query: 'atmospheric escape water HD 209458b'
+    expected_bibcodes: [2024TESTHD209458H2O]
+  - id: q08
+    query: '55 Cancri e lava world outgassed atmosphere'
+    expected_bibcodes: [2024TEST55CNCE-LAVA]
+  - id: q09
+    query: 'GJ 1214b flat featureless spectrum high metallicity'
+    expected_bibcodes: [2024TESTGJ1214BFLAT]
+  - id: q10
+    query: 'thermal inversion ultra-hot Jupiter WASP-121b'
+    expected_bibcodes: [2024TESTWASP121BINV]
+  - id: q11
+    query: 'reflective clouds high albedo LTT 9779b'
+    expected_bibcodes: [2024TESTLTT9779BREF]
+  - id: q12
+    query: 'cloud-free water WASP-96b NIRISS'
+    expected_bibcodes: [2024TESTWASP96B-H2O]
+  - id: q13
+    query: 'Bayesian retrieval transmission spectra method'
+    expected_bibcodes: [2024TESTRETRIEVAL-1]

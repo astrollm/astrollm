@@ -1,0 +1,43 @@
+# Pilot retrieval eval — query set (exoplanet atmospheres), grounded in the 500-abstract corpus
+#
+# expected_bibcodes are a FIRST-PASS relevance labeling by Claude: title-level bullseyes for
+# named targets, judged from corpus matches found by entity name (independent of the hybrid
+# ranker, so genuine recall misses are possible). REVIEW AND EDIT before treating as final —
+# add relevant papers I missed and remove any you disagree with.
+#
+# Empty expected_bibcodes (skipped by eval_retrieval.py, which reports them):
+#   q11 (WASP-121b inversion/emission) — no clear bullseye in the 2018+ corpus
+#   q15 (LHS 475b) — target not present in this corpus
+#   q19-q30 — broad molecule/process queries; relevant sets are large/fuzzy, left for your review
+
+queries:
+  - { id: q01, target: "WASP-39b", query: "JWST CO2 detection in WASP-39b transmission spectrum", expected_bibcodes: ["2023Natur.614..649J", "2023Natur.614..664A", "2023Natur.614..653A"] }
+  - { id: q02, target: "WASP-39b", query: "sulfur dioxide photochemistry in WASP-39b", expected_bibcodes: ["2023Natur.617..483T"] }
+  - { id: q03, target: "K2-18b", query: "methane and CO2 in the sub-Neptune K2-18b", expected_bibcodes: ["2023ApJ...956L..13M", "2024ApJ...963L...7W"] }
+  - { id: q04, target: "K2-18b", query: "dimethyl sulfide biosignature claim K2-18b Hycean", expected_bibcodes: ["2023ApJ...956L..13M", "2024ApJ...963L...7W"] }
+  - { id: q05, target: "TRAPPIST-1e", query: "does TRAPPIST-1e have a secondary atmosphere", expected_bibcodes: ["2020ApJ...898L..33P", "2020ApJ...901..126W"] }
+  - { id: q06, target: "TRAPPIST-1b", query: "TRAPPIST-1b dayside thermal emission bare rock", expected_bibcodes: ["2023ApJ...952L...4I", "2023ApJ...955L..22L"] }
+  - { id: q07, target: "HD 189733b", query: "sodium absorption and haze in HD 189733b", expected_bibcodes: ["2024ApJ...973L..41I"] }
+  - { id: q08, target: "HD 209458b", query: "water vapor and hydrogen escape from HD 209458b", expected_bibcodes: ["2018ApJ...855L..11O", "2020A&A...636A..13L"] }
+  - { id: q09, target: "55 Cancri e", query: "55 Cancri e lava world outgassed atmosphere", expected_bibcodes: ["2023ApJ...954...29P", "2020AJ....160..101J"] }
+  - { id: q10, target: "GJ 1214b", query: "GJ 1214b flat featureless spectrum high metallicity haze", expected_bibcodes: ["2023ApJ...951...96G", "2018ApJ...863..165G"] }
+  - { id: q11, target: "WASP-121b", query: "thermal inversion and metal emission in ultra-hot Jupiter WASP-121b", expected_bibcodes: [] }
+  - { id: q12, target: "WASP-96b", query: "cloud-free water detection in WASP-96b with NIRISS", expected_bibcodes: ["2022ApJ...936L..14P", "2021AJ....161....4Y"] }
+  - { id: q13, target: "LTT 9779b", query: "reflective clouds high albedo ultra-hot Neptune LTT 9779b", expected_bibcodes: ["2024ApJ...962L..20R"] }
+  - { id: q14, target: "GJ 486b", query: "GJ 486b water vapor rocky planet or stellar contamination", expected_bibcodes: ["2023ApJ...948L..11M", "2024ApJ...975L..22W"] }
+  - { id: q15, target: "LHS 475b", query: "LHS 475b atmosphere constraints terrestrial", expected_bibcodes: [] }
+  - { id: q16, target: "TOI-270d", query: "TOI-270d sub-Neptune atmospheric metallicity", expected_bibcodes: ["2023AJ....165...84M"] }
+  - { id: q17, target: "WASP-17b", query: "silicate clouds quartz in WASP-17b", expected_bibcodes: ["2023ApJ...956L..32G"] }
+  - { id: q18, target: "WASP-43b", query: "WASP-43b phase curve nightside clouds", expected_bibcodes: ["2018ApJ...869..107M", "2020ApJ...890..176V"] }
+  - { id: q19, target: "CO2", query: "carbon dioxide detection exoplanet transmission spectrum", expected_bibcodes: [] }
+  - { id: q20, target: "SO2", query: "sulfur dioxide photochemical product hot Jupiter", expected_bibcodes: [] }
+  - { id: q21, target: "H2O", query: "water vapor abundance hot Jupiter atmosphere", expected_bibcodes: [] }
+  - { id: q22, target: "CH4", query: "methane detection sub-Neptune atmosphere", expected_bibcodes: [] }
+  - { id: q23, target: "CO", query: "carbon monoxide high-resolution cross-correlation exoplanet", expected_bibcodes: [] }
+  - { id: q24, target: "Na", query: "neutral sodium D lines exoplanet atmosphere", expected_bibcodes: [] }
+  - { id: q25, target: "escape", query: "atmospheric escape hydrogen outflow evaporating exoplanet", expected_bibcodes: [] }
+  - { id: q26, target: "clouds", query: "clouds and hazes muting transmission features", expected_bibcodes: [] }
+  - { id: q27, target: "retrieval", query: "Bayesian atmospheric retrieval free chemistry transmission spectra", expected_bibcodes: [] }
+  - { id: q28, target: "C/O ratio", query: "carbon to oxygen ratio metallicity planet formation tracer", expected_bibcodes: [] }
+  - { id: q29, target: "emission", query: "dayside emission spectrum thermal structure hot Jupiter", expected_bibcodes: [] }
+  - { id: q30, target: "phase curve", query: "thermal phase curve heat redistribution exoplanet", expected_bibcodes: [] }
