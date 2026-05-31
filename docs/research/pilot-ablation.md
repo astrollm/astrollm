@@ -289,17 +289,17 @@ The load-bearing findings are per-query existence proofs, which do not depend on
   unreachable by any sane pool; the q12 caveat, now shown).
 - **Complementarity (H4).** Union recall at pool depth = 0.966 all / 1.000 named / 0.917 broad vs
   dense 0.897 / 0.941 / 0.833 and lexical 0.931 / 1.000 / 0.833. Of relevant docs found at pool
-  depth, 2 were dense-only, 3 lexical-only, 42 both (of 49 relevant; 2 in neither). Lexical-only
-  recovers 3 relevant docs dense missed (q12-type, dense-blind exact-string targets) **[CONTRADICTED:
-  only q12's ERO is truly dense-blind at dense #338; the other 2 lexical-only docs sit at dense #54
-  and #89 — just outside pool=50, not blind]**; dense-only recovers 2 lexical missed (broad
-  conceptual queries with no entity anchor) **[CONTRADICTED: both dense-only docs sit at lexical #87
-  and #96 — just outside the pool, not lexically blind; and one is q24 "Na", a molecule query rather
-  than a pure-conceptual one]**. Complementarity is modest but bidirectional (5 of 49 relevant docs,
-  ~10%, reach only one arm at pool=50), and it lifts pool-depth recall to 0.966, above the better
-  single arm (lexical 0.931) — enough to justify hybrid candidate generation, though 4 of the 5
-  single-arm-only docs are "just outside the other arm's pool" rather than truly exclusive; only q12
-  is.
+  depth, 2 were dense-only, 3 lexical-only, 42 both (of 49 relevant; 2 in neither). The 3 lexical-only
+  docs are ones lexical ranks inside pool=50 but dense ranks outside it — though only q12's ERO is
+  *truly* dense-blind (dense #338); the other two sit at dense #54 and #89, just past the pool.
+  Symmetrically, the 2 dense-only docs sit at lexical #87 and #96 — just past the pool, not lexically
+  blind (and one is q24's "Na", a molecule query, not a purely conceptual one). So complementarity is
+  modest but bidirectional (5 of 49 relevant docs, ~10%, reach only one arm at pool=50), lifting
+  pool-depth recall to 0.966 — above the better single arm (lexical 0.931) — enough to justify hybrid
+  candidate generation. The honest caveat: 4 of the 5 single-arm-only docs are merely "just outside
+  the other arm's pool of 50" rather than truly single-arm-exclusive; only q12 is. That distinction
+  matters for PR #6 — most of this complementarity is pool-reachable, but the q12-class fusion failure
+  is not.
 
 ### What it does NOT establish (within noise at n=29)
 

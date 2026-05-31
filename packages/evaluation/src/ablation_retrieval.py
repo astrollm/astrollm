@@ -94,6 +94,10 @@ def run(queries_path: Path, k: int, pool: int, bootstrap_b: int, seed: int) -> d
     spec = yaml.safe_load(queries_path.read_text())
     items: list[dict[str, Any]] = spec["queries"] if isinstance(spec, dict) else spec
     corpus_n = _corpus_size()
+    # Match retrieve(): each arm must yield at least k candidates, else the hybrid arm (fused only
+    # from the top-`pool`) is scored shallower than the single arms when k > pool. No-op for the
+    # pilot config (k=10, pool=50). Recorded as the effective pool in the config block below.
+    pool = max(pool, k)
 
     per_query: list[dict[str, Any]] = []
     skipped: list[str] = []
