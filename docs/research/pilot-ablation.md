@@ -71,11 +71,142 @@ Registered **before** running the experiment (these are the commission's hypothe
 
 ## Results
 
-<!-- PENDING RUN — filled in the results commit. -->
+### Aggregate — Recall@10 / MRR by arm and split
+
+Best per column in **bold**.
+
+| arm | named R@10 | named MRR | broad R@10 | broad MRR | all R@10 | all MRR |
+|---|---|---|---|---|---|---|
+| dense | 0.794 | 0.785 | **0.625** | 0.374 | **0.724** | 0.615 |
+| lexical | **0.804** | 0.765 | 0.583 | 0.317 | 0.713 | 0.580 |
+| hybrid | 0.794 | **0.794** | 0.542 | **0.381** | 0.690 | **0.623** |
+
+**Harness validation:** the hybrid row reproduces the PR #4
+[label-review](pilot-label-review.md) baseline *exactly* — named 0.794/0.794, broad 0.542/0.381,
+all 0.690/0.623 — confirming nothing but the arm changed.
+
+**Two clean patterns:** hybrid wins **every MRR split** (it ranks the first relevant doc highest);
+dense wins **every recall split** (all-scored and broad), with lexical's lone recall win on the
+named set driven entirely by q12. Hybrid has the **lowest** all-scored Recall@10 (0.690 vs dense
+0.724).
+
+### Per-query (all scored, raw)
+
+`R@10 (rank)` = recall@10 and the rank of the first gold hit within the top-10 (`—` = miss, so
+RR = 0). `gold` = size of the labeled relevant set.
+
+| id | target | kind | gold | dense R@10 (rank) | lexical R@10 (rank) | hybrid R@10 (rank) |
+|---|---|---|---|---|---|---|
+| q01 | WASP-39b | named | 3 | 1.00 (#1) | 1.00 (#1) | 1.00 (#1) |
+| q02 | WASP-39b | named | 1 | 1.00 (#1) | 1.00 (#1) | 1.00 (#1) |
+| q03 | K2-18b | named | 2 | 0.50 (#1) | 0.50 (#1) | 0.50 (#1) |
+| q04 | K2-18b | named | 2 | 1.00 (#1) | 1.00 (#1) | 1.00 (#1) |
+| q05 | TRAPPIST-1e | named | 2 | 0.50 (#7) | 0.50 (#4) | 0.50 (#2) |
+| q06 | TRAPPIST-1b | named | 1 | 1.00 (#1) | 1.00 (#1) | 1.00 (#1) |
+| q07 | HD 189733b | named | 2 | 1.00 (#1) | 0.50 (#2) | 1.00 (#1) |
+| q08 | HD 209458b | named | 3 | 1.00 (#1) | 0.67 (#1) | 1.00 (#2) |
+| q09 | 55 Cancri e | named | 2 | 1.00 (#1) | 1.00 (#1) | 1.00 (#1) |
+| q10 | GJ 1214b | named | 2 | 1.00 (#1) | 1.00 (#2) | 1.00 (#1) |
+| q11 | WASP-121b | named | 1 | 0.00 (—) | 0.00 (—) | 0.00 (—) |
+| q12 | WASP-96b | named | 1 | 0.00 (—) | **1.00 (#4)** | 0.00 (—) |
+| q13 | LTT 9779b | named | 1 | 1.00 (#1) | 1.00 (#1) | 1.00 (#1) |
+| q14 | GJ 486b | named | 2 | 1.00 (#1) | 1.00 (#1) | 1.00 (#1) |
+| q16 | TOI-270d | named | 1 | 1.00 (#1) | 1.00 (#2) | 1.00 (#1) |
+| q17 | WASP-17b | named | 1 | 1.00 (#1) | 1.00 (#1) | 1.00 (#1) |
+| q18 | WASP-43b | named | 2 | 0.50 (#5) | 0.50 (#1) | 0.50 (#2) |
+| q19 | CO2 | broad | 1 | 1.00 (#1) | 1.00 (#2) | 1.00 (#1) |
+| q20 | SO2 | broad | 1 | 1.00 (#1) | 1.00 (#1) | 1.00 (#1) |
+| q21 | H2O | broad | 2 | 0.00 (—) | 0.00 (—) | 0.00 (—) |
+| q22 | CH4 | broad | 1 | 0.00 (—) | 1.00 (#8) | 1.00 (#10) |
+| q23 | CO | broad | 1 | 1.00 (#2) | 1.00 (#1) | 1.00 (#2) |
+| q24 | Na | broad | 2 | **0.50 (#7)** | **0.50 (#4)** | 0.00 (—) |
+| q25 | escape | broad | 2 | 1.00 (#1) | 0.50 (#7) | 0.50 (#2) |
+| q26 | clouds | broad | 2 | 0.50 (#6) | 0.50 (#3) | 0.50 (#3) |
+| q27 | retrieval | broad | 2 | 1.00 (#4) | 1.00 (#3) | 1.00 (#1) |
+| q28 | C/O ratio | broad | 2 | **0.50 (#7)** | **0.50 (#8)** | 0.00 (—) |
+| q29 | emission | broad | 2 | **0.50 (#7)** | 0.00 (—) | 0.00 (—) |
+| q30 | phase curve | broad | 2 | 0.50 (#7) | 0.00 (—) | 0.50 (#7) |
+
+### Decisive queries — arms disagree on top-10 hit/miss
+
+`topN` = first-gold rank in that arm's scored top-10; `full` = the gold paper's rank in the arm's
+*entire* 500-doc ranking (pool-independent diagnostic — shows where the signal actually lives).
+
+| id | target | dense (top10 / full) | lexical (top10 / full) | hybrid (top10) |
+|---|---|---|---|---|
+| q12 | WASP-96b | miss / #338 of 500 | #4 / #4 of 500 | miss |
+| q22 | CH4 | miss / #21 of 500 | #8 / #8 of 500 | #10 |
+| q24 | Na | #7 / #7 of 500 | #4 / #4 of 500 | miss |
+| q28 | C/O ratio | #7 / #7 of 500 | #8 / #8 of 500 | miss |
+| q29 | emission | #7 / #7 of 500 | miss / #15 of 500 | miss |
+| q30 | phase curve | #7 / #7 of 500 | miss / #15 of 500 | #7 |
+
+Per-paper detail behind the two-arm losses (gold paper → dense rank / lexical rank in the full
+500-doc ranking; **bold** = inside the pool of 50, plain = outside it):
+
+- **q24 (Na):** `2020A&A...635A.206C` → dense **#7** / lexical #87; `2018A&A...612A..53P` → dense #89
+  / lexical **#4**. Each relevant paper is strong in *one* arm and outside the *other* arm's pool,
+  so each earns a single weak RRF term and hybrid buries both.
+- **q28 (C/O):** `2021ApJ...914...12L` → dense **#7** / lexical **#41**; `2024ApJ...963L...5X` →
+  dense #54 / lexical **#8**. Same split: the relevance is divided single-arm-strong across arms.
 
 ## Interpretation
 
-<!-- PENDING RUN — filled in the results commit, tied back to H1/H2/H3. -->
+### H1 — confirmed
+
+Lexical-only beats hybrid on single-arm-strong misses. **q12 (WASP-96b):** lexical retrieves the
+ERO at **#4** (recall 1.00) while hybrid misses it entirely. The mechanism is exactly the one
+predicted and documented in the label review: the ERO's abstract is generic outreach text, so it
+embeds far from the query (**dense #338**) while matching lexically; RRF with a pool of 50 gives the
+paper a single weak term and ranks both-arms-mediocre papers above it. **q24 (Na)** is a second
+clean case — lexical #4, hybrid miss. Lexical-only strictly recovers what hybrid dilutes.
+
+### H2 — confirmed (modest margin)
+
+Dense-only beats lexical-only on the broad/conceptual set in **both** metrics: Recall@10 0.625 vs
+0.583, MRR 0.374 vs 0.317. The margin is small (≈one query of recall), but the direction is as
+predicted and consistent. Conceptual queries have no entity string for BM25 to anchor on, so lexical
+ranks the landmark lower or misses it — e.g. q25 (escape) dense #1 vs lexical #7, q29 (emission)
+dense #7 vs lexical miss, q30 (phase curve) dense #7 vs lexical miss. Dense's semantic match anchors
+better. Caveat: broad labels are known-item (optimistic), so treat the broad numbers as directional.
+
+### H3 — partially confirmed; this is the headline
+
+The "**strictly beaten by a single arm on tail queries**" clause is confirmed, strongly — and more
+strongly than predicted. Hybrid is beaten by lexical on q12, by dense on q29, and on **q24 and q28
+by _both_ single arms at once**: each relevant paper is single-arm-strong in a *different* arm (and
+outside the other arm's pool), so RRF hands each a lone weak term and ranks generic
+both-arms-mediocre papers above them. Each single arm recovers one of the two; fusion recovers
+neither.
+
+The "**hybrid is best on average**" clause is **refuted on Recall@10 and confirmed only on MRR.**
+Hybrid wins every MRR split (named 0.794, broad 0.381, all 0.623 — all firsts) but has the **lowest**
+all-scored Recall@10 (0.690), below dense (0.724) and lexical (0.713). So the honest result: on this
+frozen pilot, hybrid RRF buys **ranking quality** (it places a relevant doc highest) at a measurable
+**recall cost** (−0.034 vs dense overall). The folk intuition "fusion is best on average" holds for
+*where it ranks the first hit*, not for *whether it finds everything*.
+
+**Why:** RRF's failure mode is split single-arm-strong relevance. When a relevant paper is strong in
+only one arm and outside the other arm's pool, fusion reduces it to a single ~`1/(60+rank)` term —
+easily out-scored by papers that rank merely *decently in both* arms (two terms). The pilot corpus
+has enough such cases (q12, q24, q28, plus partials) to pull hybrid's recall below dense's. Note
+this is a **fusion** problem, not a **pool** problem: q12's ERO at dense #338 is unreachable by any
+sane pool, so widening the pool would not fix it (the q12 caveat above, now demonstrated).
+
+### Takeaways
+
+- **Diagnosis over verdict.** The useful output is not "arm X wins" (the aggregate gaps are ≤0.034)
+  but the reproducible failure mode: hybrid RRF loses recall precisely on split single-arm-strong
+  relevance. The per-query and decisive-query tables localize every instance.
+- **If forced to pick one default on this corpus:** dense-only maximizes recall (find the paper at
+  all), hybrid maximizes MRR (rank it first). The choice follows the product's recall-vs-ranking
+  weighting; the difference is small either way.
+- **Follow-ups (out of scope here — single-variable ablation):** (1) score-aware fusion that does
+  not discard a strong single-arm signal (weighted RRF, or max-of-normalized-scores); (2) a reranker
+  over the union of both arms' top-k; (3) section-aware / full-text chunking so multi-target release
+  papers (q12) embed near their per-target science and dense recall improves — the same chunking
+  work the label review flagged for weeks 5–10. A **pool sweep is explicitly not** a fix for the
+  q12-class miss and is a separate, optional experiment.
 
 ## Reproduce
 

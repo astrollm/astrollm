@@ -1,0 +1,911 @@
+{
+  "config": {
+    "k": 10,
+    "pool": 50,
+    "rrf_k": 60,
+    "corpus_n": 500,
+    "queries_file": "packages/evaluation/queries/pilot_exoplanet_atmospheres.yaml",
+    "n_scored": 29,
+    "n_named": 17,
+    "n_broad": 12,
+    "skipped": [
+      "q15"
+    ]
+  },
+  "aggregates": {
+    "dense": {
+      "named": {
+        "recall": 0.7941176470588235,
+        "mrr": 0.7848739495798319,
+        "n": 17
+      },
+      "broad": {
+        "recall": 0.625,
+        "mrr": 0.3740079365079365,
+        "n": 12
+      },
+      "all": {
+        "recall": 0.7241379310344828,
+        "mrr": 0.6148604269293925,
+        "n": 29
+      }
+    },
+    "lexical": {
+      "named": {
+        "recall": 0.8039215686274509,
+        "mrr": 0.7647058823529411,
+        "n": 17
+      },
+      "broad": {
+        "recall": 0.5833333333333334,
+        "mrr": 0.31746031746031744,
+        "n": 12
+      },
+      "all": {
+        "recall": 0.7126436781609196,
+        "mrr": 0.5796387520525452,
+        "n": 29
+      }
+    },
+    "hybrid": {
+      "named": {
+        "recall": 0.7941176470588235,
+        "mrr": 0.7941176470588235,
+        "n": 17
+      },
+      "broad": {
+        "recall": 0.5416666666666666,
+        "mrr": 0.3813492063492063,
+        "n": 12
+      },
+      "all": {
+        "recall": 0.6896551724137931,
+        "mrr": 0.6233169129720854,
+        "n": 29
+      }
+    }
+  },
+  "per_query": [
+    {
+      "id": "q01",
+      "target": "WASP-39b",
+      "query": "JWST CO2 detection in WASP-39b transmission spectrum",
+      "kind": "named",
+      "n_gold": 3,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q02",
+      "target": "WASP-39b",
+      "query": "sulfur dioxide photochemistry in WASP-39b",
+      "kind": "named",
+      "n_gold": 1,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q03",
+      "target": "K2-18b",
+      "query": "methane and CO2 in the sub-Neptune K2-18b",
+      "kind": "named",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 0.5,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 0.5,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 0.5,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q04",
+      "target": "K2-18b",
+      "query": "dimethyl sulfide biosignature claim K2-18b Hycean",
+      "kind": "named",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q05",
+      "target": "TRAPPIST-1e",
+      "query": "does TRAPPIST-1e have a secondary atmosphere",
+      "kind": "named",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 0.5,
+          "rr": 0.14285714285714285,
+          "hit_rank": 7
+        },
+        "lexical": {
+          "recall": 0.5,
+          "rr": 0.25,
+          "hit_rank": 4
+        },
+        "hybrid": {
+          "recall": 0.5,
+          "rr": 0.5,
+          "hit_rank": 2
+        }
+      },
+      "diag": {
+        "dense_best_rank": 7,
+        "lexical_best_rank": 4,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q06",
+      "target": "TRAPPIST-1b",
+      "query": "TRAPPIST-1b dayside thermal emission bare rock",
+      "kind": "named",
+      "n_gold": 1,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q07",
+      "target": "HD 189733b",
+      "query": "sodium absorption and haze in HD 189733b",
+      "kind": "named",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 0.5,
+          "rr": 0.5,
+          "hit_rank": 2
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 2,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q08",
+      "target": "HD 209458b",
+      "query": "water vapor and hydrogen escape from HD 209458b",
+      "kind": "named",
+      "n_gold": 3,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 0.6666666666666666,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "rr": 0.5,
+          "hit_rank": 2
+        }
+      },
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q09",
+      "target": "55 Cancri e",
+      "query": "55 Cancri e lava world outgassed atmosphere",
+      "kind": "named",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q10",
+      "target": "GJ 1214b",
+      "query": "GJ 1214b flat featureless spectrum high metallicity haze",
+      "kind": "named",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "rr": 0.5,
+          "hit_rank": 2
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 2,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q11",
+      "target": "WASP-121b",
+      "query": "thermal inversion and metal emission in ultra-hot Jupiter WASP-121b",
+      "kind": "named",
+      "n_gold": 1,
+      "arms": {
+        "dense": {
+          "recall": 0.0,
+          "rr": 0.0,
+          "hit_rank": null
+        },
+        "lexical": {
+          "recall": 0.0,
+          "rr": 0.0,
+          "hit_rank": null
+        },
+        "hybrid": {
+          "recall": 0.0,
+          "rr": 0.0,
+          "hit_rank": null
+        }
+      },
+      "diag": {
+        "dense_best_rank": 28,
+        "lexical_best_rank": 15,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q12",
+      "target": "WASP-96b",
+      "query": "cloud-free water detection in WASP-96b with NIRISS",
+      "kind": "named",
+      "n_gold": 1,
+      "arms": {
+        "dense": {
+          "recall": 0.0,
+          "rr": 0.0,
+          "hit_rank": null
+        },
+        "lexical": {
+          "recall": 1.0,
+          "rr": 0.25,
+          "hit_rank": 4
+        },
+        "hybrid": {
+          "recall": 0.0,
+          "rr": 0.0,
+          "hit_rank": null
+        }
+      },
+      "diag": {
+        "dense_best_rank": 338,
+        "lexical_best_rank": 4,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q13",
+      "target": "LTT 9779b",
+      "query": "reflective clouds high albedo ultra-hot Neptune LTT 9779b",
+      "kind": "named",
+      "n_gold": 1,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q14",
+      "target": "GJ 486b",
+      "query": "GJ 486b water vapor rocky planet or stellar contamination",
+      "kind": "named",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q16",
+      "target": "TOI-270d",
+      "query": "TOI-270d sub-Neptune atmospheric metallicity",
+      "kind": "named",
+      "n_gold": 1,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "rr": 0.5,
+          "hit_rank": 2
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 2,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q17",
+      "target": "WASP-17b",
+      "query": "silicate clouds quartz in WASP-17b",
+      "kind": "named",
+      "n_gold": 1,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q18",
+      "target": "WASP-43b",
+      "query": "WASP-43b phase curve nightside clouds",
+      "kind": "named",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 0.5,
+          "rr": 0.2,
+          "hit_rank": 5
+        },
+        "lexical": {
+          "recall": 0.5,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 0.5,
+          "rr": 0.5,
+          "hit_rank": 2
+        }
+      },
+      "diag": {
+        "dense_best_rank": 5,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q19",
+      "target": "CO2",
+      "query": "carbon dioxide detection exoplanet transmission spectrum",
+      "kind": "broad",
+      "n_gold": 1,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "rr": 0.5,
+          "hit_rank": 2
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 2,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q20",
+      "target": "SO2",
+      "query": "sulfur dioxide photochemical product hot Jupiter",
+      "kind": "broad",
+      "n_gold": 1,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q21",
+      "target": "H2O",
+      "query": "water vapor abundance hot Jupiter atmosphere",
+      "kind": "broad",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 0.0,
+          "rr": 0.0,
+          "hit_rank": null
+        },
+        "lexical": {
+          "recall": 0.0,
+          "rr": 0.0,
+          "hit_rank": null
+        },
+        "hybrid": {
+          "recall": 0.0,
+          "rr": 0.0,
+          "hit_rank": null
+        }
+      },
+      "diag": {
+        "dense_best_rank": 82,
+        "lexical_best_rank": 61,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q22",
+      "target": "CH4",
+      "query": "methane detection sub-Neptune atmosphere",
+      "kind": "broad",
+      "n_gold": 1,
+      "arms": {
+        "dense": {
+          "recall": 0.0,
+          "rr": 0.0,
+          "hit_rank": null
+        },
+        "lexical": {
+          "recall": 1.0,
+          "rr": 0.125,
+          "hit_rank": 8
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "rr": 0.1,
+          "hit_rank": 10
+        }
+      },
+      "diag": {
+        "dense_best_rank": 21,
+        "lexical_best_rank": 8,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q23",
+      "target": "CO",
+      "query": "carbon monoxide high-resolution cross-correlation exoplanet",
+      "kind": "broad",
+      "n_gold": 1,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "rr": 0.5,
+          "hit_rank": 2
+        },
+        "lexical": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "rr": 0.5,
+          "hit_rank": 2
+        }
+      },
+      "diag": {
+        "dense_best_rank": 2,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q24",
+      "target": "Na",
+      "query": "neutral sodium D lines exoplanet atmosphere",
+      "kind": "broad",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 0.5,
+          "rr": 0.14285714285714285,
+          "hit_rank": 7
+        },
+        "lexical": {
+          "recall": 0.5,
+          "rr": 0.25,
+          "hit_rank": 4
+        },
+        "hybrid": {
+          "recall": 0.0,
+          "rr": 0.0,
+          "hit_rank": null
+        }
+      },
+      "diag": {
+        "dense_best_rank": 7,
+        "lexical_best_rank": 4,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q25",
+      "target": "escape",
+      "query": "atmospheric escape hydrogen outflow evaporating exoplanet",
+      "kind": "broad",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 0.5,
+          "rr": 0.14285714285714285,
+          "hit_rank": 7
+        },
+        "hybrid": {
+          "recall": 0.5,
+          "rr": 0.5,
+          "hit_rank": 2
+        }
+      },
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 7,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q26",
+      "target": "clouds",
+      "query": "clouds and hazes muting transmission features",
+      "kind": "broad",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 0.5,
+          "rr": 0.16666666666666666,
+          "hit_rank": 6
+        },
+        "lexical": {
+          "recall": 0.5,
+          "rr": 0.3333333333333333,
+          "hit_rank": 3
+        },
+        "hybrid": {
+          "recall": 0.5,
+          "rr": 0.3333333333333333,
+          "hit_rank": 3
+        }
+      },
+      "diag": {
+        "dense_best_rank": 6,
+        "lexical_best_rank": 3,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q27",
+      "target": "retrieval",
+      "query": "Bayesian atmospheric retrieval free chemistry transmission spectra",
+      "kind": "broad",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "rr": 0.25,
+          "hit_rank": 4
+        },
+        "lexical": {
+          "recall": 1.0,
+          "rr": 0.3333333333333333,
+          "hit_rank": 3
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "diag": {
+        "dense_best_rank": 4,
+        "lexical_best_rank": 3,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q28",
+      "target": "C/O ratio",
+      "query": "carbon to oxygen ratio metallicity planet formation tracer",
+      "kind": "broad",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 0.5,
+          "rr": 0.14285714285714285,
+          "hit_rank": 7
+        },
+        "lexical": {
+          "recall": 0.5,
+          "rr": 0.125,
+          "hit_rank": 8
+        },
+        "hybrid": {
+          "recall": 0.0,
+          "rr": 0.0,
+          "hit_rank": null
+        }
+      },
+      "diag": {
+        "dense_best_rank": 7,
+        "lexical_best_rank": 8,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q29",
+      "target": "emission",
+      "query": "dayside emission spectrum thermal structure hot Jupiter",
+      "kind": "broad",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 0.5,
+          "rr": 0.14285714285714285,
+          "hit_rank": 7
+        },
+        "lexical": {
+          "recall": 0.0,
+          "rr": 0.0,
+          "hit_rank": null
+        },
+        "hybrid": {
+          "recall": 0.0,
+          "rr": 0.0,
+          "hit_rank": null
+        }
+      },
+      "diag": {
+        "dense_best_rank": 7,
+        "lexical_best_rank": 15,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q30",
+      "target": "phase curve",
+      "query": "thermal phase curve heat redistribution exoplanet",
+      "kind": "broad",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 0.5,
+          "rr": 0.14285714285714285,
+          "hit_rank": 7
+        },
+        "lexical": {
+          "recall": 0.0,
+          "rr": 0.0,
+          "hit_rank": null
+        },
+        "hybrid": {
+          "recall": 0.5,
+          "rr": 0.14285714285714285,
+          "hit_rank": 7
+        }
+      },
+      "diag": {
+        "dense_best_rank": 7,
+        "lexical_best_rank": 15,
+        "corpus_n": 500
+      }
+    }
+  ]
+}
