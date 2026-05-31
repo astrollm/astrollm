@@ -10,19 +10,29 @@ ranker), read the abstracts, and decide keep / remove / add against the query's 
 genuine retrieval misses (relevant paper exists but isn't retrieved) separately from labeling
 errors — only the latter change the labels.
 
-Headline (started 0.812 / 0.776): **Recall@10 = 0.844, MRR = 0.844** after review so far.
-MRR rose via q07/q08 (first pass had labeled only secondary papers, missing the on-target ones);
-Recall rose via q06 (an off-facet label removed). Discipline check: relevance is judged from
-abstracts, not rank — q08's hybrid #1 (`2020ApJ...890...79J`, general water-escape, not HD 209458b)
-was **rejected** despite its rank, and the four 0.50 queries below were mostly left as honest
-misses rather than relabeled upward.
+**Review complete (28 of 30 queries scored; q15 has no in-corpus target).** Final numbers,
+reported split because the two query kinds mean different things:
 
-## Status
+| set | n | Recall@10 | MRR |
+|---|---|---|---|
+| named-target (q01–18) | 17 | **0.794** | **0.794** |
+| broad known-item (q19–30) | 12 | **0.542** | **0.381** |
+| all scored | 29 | 0.690 | 0.623 |
 
-- [x] **q12** — WASP-96b
-- [x] **q07** — HD 189733b (RR 0.17 → 1.00)
-- [x] **q08** — HD 209458b (RR 0.25 → 0.50)
-- [x] **q03, q05, q06, q18** — the four 0.50 partial-recall queries (only q06 relabeled)
+The 16-query named set peaked at 0.844/0.844 mid-review; it settles to **0.794** once **q11** is
+included as a scored *miss* (see below). Discipline held throughout: relevance judged from
+abstracts not rank (q08's hybrid #1 was rejected), and genuine misses were kept rather than
+relabeled upward. **Headline finding:** the hybrid pilot is markedly weaker on conceptual/topical
+queries (0.542) than on named entities (0.794) — and the broad number is *optimistic* (known-item
+exemplars, not exhaustive recall).
+
+## Status — complete
+
+- [x] **q12** — WASP-96b (off-target label removed)
+- [x] **q07 / q08** — HD 189733b / HD 209458b (added missed on-target papers)
+- [x] **q03, q05, q06, q18** — the four 0.50 queries (only q06 relabeled)
+- [x] **q11 / q15** — WASP-121b (labeled, scored miss) / LHS 475b (absent, unscored)
+- [x] **q19–q30** — broad queries labeled as known-item exemplars
 - [ ] q11 (WASP-121b), q15 (LHS 475b) — currently empty; confirm no in-corpus target
 - [ ] q19–q30 — broad molecule/process queries; build relevant sets
 
@@ -104,3 +114,36 @@ already #1). q03/q05/q18 stay honest 0.50 misses — kept deliberately rather th
 The q06-vs-q18 contrast is the principle: q06's missed paper is the *wrong observable*
 (transmission ≠ dayside emission) so it's removed; q18's missed paper is the *right observable*
 (circulation → phase curve) so it stays a genuine miss.
+
+## q11 / q15 — the two previously-empty named queries
+
+- **q11** (WASP-121b thermal inversion / metal emission): labeled `2023ApJ...943L..17M` (the JWST
+  NIRSpec WASP-121b dayside-emission phase curve — the corpus's emission paper; the canonical
+  optical Fe-emission/inversion papers predate the 2018 cutoff). It is **not retrieved** in the top
+  10 for the query, so q11 scores **0.00** — a genuine miss now on the books (previously excluded).
+- **q15** (LHS 475b): confirmed **no LHS 475b paper** in this top-500-by-citation slice (Lustig-Yaeger
+  et al. 2023 didn't make the cut). Left **unscored** — you can't measure recall with no relevant doc.
+
+## q19–q30 — broad / topical queries (known-item labeling)
+
+These ask about a molecule or process, not a named planet, so the true relevant set is large and
+graded. Labeling it exhaustively isn't feasible (or fair to Recall@10, which caps at `10/|relevant|`).
+Instead each is labeled with **1–2 known-item landmark papers** — the unambiguous canonical result
+for that topic, verified present in the corpus and on-topic by abstract (e.g. q19 CO₂ → the WASP-39b
+"Identification of carbon dioxide" paper; q27 retrieval → the Aurora and PYRAT BAY frameworks). The
+score therefore answers *"does the landmark surface in the top 10?"*, **not** true topical recall.
+
+**Result: 0.542 Recall@10 / 0.381 MRR over the 12 — clearly below the named-target set (0.794).**
+Conceptual queries are harder for the hybrid pilot than entity lookups; the landmark often isn't in
+the top 10 (e.g. q11-style misses recur). Two caveats: this is *optimistic* (exemplars, not full
+recall), and a proper broad-query eval needs **pooled precision@k** with human judgments — flagged
+as future work, not built here.
+
+## Outcome & follow-ups
+
+- Labels in `pilot_exoplanet_atmospheres.yaml` are now reviewed (28/30 scored; q15 absent).
+- Numbers: named-target **0.794 / 0.794**, broad known-item **0.542 / 0.381**, all-scored 0.690 / 0.623.
+- Strongest signals for next work: (1) the **named-vs-conceptual gap** motivates reranking / query
+  understanding; (2) recurring **single-arm-strong misses** (q12, q11) motivate the dense-vs-lexical-vs-hybrid
+  ablation and a larger fusion pool; (3) **abstract-only indexing** misses multi-target release papers
+  (q12) — evidence for section-aware/full-text chunking (weeks 5–10).
