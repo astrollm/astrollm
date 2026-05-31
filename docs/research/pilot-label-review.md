@@ -10,18 +10,19 @@ ranker), read the abstracts, and decide keep / remove / add against the query's 
 genuine retrieval misses (relevant paper exists but isn't retrieved) separately from labeling
 errors — only the latter change the labels.
 
-Headline: **Recall@10 = 0.812** (unchanged — per-query recall@10 stays 1.0 for the reviewed
-queries), **MRR 0.776 → 0.844**. The MRR rise comes from q07/q08, where the first pass had
-labeled only secondary papers and missed the genuinely on-target ones; correcting that moves the
-first relevant hit up. Discipline check: relevance is judged from abstracts, and q08's hybrid #1
-(`2020ApJ...890...79J`, general water-escape, not HD 209458b) was **rejected** despite its rank.
+Headline (started 0.812 / 0.776): **Recall@10 = 0.844, MRR = 0.844** after review so far.
+MRR rose via q07/q08 (first pass had labeled only secondary papers, missing the on-target ones);
+Recall rose via q06 (an off-facet label removed). Discipline check: relevance is judged from
+abstracts, not rank — q08's hybrid #1 (`2020ApJ...890...79J`, general water-escape, not HD 209458b)
+was **rejected** despite its rank, and the four 0.50 queries below were mostly left as honest
+misses rather than relabeled upward.
 
 ## Status
 
 - [x] **q12** — WASP-96b
 - [x] **q07** — HD 189733b (RR 0.17 → 1.00)
 - [x] **q08** — HD 209458b (RR 0.25 → 0.50)
-- [ ] q03, q05, q06, q18 — the four 0.50 (partial-recall) queries
+- [x] **q03, q05, q06, q18** — the four 0.50 partial-recall queries (only q06 relabeled)
 - [ ] q11 (WASP-121b), q15 (LHS 475b) — currently empty; confirm no in-corpus target
 - [ ] q19–q30 — broad molecule/process queries; build relevant sets
 
@@ -83,3 +84,23 @@ retrieved (#2, #3, #4) → recall 1.0, RR 0.25 → 0.50. **Not** added: q08's hy
 `2020ApJ...890...79J` ("Hydrodynamic Escape of Water Vapor Atmospheres near Very Active stars") —
 it is general, not HD 209458b, so it stays out despite ranking first. Removing the general method
 paper (which sat at #7) while recall holds shows the labels track relevance, not rank.
+
+## The four 0.50 partial-recall queries (q03, q05, q06, q18)
+
+Each found one of two labeled papers. The review question is whether the *missed* paper is a
+genuine recall miss (keep) or a mislabel (remove). Verdict: three are genuine misses, one is a
+mislabel.
+
+| query | missed paper (rank) | verdict |
+|---|---|---|
+| **q03** K2-18b CH₄/CO₂ | `2023ApJ...956L..13M` *Carbon-bearing Molecules in a Possible Hycean Atmosphere* (dense#18 / lex#11) | **keep** — this is the actual K2-18b detection paper; a real miss. Notably the **rebuttal** (`2024ApJ...963L...7W`) ranks #1 while the detection ranks ~#11–18. |
+| **q05** TRAPPIST-1e atmosphere | `2020ApJ...901..126W` *Distinguishing Wet and Dry Atmospheres of TRAPPIST-1 e/f* (dense#11 / lex#18) | **keep** — genuinely on-topic; a real miss just outside the pool. |
+| **q06** TRAPPIST-1b emission | `2023ApJ...955L..22L` *Atmospheric Reconnaissance … Strong Stellar Contamination* (dense#10 / lex#42) | **remove** — a *transmission*/contamination study, not dayside emission. Bullseye `2023ApJ...952L...4I` (secondary eclipse) is #1, so q06 → recall 1.0. |
+| **q18** WASP-43b phase curve | `2018ApJ...869..107M` *3D Circulation Driving Chemical Disequilibrium in WASP-43b* (dense#25 / lex#16) | **keep** — circulation directly underlies phase curves (same observable domain); a real miss. The corpus has no nightside-clouds phase-curve paper (Bell 2024 isn't in this top-500-by-citation slice). |
+
+**Net:** only q06 relabeled → Recall@10 0.812 → **0.844**; MRR stays 0.844 (q06's bullseye was
+already #1). q03/q05/q18 stay honest 0.50 misses — kept deliberately rather than relabeled upward.
+
+The q06-vs-q18 contrast is the principle: q06's missed paper is the *wrong observable*
+(transmission ≠ dayside emission) so it's removed; q18's missed paper is the *right observable*
+(circulation → phase curve) so it stays a genuine miss.

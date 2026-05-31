@@ -16,7 +16,9 @@ queries:
   - { id: q03, target: "K2-18b", query: "methane and CO2 in the sub-Neptune K2-18b", expected_bibcodes: ["2023ApJ...956L..13M", "2024ApJ...963L...7W"] }
   - { id: q04, target: "K2-18b", query: "dimethyl sulfide biosignature claim K2-18b Hycean", expected_bibcodes: ["2023ApJ...956L..13M", "2024ApJ...963L...7W"] }
   - { id: q05, target: "TRAPPIST-1e", query: "does TRAPPIST-1e have a secondary atmosphere", expected_bibcodes: ["2020ApJ...898L..33P", "2020ApJ...901..126W"] }
-  - { id: q06, target: "TRAPPIST-1b", query: "TRAPPIST-1b dayside thermal emission bare rock", expected_bibcodes: ["2023ApJ...952L...4I", "2023ApJ...955L..22L"] }
+  # reviewed 2026-05-31: removed 2023ApJ...955L..22L (a transmission/stellar-contamination study —
+  # wrong observable for "dayside thermal emission"); the secondary-eclipse paper is the bullseye.
+  - { id: q06, target: "TRAPPIST-1b", query: "TRAPPIST-1b dayside thermal emission bare rock", expected_bibcodes: ["2023ApJ...952L...4I"] }
   # reviewed 2026-05-31: added 2018A&A...612A..53P (alkali/Na lines in HD 189733b — the missed
   # sodium facet); kept the quartz-clouds/haze paper. See pilot-label-review.md.
   - { id: q07, target: "HD 189733b", query: "sodium absorption and haze in HD 189733b", expected_bibcodes: ["2018A&A...612A..53P", "2024ApJ...973L..41I"] }
