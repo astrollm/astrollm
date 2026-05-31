@@ -23,14 +23,26 @@ The end-to-end pilot retrieval pipeline (`feat/pilot-retrieval`), deliberately m
 
 ## The Number
 
-Offline machinery smoke test (14 synthetic abstracts, 13 queries):
+Real run — 500 ADS abstracts (`abs:"exoplanet atmosphere"`, 2018+, of 4,845 matches), scored
+over 16 grounded queries:
 
-> **Recall@10 = 1.000, MRR = 1.000**
+> **Recall@10 = 0.812 · MRR = 0.776**
 
-This is **saturated by design** — every fixture query names its target, so it only proves the
-plumbing (embed → pgvector → FTS5 → RRF → metrics) is correct, including the multi-relevant
-case. **It is not a retrieval-quality result.** The real number — 500 ADS abstracts vs. the
-30-query set — is blocked on an ADS key (below).
+Not saturated — there are real misses and low ranks, which is what makes it useful:
+
+- **q12 (WASP-96b cloud-free water) = 0.00.** The relevant JWST paper's title is the generic
+  "The JWST Early Release Observations" (no "WASP-96b"), so neither BM25 nor dense matched the
+  query well — a real recall miss, and possibly also a labeling nuance to revisit.
+- **q03/q05/q06/q18 = 0.50** — found one of two expected papers.
+- **q07/q08 = 1.00 recall but RR 0.17/0.25** — the relevant paper is retrieved but ranked deep
+  (HD 189733b/HD 209458b queries pull many same-target papers; the labeled one isn't top).
+
+Caveats: `expected_bibcodes` are my **first-pass, title-level labels** (entity-grounded,
+rank-independent) and need review; 16 of 30 queries are scored (q11/q15 had no clear corpus
+target, q19-q30 are broad-topic and left for manual labeling). The number will move after review.
+
+For reference, the offline synthetic fixture (14 docs) still scores 1.000/1.000 — saturated by
+design, used only as a machinery smoke test (embed → pgvector → FTS5 → RRF → metrics).
 
 ## What I Learned
 
@@ -54,11 +66,15 @@ case. **It is not a retrieval-quality result.** The real number — 500 ADS abst
 
 ## Blockers / Questions
 
-- **No `ADS_API_KEY`** (no `.env`, nothing exported) → cannot ingest the real 500 abstracts →
-  cannot ground `expected_bibcodes` → the real Recall@10/MRR is pending. The code path is
-  ready; drop a token in `.env` and `ingest_ads.py` → `index_corpus.py` → `eval_retrieval.py`
-  produces the real number. Get a free token at ui.adsabs.harvard.edu/user/settings/token.
+- ~~No `ADS_API_KEY`~~ — **resolved.** Token added; ingested 500 abstracts and produced the
+  real number above. End-to-end path confirmed: `ingest_ads.py` → `index_corpus.py` →
+  `eval_retrieval.py`.
+- **Needs review:** the first-pass `expected_bibcodes` labels (esp. q12's 0.00 — is the generic
+  "JWST Early Release Observations" paper the right WASP-96b target, or is there a better one?),
+  and labeling the 14 unscored queries (q11, q15, q19-q30).
 - Open: is `abs:"exoplanet atmosphere"` (2018+) the right slice, or should I widen the query?
+  Several famous targets' canonical papers (HD 189733b sodium, WASP-121b inversion) predate 2018
+  and so aren't in the corpus.
 
 ## Next Week
 
