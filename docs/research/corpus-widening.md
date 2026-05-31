@@ -134,12 +134,39 @@ H6; H7's coverage premise is refuted before retrieval is even run.
 
 The scored experiment is **report (a)**: the original 29 queries with their **frozen** labels,
 re-scored on the widened 2,500-abstract index. Same harness, same labels, same method — only the
-corpus changed. There is no report (b): no originally-unscored query became scorable (membership
-probe), and exhaustively relabeling the named queries on a 5× corpus would balloon each entity's
-relevant set to dozens of papers, turning Recall@10 (which caps at `10/|relevant|`) into a different
-and uninformative metric — the same known-item limitation the pilot flagged for the broad queries.
-Newly-present on-target docs are therefore reported as a **measurement** (their arm ranks) for H6,
-not as new scored gold.
+corpus changed.
+
+### Report (b) — stratification and the `|relevant| ≪ k` criterion
+
+Report (b) ("full widened gold set") is stratified rather than collapsed, under a stated methodology
+criterion:
+
+> **Recall@k is reported only where `|relevant| ≪ k`.** Where the in-corpus relevant set is small
+> (known-item / single-target queries), Recall@k measures ranking quality and is scored. Where it
+> balloons — a named entity on a 5× corpus matches dozens of in-corpus papers, so a full-recall
+> relabel makes Recall@10 cap near `10/|relevant|` and stop measuring ranking — R@k **degenerates**
+> and that stratum is reported as a **coverage measurement** (arm ranks of newly-present docs), not a
+> score. This is the same limitation the pilot flagged for the broad queries, now stated as a rule.
+
+**Path taken for the scored (b) slice: documented and deferred to PR #7** (the guardrail path), for
+three reasons:
+
+1. **No query became newly scorable.** The only pilot query lacking an in-corpus target was q15, and
+   the membership probe shows it stays absent (phrase-excluded). So the strict set of *newly-scorable
+   known-item targets* is empty — there is no objective small relabel that report (a) does not
+   already cover.
+2. **A looser known-item relabel is subjective and exceeds the ~10-target guardrail.** Adding
+   newly-present landmarks to already-scored queries means choosing "the" landmark among dozens of
+   on-target newcomers per entity (the [H6 scan](#single-arm-exclusive-class-growth-h6) shows the
+   scale). That is a judgment-heavy, result-adjacent relabel of well over ten targets — it would
+   delay merge and is exactly what the guardrail says to defer.
+3. **PR #7 re-runs selection anyway.** The pool sweep recomputes the fused candidate set at every
+   depth, so a single consistent known-item relabel scored across pool depths belongs there.
+
+**This PR is the pool=50 slice only** — it fixes the criterion above and the report-(a) baseline. The
+**full across-pool-depth stratified (b)** — known-item relabel (with provenance) scored at each pool
+depth — **rides PR #7.** Until then, newly-present on-target docs are reported here as a measurement
+(their arm ranks, in the H6 section), not as scored gold.
 
 ### Headline — pilot → widened, all-scored (H5)
 
@@ -254,10 +281,20 @@ d#2/l#307) are **lexical**-blind — the mirror of the ERO.
 | dense−lexical | broad | R@10 | +0.083 [+0.000, +0.208] | yes |
 | dense−lexical | broad | MRR | +0.106 [−0.075, +0.324] | yes |
 
-The decisive change from the pilot: **hybrid > both single arms at R@10 is now statistically
-supported.** dense−hybrid (all R@10) = −0.063 [−0.126, −0.011] and lexical−hybrid = −0.155
-[−0.276, −0.052] both exclude 0. In the pilot every pairwise R@10 CI included 0 (within noise);
-widening adds enough distractor pressure that hybrid's robustness becomes a measurable advantage.
+The change from the pilot: **hybrid > the single arms at R@10 now has CI support** — dense−hybrid
+(all R@10) = −0.063 [−0.126, −0.011] and lexical−hybrid = −0.155 [−0.276, −0.052] both exclude 0,
+where in the pilot every pairwise R@10 CI included 0 (within noise). But the two differ sharply in
+robustness, so they should not be read as equally solid:
+
+- **hybrid > lexical is robust.** The −0.155 gap is carried by 7 queries (q16, q27 at −1.00; q08
+  −0.67; q09, q10, q25 −0.50; q01 −0.33) and survives **all 29** leave-one-out drops (every n=28
+  subset still excludes 0).
+- **hybrid > dense is suggestive, not robust — concentrated and fragile.** The −0.063 gap is carried
+  by just **4 queries** (q14, q18, q27 at −0.50; q08 at −0.333); the other 25 are tied. Leave-one-out
+  fails: dropping *any single one* of those 4 makes the CI include 0 (e.g. drop q27 → −0.048
+  [−0.107, +0.000]). At n=29 the dense−hybrid R@10 advantage is best read as **suggestive**, not a
+  result the data robustly support. (The robust statements remain: hybrid > lexical at R@10, and the
+  growing union/candidate-set premium below, which does not rest on a handful of queries.)
 
 ### Per-query (all scored, raw) (widened)
 
@@ -376,16 +413,21 @@ uncomfortable finding of this PR, and the reason the appendix exists. Closing th
 
 ### "neither" — moved slightly, as flagged
 
-The present-but-unretrieved class went 2 → 3 (q21's H₂O pair persists; q26's
-`2023ApJ...951...96G` fell from dense-only to neither, dense #55 / lex #279). Widening does not fix
-"neither" — it adds to it by displacement, exactly the non-effect pre-registered.
+The present-but-unretrieved class went 2 → 3. The pilot's two pre-registered "neither" docs (q21's
+H₂O pair) **stayed neither and moved deeper** — neither entered the top-50 of either arm, and both
+fell further out: `2024ApJ...963L...5X` dense #192→#622 / lex #61→#230, and `2018AJ....155...29W`
+dense #82→#256 / lex #74→#263. A third joined them: q26's `2023ApJ...951...96G` fell from dense-only
+to neither (dense #55 / lex #279). Widening does not fix "neither" — it adds to it by displacement,
+exactly the non-effect pre-registered (the original pair did not improve; it got worse).
 
 ### Implication for the architecture decision and for PR #6
 
 The pilot's recommendation **holds and hardens**: keep hybrid as the stage-1 candidate generator.
-On the widened corpus the case is stronger than on the pilot — hybrid is now the best R@10 arm with
-*statistical* support (paired CIs exclude 0), it degrades least under distractor pressure, and its
-union candidate set is the only readout that resists corpus growth (0.966 → 0.948 while single arms
+On the widened corpus the case is stronger than on the pilot — hybrid is the best R@10 arm on every
+split (robustly over lexical; suggestively, not robustly, over dense — the dense−hybrid R@10 CI is
+carried by 4 queries and fails leave-one-out, see the bootstrap caveat), it degrades least under
+distractor pressure, and its union candidate set is the only readout that resists corpus growth
+(0.966 → 0.948 while single arms
 fall ~0.12–0.17). The transferable findings are the **fusion-dilution mechanism** (now visible as the
 lost depth-inversion: fused top-50 leaks recall the union keeps, because pool=50 is too shallow a
 fraction) and the **growing, bidirectional complementarity**.
@@ -444,7 +486,14 @@ probes against the live search API on 2026-05-31.
 | `abs:"exoplanet atmosphere"` (all years) | 6,492 | the **entire** phrase universe the pilot query can ever return |
 | `abs:"exoplanet atmosphere"` AND `year:[2018 TO *]` | 4,845 | the slice widening samples from; we took the top **2,500** = **52%** of it |
 | `abs:"exoplanet atmosphere"` AND `abs:"LHS 475"` | **0** | the q15 discovery papers are phrase-external — unreachable at **any** cut |
+| `identifier:(Evans17 OR Sedaghati17 OR Evans16)` ¹ | 3 | the canonical q11 WASP-121b inversion papers exist in ADS … |
+| … same AND `year:[2018 TO *]` | **0** | … but **all** fall below the pilot's year cutoff — year-excluded at any citation cut |
 | `abs:"exoplanet atmosphere"` AND `full:"WASP-121"` AND `abs:"stratosphere"` | 1 | the lone in-phrase WASP-121b stratosphere paper is itself year-excluded (2016) |
+
+¹ `identifier:("2017Natur.548...58E" OR "2017ApJ...850L..32S" OR "2016ApJ...822L...4E")` — Evans et al.
+2017 (stratosphere), Sedaghati et al. 2017 (dayside thermal inversion), Evans et al. 2016 (TiO/VO).
+This is the q11 mirror of q15's `numFound = 0` probe: the targets are recorded by identifier, then
+shown to vanish under the year filter — the exclusion is a measured fact, not an assertion.
 
 **Three things this shows:**
 
