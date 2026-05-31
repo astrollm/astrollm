@@ -21,7 +21,7 @@ from rich.table import Table
 # Import the shared retrieval module from the rag package (pre-packaging monorepo).
 _RAG_SRC = Path(__file__).resolve().parents[3] / "packages" / "rag" / "src"
 sys.path.insert(0, str(_RAG_SRC))
-from pilot_retrieval import hybrid_search  # noqa: E402
+from pilot_retrieval import ARMS, retrieve  # noqa: E402
 
 err = Console(stderr=True)
 app = typer.Typer(add_completion=False, help=__doc__)
@@ -44,12 +44,16 @@ def _score_query(expected: list[str], retrieved: list[str], k: int) -> tuple[flo
 def main(
     queries: Path = typer.Option(..., exists=True, help="YAML query set."),
     k: int = typer.Option(10, help="Cutoff for Recall@k and MRR."),
+    arm: str = typer.Option("hybrid", help=f"Retrieval arm: {' | '.join(ARMS)}."),
 ) -> None:
+    if arm not in ARMS:
+        err.log(f"[red]unknown arm {arm!r}; expected one of {', '.join(ARMS)}[/red]")
+        raise typer.Exit(1)
     spec = yaml.safe_load(queries.read_text())
     items: list[dict[str, Any]] = spec["queries"] if isinstance(spec, dict) else spec
 
     scored, skipped = [], []
-    table = Table(title=f"Per-query retrieval (k={k})")
+    table = Table(title=f"Per-query retrieval — {arm} (k={k})")
     table.add_column("id")
     table.add_column("query", overflow="fold", max_width=42)
     table.add_column(f"R@{k}", justify="right")
@@ -60,7 +64,7 @@ def main(
         if not expected:
             skipped.append(item["id"])
             continue
-        retrieved = [r["bibcode"] for r in hybrid_search(item["query"], k=k)]
+        retrieved = [r["bibcode"] for r in retrieve(item["query"], arm=arm, k=k)]
         recall, rr = _score_query(expected, retrieved, k)
         scored.append((recall, rr))
         table.add_row(str(item["id"]), item["query"], f"{recall:.2f}", f"{rr:.2f}")

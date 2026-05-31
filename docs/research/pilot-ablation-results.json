@@ -1,0 +1,1861 @@
+{
+  "config": {
+    "k": 10,
+    "pool": 50,
+    "rrf_k": 60,
+    "corpus_n": 500,
+    "queries_file": "packages/evaluation/queries/pilot_exoplanet_atmospheres.yaml",
+    "n_scored": 29,
+    "n_named": 17,
+    "n_broad": 12,
+    "skipped": [
+      "q15"
+    ],
+    "bootstrap_B": 10000,
+    "seed": 20260531
+  },
+  "aggregates": {
+    "arms": {
+      "dense": {
+        "named": {
+          "recall": 0.7941176470588235,
+          "recall_pool": 0.9411764705882353,
+          "mrr": 0.7848739495798319,
+          "n": 17
+        },
+        "broad": {
+          "recall": 0.625,
+          "recall_pool": 0.8333333333333334,
+          "mrr": 0.3740079365079365,
+          "n": 12
+        },
+        "all": {
+          "recall": 0.7241379310344828,
+          "recall_pool": 0.896551724137931,
+          "mrr": 0.6148604269293925,
+          "n": 29
+        }
+      },
+      "lexical": {
+        "named": {
+          "recall": 0.8039215686274509,
+          "recall_pool": 1.0,
+          "mrr": 0.7647058823529411,
+          "n": 17
+        },
+        "broad": {
+          "recall": 0.5833333333333334,
+          "recall_pool": 0.8333333333333334,
+          "mrr": 0.31746031746031744,
+          "n": 12
+        },
+        "all": {
+          "recall": 0.7126436781609196,
+          "recall_pool": 0.9310344827586207,
+          "mrr": 0.5796387520525452,
+          "n": 29
+        }
+      },
+      "hybrid": {
+        "named": {
+          "recall": 0.7941176470588235,
+          "recall_pool": 1.0,
+          "mrr": 0.7941176470588235,
+          "n": 17
+        },
+        "broad": {
+          "recall": 0.5416666666666666,
+          "recall_pool": 0.9166666666666666,
+          "mrr": 0.3813492063492063,
+          "n": 12
+        },
+        "all": {
+          "recall": 0.6896551724137931,
+          "recall_pool": 0.9655172413793104,
+          "mrr": 0.6233169129720854,
+          "n": 29
+        }
+      }
+    },
+    "candidate": {
+      "named": {
+        "union_recall_pool": 1.0,
+        "dense_recall_pool": 0.9411764705882353,
+        "lexical_recall_pool": 1.0,
+        "n_queries": 17,
+        "docs": {
+          "dense_only": 0,
+          "lexical_only": 1,
+          "both": 28,
+          "neither": 0,
+          "total_relevant": 29
+        }
+      },
+      "broad": {
+        "union_recall_pool": 0.9166666666666666,
+        "dense_recall_pool": 0.8333333333333334,
+        "lexical_recall_pool": 0.8333333333333334,
+        "n_queries": 12,
+        "docs": {
+          "dense_only": 2,
+          "lexical_only": 2,
+          "both": 14,
+          "neither": 2,
+          "total_relevant": 20
+        }
+      },
+      "all": {
+        "union_recall_pool": 0.9655172413793104,
+        "dense_recall_pool": 0.896551724137931,
+        "lexical_recall_pool": 0.9310344827586207,
+        "n_queries": 29,
+        "docs": {
+          "dense_only": 2,
+          "lexical_only": 3,
+          "both": 42,
+          "neither": 2,
+          "total_relevant": 49
+        }
+      }
+    }
+  },
+  "bootstrap": {
+    "B": 10000,
+    "seed": 20260531,
+    "marginal": {
+      "dense": {
+        "named": {
+          "recall10": {
+            "mean": 0.7941176470588235,
+            "lo": 0.6176470588235294,
+            "hi": 0.9411764705882353
+          },
+          "mrr": {
+            "mean": 0.7848739495798318,
+            "lo": 0.5882352941176471,
+            "hi": 0.9495798319327731
+          }
+        },
+        "broad": {
+          "recall10": {
+            "mean": 0.625,
+            "lo": 0.4166666666666667,
+            "hi": 0.8333333333333334
+          },
+          "mrr": {
+            "mean": 0.37400793650793657,
+            "lo": 0.1726190476190476,
+            "hi": 0.6001984126984127
+          }
+        },
+        "all": {
+          "recall10": {
+            "mean": 0.7241379310344828,
+            "lo": 0.5862068965517241,
+            "hi": 0.8448275862068966
+          },
+          "mrr": {
+            "mean": 0.6148604269293924,
+            "lo": 0.4540209359605911,
+            "hi": 0.7716748768472905
+          }
+        }
+      },
+      "lexical": {
+        "named": {
+          "recall10": {
+            "mean": 0.8039215686274509,
+            "lo": 0.6568627450980392,
+            "hi": 0.9313725490196078
+          },
+          "mrr": {
+            "mean": 0.7647058823529411,
+            "lo": 0.6029411764705882,
+            "hi": 0.9117647058823529
+          }
+        },
+        "broad": {
+          "recall10": {
+            "mean": 0.5833333333333334,
+            "lo": 0.375,
+            "hi": 0.7916666666666666
+          },
+          "mrr": {
+            "mean": 0.3174603174603175,
+            "lo": 0.14530009920634923,
+            "hi": 0.5243055555555555
+          }
+        },
+        "all": {
+          "recall10": {
+            "mean": 0.7126436781609194,
+            "lo": 0.5747126436781609,
+            "hi": 0.8333333333333334
+          },
+          "mrr": {
+            "mean": 0.579638752052545,
+            "lo": 0.4316502463054187,
+            "hi": 0.7276272577996715
+          }
+        }
+      },
+      "hybrid": {
+        "named": {
+          "recall10": {
+            "mean": 0.7941176470588235,
+            "lo": 0.6176470588235294,
+            "hi": 0.9411764705882353
+          },
+          "mrr": {
+            "mean": 0.7941176470588235,
+            "lo": 0.6176470588235294,
+            "hi": 0.9411764705882353
+          }
+        },
+        "broad": {
+          "recall10": {
+            "mean": 0.5416666666666666,
+            "lo": 0.2916666666666667,
+            "hi": 0.7916666666666666
+          },
+          "mrr": {
+            "mean": 0.3813492063492064,
+            "lo": 0.1634920634920635,
+            "hi": 0.6111309523809522
+          }
+        },
+        "all": {
+          "recall10": {
+            "mean": 0.6896551724137931,
+            "lo": 0.5344827586206896,
+            "hi": 0.8275862068965517
+          },
+          "mrr": {
+            "mean": 0.6233169129720854,
+            "lo": 0.46551724137931033,
+            "hi": 0.7719622331691292
+          }
+        }
+      }
+    },
+    "paired": {
+      "dense_minus_hybrid": {
+        "named": {
+          "recall10": {
+            "mean": 0.0,
+            "lo": 0.0,
+            "hi": 0.0,
+            "includes_zero": true
+          },
+          "mrr": {
+            "mean": -0.009243697478991597,
+            "lo": -0.08403361344537816,
+            "hi": 0.07058823529411765,
+            "includes_zero": true
+          }
+        },
+        "broad": {
+          "recall10": {
+            "mean": 0.08333333333333333,
+            "lo": -0.16666666666666666,
+            "hi": 0.2916666666666667,
+            "includes_zero": true
+          },
+          "mrr": {
+            "mean": -0.007341269841269843,
+            "lo": -0.1759920634920635,
+            "hi": 0.1379117063492061,
+            "includes_zero": true
+          }
+        },
+        "all": {
+          "recall10": {
+            "mean": 0.034482758620689655,
+            "lo": -0.06896551724137931,
+            "hi": 0.1206896551724138,
+            "includes_zero": true
+          },
+          "mrr": {
+            "mean": -0.008456486042692944,
+            "lo": -0.0912151067323481,
+            "hi": 0.0686412151067323,
+            "includes_zero": true
+          }
+        }
+      },
+      "lexical_minus_hybrid": {
+        "named": {
+          "recall10": {
+            "mean": 0.009803921568627449,
+            "lo": -0.10784313725490197,
+            "hi": 0.1568627450980392,
+            "includes_zero": true
+          },
+          "mrr": {
+            "mean": -0.029411764705882353,
+            "lo": -0.16176470588235295,
+            "hi": 0.10294117647058823,
+            "includes_zero": true
+          }
+        },
+        "broad": {
+          "recall10": {
+            "mean": 0.041666666666666664,
+            "lo": -0.08333333333333333,
+            "hi": 0.16666666666666666,
+            "includes_zero": true
+          },
+          "mrr": {
+            "mean": -0.06388888888888888,
+            "lo": -0.24306795634920636,
+            "hi": 0.10685267857142845,
+            "includes_zero": true
+          }
+        },
+        "all": {
+          "recall10": {
+            "mean": 0.022988505747126433,
+            "lo": -0.06896551724137931,
+            "hi": 0.1264367816091954,
+            "includes_zero": true
+          },
+          "mrr": {
+            "mean": -0.04367816091954023,
+            "lo": -0.1510673234811166,
+            "hi": 0.06404556650246297,
+            "includes_zero": true
+          }
+        }
+      },
+      "dense_minus_lexical": {
+        "named": {
+          "recall10": {
+            "mean": -0.009803921568627449,
+            "lo": -0.1568627450980392,
+            "hi": 0.10784313725490197,
+            "includes_zero": true
+          },
+          "mrr": {
+            "mean": 0.02016806722689075,
+            "lo": -0.12142857142857144,
+            "hi": 0.15546218487394958,
+            "includes_zero": true
+          }
+        },
+        "broad": {
+          "recall10": {
+            "mean": 0.041666666666666664,
+            "lo": -0.16666666666666666,
+            "hi": 0.25,
+            "includes_zero": true
+          },
+          "mrr": {
+            "mean": 0.05654761904761905,
+            "lo": -0.11706349206349208,
+            "hi": 0.25446428571428575,
+            "includes_zero": true
+          }
+        },
+        "all": {
+          "recall10": {
+            "mean": 0.011494252873563223,
+            "lo": -0.10919540229885057,
+            "hi": 0.12068965517241381,
+            "includes_zero": true
+          },
+          "mrr": {
+            "mean": 0.035221674876847284,
+            "lo": -0.07795566502463053,
+            "hi": 0.14942631362889983,
+            "includes_zero": true
+          }
+        }
+      }
+    }
+  },
+  "per_query": [
+    {
+      "id": "q01",
+      "target": "WASP-39b",
+      "query": "JWST CO2 detection in WASP-39b transmission spectrum",
+      "kind": "named",
+      "n_gold": 3,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 3,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2023Natur.614..649J",
+          "dense_rank": 10,
+          "lexical_rank": 8,
+          "tag": "both"
+        },
+        {
+          "bibcode": "2023Natur.614..664A",
+          "dense_rank": 4,
+          "lexical_rank": 1,
+          "tag": "both"
+        },
+        {
+          "bibcode": "2023Natur.614..653A",
+          "dense_rank": 1,
+          "lexical_rank": 3,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q02",
+      "target": "WASP-39b",
+      "query": "sulfur dioxide photochemistry in WASP-39b",
+      "kind": "named",
+      "n_gold": 1,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 1,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2023Natur.617..483T",
+          "dense_rank": 1,
+          "lexical_rank": 1,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q03",
+      "target": "K2-18b",
+      "query": "methane and CO2 in the sub-Neptune K2-18b",
+      "kind": "named",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 0.5,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 0.5,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 0.5,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 2,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2023ApJ...956L..13M",
+          "dense_rank": 18,
+          "lexical_rank": 11,
+          "tag": "both"
+        },
+        {
+          "bibcode": "2024ApJ...963L...7W",
+          "dense_rank": 1,
+          "lexical_rank": 1,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q04",
+      "target": "K2-18b",
+      "query": "dimethyl sulfide biosignature claim K2-18b Hycean",
+      "kind": "named",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 2,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2023ApJ...956L..13M",
+          "dense_rank": 1,
+          "lexical_rank": 1,
+          "tag": "both"
+        },
+        {
+          "bibcode": "2024ApJ...963L...7W",
+          "dense_rank": 3,
+          "lexical_rank": 2,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q05",
+      "target": "TRAPPIST-1e",
+      "query": "does TRAPPIST-1e have a secondary atmosphere",
+      "kind": "named",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 0.5,
+          "recall_pool": 1.0,
+          "rr": 0.14285714285714285,
+          "hit_rank": 7
+        },
+        "lexical": {
+          "recall": 0.5,
+          "recall_pool": 1.0,
+          "rr": 0.25,
+          "hit_rank": 4
+        },
+        "hybrid": {
+          "recall": 0.5,
+          "recall_pool": 1.0,
+          "rr": 0.5,
+          "hit_rank": 2
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 2,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2020ApJ...898L..33P",
+          "dense_rank": 7,
+          "lexical_rank": 4,
+          "tag": "both"
+        },
+        {
+          "bibcode": "2020ApJ...901..126W",
+          "dense_rank": 11,
+          "lexical_rank": 18,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 7,
+        "lexical_best_rank": 4,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q06",
+      "target": "TRAPPIST-1b",
+      "query": "TRAPPIST-1b dayside thermal emission bare rock",
+      "kind": "named",
+      "n_gold": 1,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 1,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2023ApJ...952L...4I",
+          "dense_rank": 1,
+          "lexical_rank": 1,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q07",
+      "target": "HD 189733b",
+      "query": "sodium absorption and haze in HD 189733b",
+      "kind": "named",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 0.5,
+          "recall_pool": 1.0,
+          "rr": 0.5,
+          "hit_rank": 2
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 2,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2018A&A...612A..53P",
+          "dense_rank": 5,
+          "lexical_rank": 2,
+          "tag": "both"
+        },
+        {
+          "bibcode": "2024ApJ...973L..41I",
+          "dense_rank": 1,
+          "lexical_rank": 20,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 2,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q08",
+      "target": "HD 209458b",
+      "query": "water vapor and hydrogen escape from HD 209458b",
+      "kind": "named",
+      "n_gold": 3,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 0.6666666666666666,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 0.5,
+          "hit_rank": 2
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 3,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2024ApJ...963L...5X",
+          "dense_rank": 3,
+          "lexical_rank": 4,
+          "tag": "both"
+        },
+        {
+          "bibcode": "2020AJ....159..111C",
+          "dense_rank": 4,
+          "lexical_rank": 1,
+          "tag": "both"
+        },
+        {
+          "bibcode": "2020A&A...636A..13L",
+          "dense_rank": 1,
+          "lexical_rank": 11,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q09",
+      "target": "55 Cancri e",
+      "query": "55 Cancri e lava world outgassed atmosphere",
+      "kind": "named",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 2,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2023ApJ...954...29P",
+          "dense_rank": 1,
+          "lexical_rank": 1,
+          "tag": "both"
+        },
+        {
+          "bibcode": "2020AJ....160..101J",
+          "dense_rank": 3,
+          "lexical_rank": 2,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q10",
+      "target": "GJ 1214b",
+      "query": "GJ 1214b flat featureless spectrum high metallicity haze",
+      "kind": "named",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 0.5,
+          "hit_rank": 2
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 2,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2023ApJ...951...96G",
+          "dense_rank": 1,
+          "lexical_rank": 2,
+          "tag": "both"
+        },
+        {
+          "bibcode": "2018ApJ...863..165G",
+          "dense_rank": 6,
+          "lexical_rank": 5,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 2,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q11",
+      "target": "WASP-121b",
+      "query": "thermal inversion and metal emission in ultra-hot Jupiter WASP-121b",
+      "kind": "named",
+      "n_gold": 1,
+      "arms": {
+        "dense": {
+          "recall": 0.0,
+          "recall_pool": 1.0,
+          "rr": 0.0,
+          "hit_rank": null
+        },
+        "lexical": {
+          "recall": 0.0,
+          "recall_pool": 1.0,
+          "rr": 0.0,
+          "hit_rank": null
+        },
+        "hybrid": {
+          "recall": 0.0,
+          "recall_pool": 1.0,
+          "rr": 0.0,
+          "hit_rank": null
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 1,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2023ApJ...943L..17M",
+          "dense_rank": 28,
+          "lexical_rank": 15,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 28,
+        "lexical_best_rank": 15,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q12",
+      "target": "WASP-96b",
+      "query": "cloud-free water detection in WASP-96b with NIRISS",
+      "kind": "named",
+      "n_gold": 1,
+      "arms": {
+        "dense": {
+          "recall": 0.0,
+          "recall_pool": 0.0,
+          "rr": 0.0,
+          "hit_rank": null
+        },
+        "lexical": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 0.25,
+          "hit_rank": 4
+        },
+        "hybrid": {
+          "recall": 0.0,
+          "recall_pool": 1.0,
+          "rr": 0.0,
+          "hit_rank": null
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 1,
+        "both": 0,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2022ApJ...936L..14P",
+          "dense_rank": 338,
+          "lexical_rank": 4,
+          "tag": "lexical_only"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 338,
+        "lexical_best_rank": 4,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q13",
+      "target": "LTT 9779b",
+      "query": "reflective clouds high albedo ultra-hot Neptune LTT 9779b",
+      "kind": "named",
+      "n_gold": 1,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 1,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2024ApJ...962L..20R",
+          "dense_rank": 1,
+          "lexical_rank": 1,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q14",
+      "target": "GJ 486b",
+      "query": "GJ 486b water vapor rocky planet or stellar contamination",
+      "kind": "named",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 2,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2023ApJ...948L..11M",
+          "dense_rank": 1,
+          "lexical_rank": 1,
+          "tag": "both"
+        },
+        {
+          "bibcode": "2024ApJ...975L..22W",
+          "dense_rank": 9,
+          "lexical_rank": 2,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q16",
+      "target": "TOI-270d",
+      "query": "TOI-270d sub-Neptune atmospheric metallicity",
+      "kind": "named",
+      "n_gold": 1,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 0.5,
+          "hit_rank": 2
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 1,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2023AJ....165...84M",
+          "dense_rank": 1,
+          "lexical_rank": 2,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 2,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q17",
+      "target": "WASP-17b",
+      "query": "silicate clouds quartz in WASP-17b",
+      "kind": "named",
+      "n_gold": 1,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 1,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2023ApJ...956L..32G",
+          "dense_rank": 1,
+          "lexical_rank": 1,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q18",
+      "target": "WASP-43b",
+      "query": "WASP-43b phase curve nightside clouds",
+      "kind": "named",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 0.5,
+          "recall_pool": 1.0,
+          "rr": 0.2,
+          "hit_rank": 5
+        },
+        "lexical": {
+          "recall": 0.5,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 0.5,
+          "recall_pool": 1.0,
+          "rr": 0.5,
+          "hit_rank": 2
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 2,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2018ApJ...869..107M",
+          "dense_rank": 25,
+          "lexical_rank": 16,
+          "tag": "both"
+        },
+        {
+          "bibcode": "2020ApJ...890..176V",
+          "dense_rank": 5,
+          "lexical_rank": 1,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 5,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q19",
+      "target": "CO2",
+      "query": "carbon dioxide detection exoplanet transmission spectrum",
+      "kind": "broad",
+      "n_gold": 1,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 0.5,
+          "hit_rank": 2
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 1,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2023Natur.614..649J",
+          "dense_rank": 1,
+          "lexical_rank": 2,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 2,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q20",
+      "target": "SO2",
+      "query": "sulfur dioxide photochemical product hot Jupiter",
+      "kind": "broad",
+      "n_gold": 1,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 1,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2023Natur.617..483T",
+          "dense_rank": 1,
+          "lexical_rank": 1,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q21",
+      "target": "H2O",
+      "query": "water vapor abundance hot Jupiter atmosphere",
+      "kind": "broad",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 0.0,
+          "recall_pool": 0.0,
+          "rr": 0.0,
+          "hit_rank": null
+        },
+        "lexical": {
+          "recall": 0.0,
+          "recall_pool": 0.0,
+          "rr": 0.0,
+          "hit_rank": null
+        },
+        "hybrid": {
+          "recall": 0.0,
+          "recall_pool": 0.0,
+          "rr": 0.0,
+          "hit_rank": null
+        }
+      },
+      "union_recall_pool": 0.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 0,
+        "neither": 2
+      },
+      "per_doc": [
+        {
+          "bibcode": "2024ApJ...963L...5X",
+          "dense_rank": 192,
+          "lexical_rank": 61,
+          "tag": "neither"
+        },
+        {
+          "bibcode": "2018AJ....155...29W",
+          "dense_rank": 82,
+          "lexical_rank": 74,
+          "tag": "neither"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 82,
+        "lexical_best_rank": 61,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q22",
+      "target": "CH4",
+      "query": "methane detection sub-Neptune atmosphere",
+      "kind": "broad",
+      "n_gold": 1,
+      "arms": {
+        "dense": {
+          "recall": 0.0,
+          "recall_pool": 1.0,
+          "rr": 0.0,
+          "hit_rank": null
+        },
+        "lexical": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 0.125,
+          "hit_rank": 8
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 0.1,
+          "hit_rank": 10
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 1,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2023ApJ...956L..13M",
+          "dense_rank": 21,
+          "lexical_rank": 8,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 21,
+        "lexical_best_rank": 8,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q23",
+      "target": "CO",
+      "query": "carbon monoxide high-resolution cross-correlation exoplanet",
+      "kind": "broad",
+      "n_gold": 1,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 0.5,
+          "hit_rank": 2
+        },
+        "lexical": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 0.5,
+          "hit_rank": 2
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 1,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2019AJ....157..114B",
+          "dense_rank": 2,
+          "lexical_rank": 1,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 2,
+        "lexical_best_rank": 1,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q24",
+      "target": "Na",
+      "query": "neutral sodium D lines exoplanet atmosphere",
+      "kind": "broad",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 0.5,
+          "recall_pool": 0.5,
+          "rr": 0.14285714285714285,
+          "hit_rank": 7
+        },
+        "lexical": {
+          "recall": 0.5,
+          "recall_pool": 0.5,
+          "rr": 0.25,
+          "hit_rank": 4
+        },
+        "hybrid": {
+          "recall": 0.0,
+          "recall_pool": 1.0,
+          "rr": 0.0,
+          "hit_rank": null
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 1,
+        "lexical_only": 1,
+        "both": 0,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2020A&A...635A.206C",
+          "dense_rank": 7,
+          "lexical_rank": 87,
+          "tag": "dense_only"
+        },
+        {
+          "bibcode": "2018A&A...612A..53P",
+          "dense_rank": 89,
+          "lexical_rank": 4,
+          "tag": "lexical_only"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 7,
+        "lexical_best_rank": 4,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q25",
+      "target": "escape",
+      "query": "atmospheric escape hydrogen outflow evaporating exoplanet",
+      "kind": "broad",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        },
+        "lexical": {
+          "recall": 0.5,
+          "recall_pool": 1.0,
+          "rr": 0.14285714285714285,
+          "hit_rank": 7
+        },
+        "hybrid": {
+          "recall": 0.5,
+          "recall_pool": 1.0,
+          "rr": 0.5,
+          "hit_rank": 2
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 2,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2019ApJ...884L..43G",
+          "dense_rank": 1,
+          "lexical_rank": 7,
+          "tag": "both"
+        },
+        {
+          "bibcode": "2020ApJ...890...79J",
+          "dense_rank": 8,
+          "lexical_rank": 26,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 1,
+        "lexical_best_rank": 7,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q26",
+      "target": "clouds",
+      "query": "clouds and hazes muting transmission features",
+      "kind": "broad",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 0.5,
+          "recall_pool": 1.0,
+          "rr": 0.16666666666666666,
+          "hit_rank": 6
+        },
+        "lexical": {
+          "recall": 0.5,
+          "recall_pool": 0.5,
+          "rr": 0.3333333333333333,
+          "hit_rank": 3
+        },
+        "hybrid": {
+          "recall": 0.5,
+          "recall_pool": 1.0,
+          "rr": 0.3333333333333333,
+          "hit_rank": 3
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 1,
+        "lexical_only": 0,
+        "both": 1,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2020ApJ...888L..20K",
+          "dense_rank": 6,
+          "lexical_rank": 3,
+          "tag": "both"
+        },
+        {
+          "bibcode": "2023ApJ...951...96G",
+          "dense_rank": 18,
+          "lexical_rank": 96,
+          "tag": "dense_only"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 6,
+        "lexical_best_rank": 3,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q27",
+      "target": "retrieval",
+      "query": "Bayesian atmospheric retrieval free chemistry transmission spectra",
+      "kind": "broad",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 0.25,
+          "hit_rank": 4
+        },
+        "lexical": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 0.3333333333333333,
+          "hit_rank": 3
+        },
+        "hybrid": {
+          "recall": 1.0,
+          "recall_pool": 1.0,
+          "rr": 1.0,
+          "hit_rank": 1
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 2,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2021ApJ...913..114W",
+          "dense_rank": 4,
+          "lexical_rank": 3,
+          "tag": "both"
+        },
+        {
+          "bibcode": "2021MNRAS.505.2675C",
+          "dense_rank": 8,
+          "lexical_rank": 8,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 4,
+        "lexical_best_rank": 3,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q28",
+      "target": "C/O ratio",
+      "query": "carbon to oxygen ratio metallicity planet formation tracer",
+      "kind": "broad",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 0.5,
+          "recall_pool": 0.5,
+          "rr": 0.14285714285714285,
+          "hit_rank": 7
+        },
+        "lexical": {
+          "recall": 0.5,
+          "recall_pool": 1.0,
+          "rr": 0.125,
+          "hit_rank": 8
+        },
+        "hybrid": {
+          "recall": 0.0,
+          "recall_pool": 1.0,
+          "rr": 0.0,
+          "hit_rank": null
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 1,
+        "both": 1,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2024ApJ...963L...5X",
+          "dense_rank": 54,
+          "lexical_rank": 8,
+          "tag": "lexical_only"
+        },
+        {
+          "bibcode": "2021ApJ...914...12L",
+          "dense_rank": 7,
+          "lexical_rank": 41,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 7,
+        "lexical_best_rank": 8,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q29",
+      "target": "emission",
+      "query": "dayside emission spectrum thermal structure hot Jupiter",
+      "kind": "broad",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 0.5,
+          "recall_pool": 1.0,
+          "rr": 0.14285714285714285,
+          "hit_rank": 7
+        },
+        "lexical": {
+          "recall": 0.0,
+          "recall_pool": 1.0,
+          "rr": 0.0,
+          "hit_rank": null
+        },
+        "hybrid": {
+          "recall": 0.0,
+          "recall_pool": 1.0,
+          "rr": 0.0,
+          "hit_rank": null
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 2,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2020ApJ...890..176V",
+          "dense_rank": 34,
+          "lexical_rank": 15,
+          "tag": "both"
+        },
+        {
+          "bibcode": "2023ApJ...943L..17M",
+          "dense_rank": 7,
+          "lexical_rank": 27,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 7,
+        "lexical_best_rank": 15,
+        "corpus_n": 500
+      }
+    },
+    {
+      "id": "q30",
+      "target": "phase curve",
+      "query": "thermal phase curve heat redistribution exoplanet",
+      "kind": "broad",
+      "n_gold": 2,
+      "arms": {
+        "dense": {
+          "recall": 0.5,
+          "recall_pool": 1.0,
+          "rr": 0.14285714285714285,
+          "hit_rank": 7
+        },
+        "lexical": {
+          "recall": 0.0,
+          "recall_pool": 1.0,
+          "rr": 0.0,
+          "hit_rank": null
+        },
+        "hybrid": {
+          "recall": 0.5,
+          "recall_pool": 1.0,
+          "rr": 0.14285714285714285,
+          "hit_rank": 7
+        }
+      },
+      "union_recall_pool": 1.0,
+      "tags": {
+        "dense_only": 0,
+        "lexical_only": 0,
+        "both": 2,
+        "neither": 0
+      },
+      "per_doc": [
+        {
+          "bibcode": "2020AJ....160..137F",
+          "dense_rank": 7,
+          "lexical_rank": 15,
+          "tag": "both"
+        },
+        {
+          "bibcode": "2020AJ....160..155W",
+          "dense_rank": 11,
+          "lexical_rank": 23,
+          "tag": "both"
+        }
+      ],
+      "diag": {
+        "dense_best_rank": 7,
+        "lexical_best_rank": 15,
+        "corpus_n": 500
+      }
+    }
+  ]
+}

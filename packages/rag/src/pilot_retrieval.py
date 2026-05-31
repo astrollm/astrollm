@@ -114,29 +114,78 @@ def _ranks(results: list[tuple[str, float]]) -> dict[str, int]:
     return {bibcode: i + 1 for i, (bibcode, _) in enumerate(results)}
 
 
-def hybrid_search(query: str, k: int = 10, pool: int = 50) -> list[dict[str, Any]]:
-    """Dense + lexical retrieval fused with RRF. Returns top-k ranked records."""
-    # Each backend must return at least k candidates, or Recall@k/MRR@k under-report
-    # (e.g. eval --k 100 with a pool of 50 would never see ranks 51-100).
-    pool = max(pool, k)
-    dense = dense_search(query, pool)
-    lexical = lexical_search(query, pool)
-    dense_rank, lexical_rank = _ranks(dense), _ranks(lexical)
+ARMS = ("dense", "lexical", "hybrid")
 
+
+def _rrf_fuse(dense_rank: dict[str, int], lexical_rank: dict[str, int]) -> dict[str, float]:
+    """Reciprocal-rank fusion of two rank maps into a {bibcode: rrf_score} dict."""
     fused: dict[str, float] = {}
     for ranks in (dense_rank, lexical_rank):
         for bibcode, rank in ranks.items():
             fused[bibcode] = fused.get(bibcode, 0.0) + 1.0 / (RRF_K + rank)
+    return fused
 
+
+def retrieve(query: str, arm: str = "hybrid", k: int = 10, pool: int = 50) -> list[dict[str, Any]]:
+    """Single entry point for the three retrieval arms — the only knob that varies.
+
+    Single-variable discipline: every arm draws candidates from the SAME ``dense_search`` /
+    ``lexical_search`` over the SAME corpus snapshot, embeddings, ``pool`` and ``k``. The only
+    thing that changes is which arm(s) feed the final ranking:
+      - ``dense``   — pgvector / BGE cosine ranking, top-k.
+      - ``lexical`` — SQLite FTS5 / BM25 ranking, top-k.
+      - ``hybrid``  — dense+lexical fused with RRF over the pool, top-k (the pilot config).
+
+    ``pool`` is the per-arm candidate depth fed to RRF; it is inert for the single arms (their
+    top-k is the first k of the pool either way) and is kept identical across arms so the only
+    moving part is the arm. Returns top-k records, each with the bibcode, the arm's native
+    ``score``, and whichever per-arm ranks apply.
+    """
+    if arm not in ARMS:
+        raise ValueError(f"unknown arm {arm!r}; expected one of {ARMS}")
+    # Each backend must return at least k candidates, or Recall@k/MRR@k under-report
+    # (e.g. eval --k 100 with a pool of 50 would never see ranks 51-100).
+    pool = max(pool, k)
+
+    if arm == "dense":
+        ordered = dense_search(query, pool)[:k]
+        return [
+            {"bibcode": b, "score": round(s, 6), "dense_rank": i + 1, "lexical_rank": None}
+            for i, (b, s) in enumerate(ordered)
+        ]
+    if arm == "lexical":
+        ordered = lexical_search(query, pool)[:k]
+        return [
+            {"bibcode": b, "score": round(s, 6), "dense_rank": None, "lexical_rank": i + 1}
+            for i, (b, s) in enumerate(ordered)
+        ]
+
+    # hybrid
+    dense_rank = _ranks(dense_search(query, pool))
+    lexical_rank = _ranks(lexical_search(query, pool))
+    fused = _rrf_fuse(dense_rank, lexical_rank)
     ordered = sorted(fused.items(), key=lambda kv: kv[1], reverse=True)[:k]
     return [
         {
             "bibcode": bibcode,
-            "rrf_score": round(score, 6),
+            "score": round(score, 6),
             "dense_rank": dense_rank.get(bibcode),
             "lexical_rank": lexical_rank.get(bibcode),
         }
         for bibcode, score in ordered
+    ]
+
+
+def hybrid_search(query: str, k: int = 10, pool: int = 50) -> list[dict[str, Any]]:
+    """Back-compat shim for the hybrid arm of :func:`retrieve` (key ``rrf_score``)."""
+    return [
+        {
+            "bibcode": r["bibcode"],
+            "rrf_score": r["score"],
+            "dense_rank": r["dense_rank"],
+            "lexical_rank": r["lexical_rank"],
+        }
+        for r in retrieve(query, arm="hybrid", k=k, pool=pool)
     ]
 
 
@@ -147,22 +196,23 @@ app = typer.Typer(add_completion=False, help=__doc__)
 def main(
     query: str = typer.Argument(..., help="Free-text query."),
     k: int = typer.Option(10, help="Number of results to return."),
+    arm: str = typer.Option("hybrid", help="Retrieval arm: dense | lexical | hybrid."),
 ) -> None:
-    results = hybrid_search(query, k=k)
-    table = Table(title=f"Hybrid retrieval — top {k}")
+    results = retrieve(query, arm=arm, k=k)
+    table = Table(title=f"{arm.capitalize()} retrieval — top {k}")
     table.add_column("#", justify="right")
     table.add_column("bibcode")
-    table.add_column("RRF", justify="right")
+    table.add_column("score", justify="right")
     table.add_column("dense", justify="right")
     table.add_column("lexical", justify="right")
     for i, r in enumerate(results, 1):
         table.add_row(
-            str(i), r["bibcode"], f"{r['rrf_score']:.4f}",
+            str(i), r["bibcode"], f"{r['score']:.4f}",
             str(r["dense_rank"] or "—"), str(r["lexical_rank"] or "—"),
         )
     err.print(table)
     for r in results:
-        print(f"{r['bibcode']}\t{r['rrf_score']:.6f}")
+        print(f"{r['bibcode']}\t{r['score']:.6f}")
 
 
 if __name__ == "__main__":
