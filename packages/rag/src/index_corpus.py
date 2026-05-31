@@ -14,6 +14,9 @@ Usage (from repo root):
     uv run python packages/rag/src/index_corpus.py --input tests/fixtures/pilot/corpus.jsonl
     # validate parsing only
     uv run python packages/rag/src/index_corpus.py --input <file> --dry-run
+
+First load needs no flag; rebuilding over a populated table requires --reset (destructive),
+which guards against accidentally wiping the wrong database.
 """
 
 import json
@@ -24,7 +27,7 @@ from typing import Any
 import typer
 
 # Same-directory import (script dir is on sys.path when run via `python <path>`).
-from pilot_retrieval import FTS_DB_PATH, db_connect, embed_passages
+from pilot_retrieval import FTS_DB_PATH, db_connect, embed_passages, get_target_label
 from rich.console import Console
 
 err = Console(stderr=True)
@@ -52,6 +55,9 @@ def _embed_text(rec: dict[str, Any]) -> str:
 def main(
     input: Path = typer.Option(..., exists=True, help="JSONL abstract corpus to index."),
     dry_run: bool = typer.Option(False, "--dry-run", help="Parse + report; do not embed or write."),
+    reset: bool = typer.Option(
+        False, "--reset", help="DESTRUCTIVE: drop all existing papers/chunks before loading."
+    ),
 ) -> None:
     records = _load_corpus(input)
     texts = [_embed_text(r) for r in records]
@@ -63,11 +69,26 @@ def main(
         err.log(f"  would index into pgvector + {FTS_DB_PATH}")
         raise typer.Exit(0)
 
-    # ── Dense: embed + load into pgvector (full rebuild for an idempotent pilot run) ──
-    embeddings = embed_passages(texts)
-    err.log(f"embedded {len(texts)} passages (dim {embeddings.shape[1]})")
-
+    # ── Dense: embed + load into pgvector ──
+    # Guard the destructive rebuild BEFORE the expensive embedding step: a populated
+    # table almost always means DATABASE_URL is pointing at the wrong database (e.g. the
+    # main dev DB instead of the pilot DB on :5433). Require an explicit --reset to wipe it.
     with db_connect() as conn, conn.cursor() as cur:
+        cur.execute("SELECT count(*) FROM papers")
+        existing = cur.fetchone()[0]
+        if existing and not reset:
+            err.log(
+                f"[red]Refusing to modify a populated `papers` table ({existing} rows).[/red] "
+                f"Target DB: {get_target_label()}. Re-run with --reset to rebuild (drops all "
+                "papers/chunks), or point DATABASE_URL at an empty pilot database."
+            )
+            raise typer.Exit(1)
+
+        embeddings = embed_passages(texts)
+        err.log(f"embedded {len(texts)} passages (dim {embeddings.shape[1]})")
+
+        if reset and existing:
+            err.log(f"[yellow]--reset:[/yellow] dropping {existing} existing papers (cascade)")
         cur.execute("TRUNCATE papers RESTART IDENTITY CASCADE")
         for rec, text, emb in zip(records, texts, embeddings, strict=True):
             cur.execute(

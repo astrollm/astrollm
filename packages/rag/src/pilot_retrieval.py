@@ -45,6 +45,14 @@ def db_connect() -> psycopg2.extensions.connection:
     return conn
 
 
+def get_target_label() -> str:
+    """Human-readable host:port/dbname of DATABASE_URL — for destructive-op safety messages."""
+    from urllib.parse import urlparse
+
+    u = urlparse(get_dsn())
+    return f"{u.hostname or '?'}:{u.port or '?'}/{(u.path or '').lstrip('/') or '?'}"
+
+
 @lru_cache(maxsize=1)
 def _embedder():  # lazy import — torch/sentence-transformers is heavy
     from sentence_transformers import SentenceTransformer
