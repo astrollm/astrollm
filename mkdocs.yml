@@ -81,6 +81,7 @@ nav:
     - Overview: research/index.md
     - Research Log: RESEARCH_LOG.md
     - Pilot Label Review: research/pilot-label-review.md
+    - Pilot Retrieval Ablation: research/pilot-ablation.md
     - Experiments:
       - research/experiments/index.md
       - EXP-000 Baselines: research/experiments/EXP-000-baselines.md
