@@ -22,7 +22,9 @@ queries:
   - { id: q09, target: "55 Cancri e", query: "55 Cancri e lava world outgassed atmosphere", expected_bibcodes: ["2023ApJ...954...29P", "2020AJ....160..101J"] }
   - { id: q10, target: "GJ 1214b", query: "GJ 1214b flat featureless spectrum high metallicity haze", expected_bibcodes: ["2023ApJ...951...96G", "2018ApJ...863..165G"] }
   - { id: q11, target: "WASP-121b", query: "thermal inversion and metal emission in ultra-hot Jupiter WASP-121b", expected_bibcodes: [] }
-  - { id: q12, target: "WASP-96b", query: "cloud-free water detection in WASP-96b with NIRISS", expected_bibcodes: ["2022ApJ...936L..14P", "2021AJ....161....4Y"] }
+  # reviewed 2026-05-31: dropped 2021AJ....161....4Y (data-compatibility methods, pre-NIRISS, off-target);
+  # the JWST ERO is the only WASP-96b NIRISS water source in this corpus. Still a miss — see pilot-label-review.md.
+  - { id: q12, target: "WASP-96b", query: "cloud-free water detection in WASP-96b with NIRISS", expected_bibcodes: ["2022ApJ...936L..14P"] }
   - { id: q13, target: "LTT 9779b", query: "reflective clouds high albedo ultra-hot Neptune LTT 9779b", expected_bibcodes: ["2024ApJ...962L..20R"] }
   - { id: q14, target: "GJ 486b", query: "GJ 486b water vapor rocky planet or stellar contamination", expected_bibcodes: ["2023ApJ...948L..11M", "2024ApJ...975L..22W"] }
   - { id: q15, target: "LHS 475b", query: "LHS 475b atmosphere constraints terrestrial", expected_bibcodes: [] }
