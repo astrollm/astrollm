@@ -69,6 +69,21 @@ Registered **before** running the experiment (these are the commission's hypothe
 - **H3.** Hybrid is best on average, but is strictly beaten by a single arm on specific tail
   queries (i.e. fusion wins the aggregate while losing individual single-arm-strong cases).
 
+### Follow-on prediction (registered after seeing Recall@10, before the new readouts)
+
+H4 is **not** part of the original pre-registration above. It was registered *after* the
+Recall@10 / MRR results were in but *before* computing the depth, candidate-set/complementarity, and
+bootstrap readouts that this section adds. (The Recall@10 ordering — hybrid lowest — was being
+over-read as "H3 refuted"; at n=29 those deltas may be within sampling noise. These readouts
+discipline the aggregate claims and answer the question Recall@10 can't: does hybrid earn its place
+as the stage-1 candidate generator ahead of the reranker?)
+
+- **H4.** Union recall at pool depth ≥ each single arm's Recall@pool (true by construction); the
+  open empirical question is the **magnitude** of complementarity. If lexical-only and dense-only
+  both contribute non-trivial relevant docs, hybrid candidate generation is justified despite its
+  fused-top-k dilution. If union ≈ dense, lexical adds little and the hybrid stage-1 is not earning
+  its complexity.
+
 ## Results
 
 ### Aggregate — Recall@10 / MRR by arm and split
