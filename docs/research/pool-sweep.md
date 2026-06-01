@@ -37,7 +37,9 @@ The fusion primitives (`dense_search`, `lexical_search`, `_rrf_fuse`, `RRF_K`) a
 the sweep harness from `pilot_retrieval`, and the metric/bootstrap helpers from
 `ablation_retrieval`, so neither the controlled variable nor the readouts can drift. The harness
 **reproduces the PR #6 pool=50 all-slice numbers exactly** as a built-in cross-check (dense R@10
-0.529, lexical 0.437, hybrid 0.592; hybrid R@50 0.793; union 0.948).
+0.529, lexical 0.437, hybrid 0.592; hybrid R@50 0.793; union 0.948) — and this check is a **hard
+gate**: if it fails (wrong DB/corpus, retrieval drift) or pool 50 is not swept, the run **aborts
+before writing any results**, so a stale run can never overwrite the committed frozen-index artifact.
 
 **Why a new harness and not `ablation_retrieval --pool`.** The H8 test needs the **fused recall at
 fixed cuts** (top-10, top-50) while the **candidate pool varies**. `ablation_retrieval` ties its

@@ -231,9 +231,18 @@ def run(queries_path: Path, known_item_path: Path, pools: tuple[int, ...],
         rows = _score_at_pool(base, pool, partition)
         per_pool[pool] = {"rows": rows, "agg": _aggregate(rows)}
 
+    # Hard guard: the pool=50 reproduction is what certifies that ONLY pool depth varied. If it
+    # fails (wrong DB/corpus, or retrieval drift) or pool 50 was not swept, abort BEFORE emitting
+    # any results, so a stale/invalid run can never overwrite the committed frozen-index artifact.
     val_errors = (
         _validate_pool50(per_pool[50]["agg"]["all"]) if 50 in per_pool else ["pool=50 not run"]
     )
+    if val_errors:
+        raise RuntimeError(
+            "pool=50 frozen-index validation FAILED — refusing to emit results: "
+            f"{val_errors}. Re-point DATABASE_URL/FTS at the frozen 2,500 corpus "
+            "(PR #6, main d84f3ff) and include pool 50 in the sweep."
+        )
     return {
         "config": {
             "corpus_n": corpus_n, "pools": list(pools), "k": K, "deep": DEEP, "rrf_k": 60,
@@ -242,7 +251,7 @@ def run(queries_path: Path, known_item_path: Path, pools: tuple[int, ...],
             "n_known_item": sum(1 for r in base if partition[r["id"]] == "known_item"),
             "n_broad_entity": sum(1 for r in base if partition[r["id"]] == "broad_entity"),
             "bootstrap_B": bootstrap_b, "seed": seed,
-            "pool50_validation": val_errors or "ok (reproduces PR #6 all-slice numbers)",
+            "pool50_validation": "ok (reproduces PR #6 all-slice numbers)",
         },
         "per_pool": {
             str(p): {"agg": d["agg"], "per_query": d["rows"]} for p, d in per_pool.items()
@@ -330,7 +339,11 @@ def main(
     json_out: Path = typer.Option(None, "--json-out", help="Write raw results JSON here."),
 ) -> None:
     pool_tuple = tuple(int(p) for p in pools.split(","))
-    results = run(queries, known_item, pool_tuple, bootstrap_b, seed)
+    try:
+        results = run(queries, known_item, pool_tuple, bootstrap_b, seed)
+    except (RuntimeError, ValueError) as exc:  # frozen-index / partition guards: fail, never emit
+        err.log(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from exc
     cfg = results["config"]
     err.log(
         f"corpus={cfg['corpus_n']} | scored={cfg['n_scored']} "
