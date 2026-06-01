@@ -117,11 +117,177 @@ Registered **before** the retrieval readouts below (continuing the H1–H7 audit
 
 ## Results
 
-> **Pending the retrieval readouts** (recorded in the next commit, after this pre-registration is
-> committed — mirroring the H1–H7 audit trail). The headline is report (a): all 29 method-fixed,
-> R@10/R@50 + candidate-union + fused-top-k + complementarity across depths, with the union-vs-fused
-> gap curve as the H8 centerpiece. Report (b) shows the stratified known-item (scored) and
-> broad-entity (measured) partitions alongside. Per-depth paired CIs with LOO test H9.
+Harness cross-check passed: **pool=50 reproduces the PR #6 all-slice numbers exactly** (dense R@10
+0.529, lexical 0.437, hybrid 0.592; hybrid R@50 0.793; union 0.948), so only the pool varies.
+
+### (a) All 29 — candidate-union vs fused-top-k gap across depths (H8 centerpiece)
+
+| pool | union R@pool | fused R@10 | fused R@50 | gap@10 (union−fused10) | gap@50 (union−fused50) |
+|---|---|---|---|---|---|
+| 50 | 0.948 | 0.592 | 0.793 | +0.356 | +0.155 |
+| 100 | 0.966 | 0.592 | 0.862 | +0.374 | +0.103 |
+| 200 | 0.966 | 0.592 | 0.828 | +0.374 | +0.138 |
+| 500 | 1.000 | 0.592 | 0.845 | +0.408 | +0.155 |
+
+The candidate union climbs with depth (0.948 → **1.000**), but **fused R@10 is exactly flat at
+0.592 — not a single query's top-10 changes from pool 50 to 500.** Fused R@50 barely moves and is
+**non-monotonic** (0.793 → 0.862 → 0.828 → 0.845): deeper pool sometimes *hurts* it. So **gap@10
+widens** (the union rises while fused stays put) and **gap@50 does not close** — at pool=500 the
+candidate set holds *everything* (union 1.000) yet fused top-50 leaves the *same* +0.155 gap it had
+at pool=50. The leak is fusion, not candidate absence.
+
+**Pure fusion-demotion is visible at pool=500** (union recall 1.000 — the gold is in the candidate
+set — but fused top-50 misses it): q12 WASP-96b, q21 H₂O, q24 Na, q25 escape, q26 clouds, q28 C/O,
+q29 emission. Several are **both-arm** docs (present in *both* arms' top-500) that RRF still ranks
+below fused #50 because they sit mid-rank in both lists — the corpus-widening fusion-dilution
+mechanism, now unmovable by any depth.
+
+### (a) All 29 — R@10 / R@50 by arm across depths
+
+| pool | dense R@10 | lexical R@10 | hybrid R@10 | dense R@50 | lexical R@50 | hybrid R@50 |
+|---|---|---|---|---|---|---|
+| 50 | 0.529 | 0.437 | 0.592 | 0.776 | 0.810 | 0.793 |
+| 100 | 0.529 | 0.437 | 0.592 | 0.776 | 0.810 | 0.862 |
+| 200 | 0.529 | 0.437 | 0.592 | 0.776 | 0.810 | 0.828 |
+| 500 | 0.529 | 0.437 | 0.592 | 0.776 | 0.810 | 0.845 |
+
+Single-arm R@10/R@50 are **pool-independent by construction** (a single arm's ranking doesn't depend
+on the pool) — flat across every row, shown for reference. Only **hybrid** moves with pool, and only
+at R@50, and only by a query or two (non-monotonically). Hybrid R@10 is the immovable 0.592.
+
+### (a) All 29 — complementarity across depths (depth-dependent by construction)
+
+| pool | union R@pool | D-only | L-only | both | neither | mean cand-set size |
+|---|---|---|---|---|---|---|
+| 50 | 0.948 | 8 | 7 | 31 | 3 | 79 |
+| 100 | 0.966 | 3 | 3 | 41 | 2 | 157 |
+| 200 | 0.966 | 2 | 3 | 42 | 2 | 310 |
+| 500 | 1.000 | 0 | 2 | 47 | 0 | 734 |
+
+As pre-registered, these grow/shift **by construction**: a deeper pool turns "exclusive to one arm's
+top-50" into "in both arms' top-500", so single-arm-only docs migrate to **both** (D-only 8 → 0) and
+**neither** drains to 0 at pool=500. This is candidate-set *redistribution*, **not** evidence that
+fusion needs the candidates less — the fused-top-k leak (above) persists regardless. The
+candidate-set property and the ranking property are decoupled, and the ranking property is the one
+that binds. (`mean cand-set size` is the H10 cost proxy: 79 → 734 candidates fused.)
+
+### (b) KNOWN-ITEM (named q01–q18, scored) — gap and arms across depths
+
+| pool | union R@pool | fused R@10 | fused R@50 | gap@10 | gap@50 |
+|---|---|---|---|---|---|
+| 50 | 1.000 | 0.716 | 0.853 | +0.284 | +0.147 |
+| 100 | 1.000 | 0.716 | 0.941 | +0.284 | +0.059 |
+| 200 | 1.000 | 0.716 | 0.941 | +0.284 | +0.059 |
+| 500 | 1.000 | 0.716 | 0.941 | +0.284 | +0.059 |
+
+| pool | dense R@10 | lexical R@10 | hybrid R@10 | dense R@50 | lexical R@50 | hybrid R@50 |
+|---|---|---|---|---|---|---|
+| 50 | 0.637 | 0.539 | 0.716 | 0.853 | 0.941 | 0.853 |
+| 100–500 | 0.637 | 0.539 | 0.716 | 0.853 | 0.941 | 0.941 |
+
+For the scored partition the candidate union is **1.000 at every depth** (the named gold is always in
+the top-50 union). Fused R@10 is **flat at 0.716** — the gap@10 of **+0.284** is *immovable by pool*.
+Fused R@50 rises once (0.853 → 0.941 at pool=100, ≈ 1–2 queries) then is **flat**; deeper than 100
+buys nothing. Note lexical R@50 = 0.941 already at pool=50 — i.e. **lexical alone at depth 50 reaches
+what hybrid reaches only at depth 100**, and hybrid's top-10 never catches the union.
+
+### (b) BROAD-ENTITY (topical q19–q30, coverage measurement)
+
+| pool | union R@pool | fused R@10 | fused R@50 | gap@10 | gap@50 |
+|---|---|---|---|---|---|
+| 50 | 0.875 | 0.417 | 0.708 | +0.458 | +0.167 |
+| 100 | 0.917 | 0.417 | 0.750 | +0.500 | +0.167 |
+| 200 | 0.917 | 0.417 | 0.667 | +0.500 | +0.250 |
+| 500 | 1.000 | 0.417 | 0.708 | +0.583 | +0.292 |
+
+Reported as a **measurement**, not recall (`|relevant| ≪ k` criterion). Same shape, more extreme:
+fused R@10 flat at 0.417, gap@10 widens to +0.583, and fused R@50 is conspicuously **non-monotonic**
+(0.708 → 0.750 → 0.667 → 0.708) — deeper pool actively demotes a previously-surfaced landmark.
+
+### Per-depth paired CIs WITH leave-one-out (H9, all-scored)
+
+| pool | comparison | mean Δ [95% CI] | excludes 0? | LOO surviving | hinges on |
+|---|---|---|---|---|---|
+| 50 | dense−hybrid | −0.063 [−0.126, −0.011] | yes | 25/29 | q08, q14, q18, q27 |
+| 50 | lexical−hybrid | −0.155 [−0.270, −0.057] | yes | **29/29** | — |
+| 100 | dense−hybrid | −0.063 [−0.126, −0.011] | yes | 25/29 | q08, q14, q18, q27 |
+| 100 | lexical−hybrid | −0.155 [−0.270, −0.057] | yes | **29/29** | — |
+| 200 | dense−hybrid | −0.063 [−0.126, −0.011] | yes | 25/29 | q08, q14, q18, q27 |
+| 200 | lexical−hybrid | −0.155 [−0.270, −0.057] | yes | **29/29** | — |
+| 500 | dense−hybrid | −0.063 [−0.126, −0.011] | yes | 25/29 | q08, q14, q18, q27 |
+| 500 | lexical−hybrid | −0.155 [−0.270, −0.057] | yes | **29/29** | — |
+
+Both edges are **identical at every depth** — the rows do not move. Because the R@10 edge lives
+entirely in the (pool-invariant) top-10 fusion, the edges are pool-invariant too: the **fragile**
+dense−hybrid edge stays fragile (25/29 LOO, same four hinge queries), the **robust** lexical−hybrid
+edge stays robust (29/29). Neither compresses at depth.
+
+## Interpretation
+
+### H8 — confirmed (strongly): the bottleneck is fusion, not candidate depth
+
+Deeper pool raises candidate-union recall exactly as expected (0.948 → 1.000 all; 1.000 throughout
+for known-item), but **fused top-10 recall is completely flat (0.592 all / 0.716 known-item /
+0.417 broad) and fused top-50 barely moves and non-monotonically.** The fusion gap does **not** close
+— gap@10 *widens* with depth, and at pool=500 the candidate set is complete (union 1.000) yet fused
+top-50 leaves the same leak as pool=50. The mechanism is RRF demotion: a gold doc sitting mid-rank in
+both arms earns only small reciprocal-rank terms and is ranked below the cut no matter how many
+deeper candidates are admitted (the seven candidate-present-but-fused-demoted queries at pool=500
+make this concrete, several of them *both-arm* docs). **Pool depth is not the lever.**
+
+### H9 — falsified, in a way that reinforces H8
+
+The prediction was that edges compress at depth (fragile dense−hybrid vanishing, robust
+lexical−hybrid persisting). Instead **both edges are pool-invariant** — identical CIs and LOO at
+every depth. The reason is the H8 mechanism: the R@10 edge is a property of the top-10 fused ranking,
+and the top-10 fused ranking does not change with pool, so the edges can't change either. The
+fragile dense−hybrid edge does not vanish at depth — it stays exactly as fragile (carried by q08,
+q14, q18, q27; collapses under any one's removal); the robust lexical−hybrid edge stays robust
+(29/29). H9's "compress at depth" is wrong, and the corrected picture — *depth touches nothing in the
+top-10* — is the same finding as H8 from the arm-comparison angle.
+
+### H10 — operating point + lever call
+
+**The lever is stage-2 reranking, not pool depth.** The candidate set is well-populated (union 1.000
+at pool=500 all-scored, 1.000 at every depth for known-item); the recall that users see in the top-10
+is gated entirely by RRF's ordering, which pool cannot fix (gap@10 +0.284 known-item / +0.356 all,
+immovable). A cross-encoder reranking the existing candidate set is the intervention that can convert
+that high union recall into top-k recall.
+
+**Operating point (if staying on RRF for now): pool = 100.** It captures the only recoverable fused
+gain — known-item fused R@50 0.853 → 0.941 (≈ 1–2 queries), all-scored fused R@50 peaks at 0.862 —
+at a mean candidate set of ~157; deeper pools (310, 734 candidates) buy *no* fused-recall gain and
+sometimes lose it (the non-monotonic R@50). So pool = 100 is the cheap, saturated setting; do not pay
+for 200/500.
+
+**Stated stage-2 boundary.** At the current pipeline (hybrid recall → RRF → top-k, no cross-encoder)
+pool cost is the modest fusion cost reported above (the candidate-set-size proxy). The binding
+latency cost arrives only when **stage-2 reranking exists** and the pool becomes the reranker's input
+size — at which point pool=100 (~157 candidates) vs pool=500 (~734) is the latency knob to revisit.
+PR #7 fixes the **recall headroom** (it is gated by fusion, and pool ≥ 100 wastes candidates); the
+full latency tradeoff is deferred to when reranking lands.
+
+### Tie-back to H5/H6 and the lever for the next PR
+
+H5 (widening hurts at fixed pool) and H6 (the single-arm/dense-blind class scales) both pointed at a
+stage-1 candidate-generation story. This sweep closes that thread: the candidate generator is **not**
+the binding constraint — at pool ≥ 100 the union holds ≥ 0.966 (1.000 at pool=500), and for the
+named/known-item queries it is a perfect 1.000 at every depth. What binds is the **fusion ranking**:
+RRF demotes single-arm-strong and mid-rank-in-both gold below the cut, and no candidate depth repairs
+it. The next retrieval lever is therefore a **stage-2 cross-encoder reranker** over a pool=100
+candidate set — not a deeper pool, and not (for these query-bounded coverage gaps) more corpus.
+
+### Verdict on the pre-registered hypotheses
+
+- **H8 — confirmed (strongly).** Union recall rises with depth; fused top-10 is pool-invariant and
+  fused top-50 barely moves (non-monotonically); the gap does not close (gap@10 widens). Bottleneck =
+  RRF demotion, not candidate presence → next lever is fusion / stage-2 reranking.
+- **H9 — falsified, reinforcing H8.** Edges do not compress at depth; they are pool-invariant
+  because top-10 fusion is pool-invariant. The fragile dense−hybrid edge stays fragile (25/29 LOO);
+  the robust lexical−hybrid edge stays robust (29/29) — at every depth.
+- **H10 — lever call made.** Pool depth is not the lever; set pool = 100 (cheap, saturates the small
+  recoverable fused R@50, ~157 candidates) and prioritise a stage-2 reranker, which the high union
+  recall is primed to exploit. Latency tradeoff revisited when reranking lands.
 
 ## Reproduce
 
