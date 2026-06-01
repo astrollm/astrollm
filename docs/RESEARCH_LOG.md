@@ -59,6 +59,53 @@ A living document tracking experiments, findings, and decisions.
 
 ---
 
+> **Retrieval experiments (EXP-001 – EXP-003) use a condensed entry.** The EXP-XXX template above is
+> training-shaped (W&B run, GPU, AstroMLab metrics), which doesn't fit a retrieval ablation, so these
+> log the date / type / status / outcome and link the per-experiment doc for full method,
+> pre-registration, tables, and per-query results.
+
+### EXP-001: Pilot retrieval ablation — dense vs lexical vs hybrid
+**Date**: 2026-05-31 · **Type**: retrieval · **Status**: complete (PR #5) · **Detail**: [pilot-ablation.md](research/pilot-ablation.md)
+
+500-abstract ADS corpus (`abs:"exoplanet atmosphere"`, year ≥ 2018), 29-query reviewed gold. Three
+arms over one frozen index — dense (pgvector/BGE), lexical (FTS5/BM25), hybrid (RRF; k=10, pool=50,
+RRF_K=60). Hybrid wins MRR on every split; the Recall@10 ordering sits within the paired-bootstrap
+noise at n=29. The decision driver was **candidate-set recall**, not Recall@10: union recall at pool
+depth = 0.966, and q12's dense-blind ERO (dense #338 / lexical #4) is an existence proof that lexical
+recovers targets dense buries. **Outcome: hybrid selected as the stage-1 candidate generator.**
+
+### EXP-002: Corpus widening (500 → 2,500), method-fixed
+**Date**: 2026-05-31 · **Type**: retrieval · **Status**: complete (PR #6, merge `d84f3ff`) · **Detail**: [corpus-widening.md](research/corpus-widening.md)
+
+Same query + year, deeper citation cut; the original 500 a byte-identical strict subset. Vary the
+corpus, hold the method.
+
+- **H5 confirmed** — every arm loses Recall@10 at fixed pool=50 (hybrid least, −0.098; dense −0.195;
+  lexical −0.276), and hybrid becomes the best Recall@10 arm.
+- **H6 confirmed, via incumbent displacement** — the single-arm-exclusive class scales 5 → 15, the
+  union premium grows +0.069 → +0.172, and union R@50 holds 0.948.
+- **H7 falsified by construction** — the coverage premise collapsed: q15 (LHS 475b) is
+  phrase-excluded and q11's canonical inversion paper is year-excluded, so a deeper citation cut
+  yields **zero coverage win** (the bottleneck is a query-recall bound, not corpus size).
+- Edge robustness: the dense−hybrid Recall@10 edge is **fragile** (carried by 4 queries, collapses
+  under leave-one-out); the lexical−hybrid edge is **robust** (survives all 29 LOO drops).
+
+### EXP-003: Pool-depth sweep (frozen 2,500 index)
+**Date**: 2026-06-01 · **Type**: retrieval · **Status**: complete (PR #7, merge `22d2793`) · **Detail**: [pool-sweep.md](research/pool-sweep.md)
+
+Frozen-index ablation (no re-index); sweep only `pool ∈ {50, 100, 200, 500}`.
+
+- **H8 confirmed (strongly)** — candidate-union recall rises to **1.000** with depth, but **fused
+  top-10 is exactly pool-invariant** (0.592 all / 0.716 named) and fused top-50 barely moves
+  (non-monotonically); the gap does not close. The bottleneck is **RRF fusion demotion of gold that
+  is already in the candidate set**, not candidate absence.
+- **H9 falsified** — both arm edges are pool-invariant, which is *entailed* by the top-10 invariance
+  (not an independent result): the fragile dense−hybrid edge stays fragile and the robust
+  lexical−hybrid edge stays robust at every depth.
+- **H10 lever call** — the lever is stage-2 reranking, not pool depth; operating point **pool = 100**.
+
+---
+
 ## Key Learnings
 
 ### From AstroSage Papers
@@ -89,3 +136,4 @@ A living document tracking experiments, findings, and decisions.
 | 2026-05-30 | Repo-wide reconcile to Qwen3.5 base + verified HF repo IDs | Propagated the Qwen3.5-4B/9B + Gemma 4 E4B Track-B decision across all configs, docs, personas, and skill commands, superseding the original Qwen3-4B/8B (and earlier Llama 3.1) references. Note 9B, not 8B — Qwen3.5 has no 8B dense. Verified exact HF repo IDs against Hugging Face: `Qwen/Qwen3.5-9B` and `Qwen/Qwen3.5-4B` (post-trained; no `-Instruct` suffix, `-Base` = pretrained), and `google/gemma-4-E4B-it` (capital `E4B`). |
 | 2026-05-31 | Docker Compose project-name collision (resolved) | During pilot stack bringup, `docker compose` derived the project name "docker" from the `docker/` directory and collided with an unrelated local Docker project that derives the same name; Compose recreated that project's database container against the pilot volume. Remediated by rebinding the other project's data volume and re-isolating the pilot stack. Structural fix: added a top-level `name: astrollm-pilot` key to `docker/docker-compose.pilot.yml` so isolation is a property of the file, not a `-p` flag (landed in PR #3, merge cfcd21b). **OPEN**: independent integrity verification of the other project's database (row counts) is still pending — the self-remediation does not close it. |
 | 2026-05-31 | Pilot label review: eval baseline updated | First-pass eval (PR #3): Recall@10 0.812 / MRR 0.776 over 16 queries with title-level entity-matched labels. After full review (PR #4; 29/30 scored, q15 has no in-corpus target): overall Recall@10 0.690 / MRR 0.623; named-target (n=17) 0.794 / 0.794; broad known-item (n=12) 0.542 / 0.381. The headline moved **down** by intent — the review added an honest q11 0.00 miss and corrected mislabels in both directions rather than inflating. **Decision**: the reviewed gold set is the eval baseline going forward. **Finding** (treat as DIRECTIONAL): hybrid retrieval is markedly weaker on conceptual/topical queries than on named entities — but the two sets used different labeling protocols (broad = single known-item landmarks, so its number is optimistic) and n is small (12 broad / 17 named), so the pattern is robust while the decimals are noisy. Motivates the dense-vs-lexical-vs-hybrid ablation and the stage-2 reranker. |
+| 2026-06-01 | **Retrieval thread closed** — beta ships hybrid RRF stage-1 @ pool=100 | Stage-1 candidate generation is **not** the binding constraint (union recall ≥ 0.966, and 1.000 for named queries — see EXP-001/002/003); the bottleneck is **fusion ranking**. The beta default is therefore **hybrid RRF stage-1 at pool=100** (saturates the recoverable fused recall at ~157 candidates, per EXP-003). Fusion-ranking improvement — the ladder **RRF_K sweep → weighted/score-based fusion → cross-encoder reranking** — is **deferred to the post-beta retrieval cycle** (aligns with V1_FINAL_PLAN placing Stage-2 reranking post-week-12). The **query-widening** lever (to reach the query-excluded coverage targets q15/q11) is also deferred. The active critical path **pivots to SFT data curation** (plan weeks 5-6). Retrieval was stopped because it is **ship-good, not because it failed**. **Dissemination**: PR #6 → blog Post 3, PR #7 → blog Post 4 (nandan.me/writing/notes, "building on a budget" series); drafting deferred, tracked. |

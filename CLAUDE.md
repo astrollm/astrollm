@@ -179,7 +179,7 @@ cd packages/web && bun dev
 
 | Phase | Name | Timeline | Key Deliverables |
 |-------|------|----------|-----------------|
-| **0** | Foundation & Learning | Pre-v1 | NanoGPT on astro corpus, study transformers, env setup |
+| **0** | Foundation & Learning | Pre-v1 | Env setup + dev pipeline; NanoGPT learning exercise skipped (jumped to Phase 1) |
 | **1 (v1)** | Retrieval-Grounded Copilot | Months 1-3 | Qwen3.5-4B/9B QLoRA SFT + Gemma 4 E4B Track B, RAG + ADS/SIMBAD, beta at astrollm.org |
 | **2 (v2)** | Serious Astronomy Model | Months 4-8 | Full LoRA 8B, DPO, expanded tools (NED/PDS/Gaia/MAST), TanStack Start web app |
 | **3 (v3)** | Scientific Tool Ecosystem | Months 9-18 | Model family (Nano 3B + Core 8B + Pro 32B), continuous learning, tool-use SFT |
@@ -225,6 +225,10 @@ See `docs/V1_FINAL_PLAN.md` for Phase 1 execution details. See `docs/MASTER_PLAN
 
 ## Current Status
 
-**Phase**: 0 — Foundation & Learning
-**Next milestone**: Complete NanoGPT implementation on astronomy corpus
+**Phase**: 1 (v1) — Retrieval-Grounded Copilot (in progress)
+**Done**: Retrieval foundation built and ablated end-to-end (pilot ablation + PR #6 widening + PR #7 pool sweep); **retrieval thread closed** — the bottleneck is fusion ranking, not candidate generation. Beta default: **hybrid RRF stage-1 @ pool=100**. See the [Research Log](docs/RESEARCH_LOG.md) DECISION (2026-06-01).
+**Next milestone**: SFT data curation (plan weeks 5-6) → fine-tuned weights + SFT dataset on HuggingFace → week-12 beta
+**Deferred (post-beta)**: fusion-ranking ladder (RRF_K sweep → weighted fusion → cross-encoder reranking); query-widening lever
 **Blocking issues**: None
+
+> **Phase 0 note**: The Phase-0 NanoGPT learning exercise (train a small GPT on the astro corpus) was **not** completed — the project moved directly into the Phase-1 retrieval foundation. Nothing is fine-tuned yet and no SFT data is curated (that is the next milestone); NanoGPT remains an optional learning backfill, not a v1 blocker.

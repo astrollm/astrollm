@@ -2,7 +2,7 @@
 
 A domain-specialized Large Language Model for Astronomy & Astrophysics.
 
-> **Status**: Phase 0 — Foundation & Learning. Not yet usable. Follow along as we build it in the open.
+> **Status**: Phase 1 (v1) — Retrieval-Grounded Copilot, in progress. The retrieval foundation is built and ablated end-to-end (pilot + widening + pool sweep); next up is SFT data curation. Not yet usable. Follow along as we build it in the open.
 
 ## What is AstroLLM?
 
@@ -53,7 +53,7 @@ AstroLLM is an open-source system that connects fine-tuned language models with 
 
 | Phase | Name | Timeline | Key Deliverables |
 |-------|------|----------|-----------------|
-| **0** | Foundation & Learning | Pre-v1 | NanoGPT on astro corpus, study transformers, env setup |
+| **0** | Foundation & Learning | Pre-v1 | Env setup + dev pipeline; NanoGPT learning exercise skipped (jumped to Phase 1) |
 | **1 (v1)** | Retrieval-Grounded Copilot | Months 1-3 | Qwen3.5-4B/9B QLoRA SFT + Gemma 4 E4B Track B, RAG + ADS/SIMBAD, beta at astrollm.org |
 | **2 (v2)** | Serious Astronomy Model | Months 4-8 | Full LoRA 8B, DPO, expanded tools (NED/PDS/Gaia/MAST), production web app |
 | **3 (v3)** | Scientific Tool Ecosystem | Months 9-18 | Model family (Nano 3B + Core 8B + Pro 32B), continuous learning, tool-use SFT |
