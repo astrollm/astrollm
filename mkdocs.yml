@@ -83,6 +83,7 @@ nav:
     - Pilot Label Review: research/pilot-label-review.md
     - Pilot Retrieval Ablation: research/pilot-ablation.md
     - Corpus Widening: research/corpus-widening.md
+    - Pool-Depth Sweep: research/pool-sweep.md
     - Experiments:
       - research/experiments/index.md
       - EXP-000 Baselines: research/experiments/EXP-000-baselines.md
