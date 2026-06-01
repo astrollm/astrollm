@@ -129,7 +129,7 @@ Why this audience first:
 
 Don't move to the next phase because time passed. Move when criteria are met.
 
-**Phase 0 → Phase 1**: Can explain transformers, NanoGPT trained on astronomy corpus, working dev environment, initial data downloaded
+**Phase 0 → Phase 1**: Working dev environment, initial data downloaded, can explain transformers (the NanoGPT hands-on exercise was an optional learning backfill — skipped in favor of building the retrieval foundation directly, not a hard gate)
 
 **Phase 1 → Phase 2**: Beta live at astrollm.org, 5+ users giving feedback, fine-tuned model beats base on evals, citation accuracy >80%, SIMBAD object resolution working for top 1,000 targets
 
