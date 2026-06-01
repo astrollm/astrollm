@@ -1,0 +1,3829 @@
+{
+  "config": {
+    "corpus_n": 2500,
+    "pools": [
+      50,
+      100,
+      200,
+      500
+    ],
+    "k": 10,
+    "deep": 50,
+    "rrf_k": 60,
+    "queries_file": "packages/evaluation/queries/pilot_exoplanet_atmospheres.yaml",
+    "known_item_file": "packages/evaluation/queries/pool_sweep_known_item.yaml",
+    "n_scored": 29,
+    "skipped": [
+      "q15"
+    ],
+    "n_known_item": 17,
+    "n_broad_entity": 12,
+    "bootstrap_B": 10000,
+    "seed": 20260531,
+    "pool50_validation": "ok (reproduces PR #6 all-slice numbers)"
+  },
+  "per_pool": {
+    "50": {
+      "agg": {
+        "all": {
+          "n": 29,
+          "relevant": 49,
+          "dense": {
+            "r10": 0.5287356321839081,
+            "r50": 0.7758620689655172
+          },
+          "lexical": {
+            "r10": 0.43678160919540227,
+            "r50": 0.8103448275862069
+          },
+          "hybrid": {
+            "r10": 0.5919540229885057,
+            "r50": 0.7931034482758621
+          },
+          "union_recall": 0.9482758620689655,
+          "gap10": 0.3563218390804598,
+          "gap50": 0.15517241379310343,
+          "docs": {
+            "dense_only": 8,
+            "lexical_only": 7,
+            "both": 31,
+            "neither": 3
+          },
+          "mean_cand_size": 78.89655172413794
+        },
+        "known_item": {
+          "n": 17,
+          "relevant": 29,
+          "dense": {
+            "r10": 0.6372549019607844,
+            "r50": 0.8529411764705882
+          },
+          "lexical": {
+            "r10": 0.5392156862745098,
+            "r50": 0.9411764705882353
+          },
+          "hybrid": {
+            "r10": 0.7156862745098039,
+            "r50": 0.8529411764705882
+          },
+          "union_recall": 1.0,
+          "gap10": 0.28431372549019607,
+          "gap50": 0.1470588235294118,
+          "docs": {
+            "dense_only": 2,
+            "lexical_only": 3,
+            "both": 24,
+            "neither": 0
+          },
+          "mean_cand_size": 78.0
+        },
+        "broad_entity": {
+          "n": 12,
+          "relevant": 20,
+          "dense": {
+            "r10": 0.375,
+            "r50": 0.6666666666666666
+          },
+          "lexical": {
+            "r10": 0.2916666666666667,
+            "r50": 0.625
+          },
+          "hybrid": {
+            "r10": 0.4166666666666667,
+            "r50": 0.7083333333333334
+          },
+          "union_recall": 0.875,
+          "gap10": 0.4583333333333333,
+          "gap50": 0.16666666666666663,
+          "docs": {
+            "dense_only": 6,
+            "lexical_only": 4,
+            "both": 7,
+            "neither": 3
+          },
+          "mean_cand_size": 80.16666666666667
+        }
+      },
+      "per_query": [
+        {
+          "id": "q01",
+          "target": "WASP-39b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 3,
+          "arms": {
+            "dense": {
+              "r10": 0.6666666666666666,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.3333333333333333,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.6666666666666666,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 3,
+            "neither": 0
+          },
+          "cand_size": 83
+        },
+        {
+          "id": "q02",
+          "target": "WASP-39b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 77
+        },
+        {
+          "id": "q03",
+          "target": "K2-18b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.5,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 77
+        },
+        {
+          "id": "q04",
+          "target": "K2-18b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 79
+        },
+        {
+          "id": "q05",
+          "target": "TRAPPIST-1e",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 1,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 70
+        },
+        {
+          "id": "q06",
+          "target": "TRAPPIST-1b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 83
+        },
+        {
+          "id": "q07",
+          "target": "HD 189733b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.5,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 1,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 75
+        },
+        {
+          "id": "q08",
+          "target": "HD 209458b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 3,
+          "arms": {
+            "dense": {
+              "r10": 0.6666666666666666,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.3333333333333333,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 3,
+            "neither": 0
+          },
+          "cand_size": 82
+        },
+        {
+          "id": "q09",
+          "target": "55 Cancri e",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 79
+        },
+        {
+          "id": "q10",
+          "target": "GJ 1214b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 75
+        },
+        {
+          "id": "q11",
+          "target": "WASP-121b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 0.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 1,
+            "both": 0,
+            "neither": 0
+          },
+          "cand_size": 68
+        },
+        {
+          "id": "q12",
+          "target": "WASP-96b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 0.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 1,
+            "both": 0,
+            "neither": 0
+          },
+          "cand_size": 82
+        },
+        {
+          "id": "q13",
+          "target": "LTT 9779b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 84
+        },
+        {
+          "id": "q14",
+          "target": "GJ 486b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 83
+        },
+        {
+          "id": "q16",
+          "target": "TOI-270d",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 74
+        },
+        {
+          "id": "q17",
+          "target": "WASP-17b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 81
+        },
+        {
+          "id": "q18",
+          "target": "WASP-43b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.5,
+              "r50": 0.5
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 1,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 74
+        },
+        {
+          "id": "q19",
+          "target": "CO2",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 93
+        },
+        {
+          "id": "q20",
+          "target": "SO2",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 76
+        },
+        {
+          "id": "q21",
+          "target": "H2O",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 0.0
+            }
+          },
+          "union_recall": 0.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 0,
+            "neither": 2
+          },
+          "cand_size": 86
+        },
+        {
+          "id": "q22",
+          "target": "CH4",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 1,
+            "both": 0,
+            "neither": 0
+          },
+          "cand_size": 84
+        },
+        {
+          "id": "q23",
+          "target": "CO",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 83
+        },
+        {
+          "id": "q24",
+          "target": "Na",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 1,
+            "lexical_only": 1,
+            "both": 0,
+            "neither": 0
+          },
+          "cand_size": 71
+        },
+        {
+          "id": "q25",
+          "target": "escape",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.5,
+              "r50": 0.5
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 1,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 75
+        },
+        {
+          "id": "q26",
+          "target": "clouds",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 0.5
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.5,
+              "r50": 0.5
+            }
+          },
+          "union_recall": 0.5,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 1
+          },
+          "cand_size": 82
+        },
+        {
+          "id": "q27",
+          "target": "retrieval",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 81
+        },
+        {
+          "id": "q28",
+          "target": "C/O ratio",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 0.5
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 1,
+            "lexical_only": 1,
+            "both": 0,
+            "neither": 0
+          },
+          "cand_size": 80
+        },
+        {
+          "id": "q29",
+          "target": "emission",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 0.5
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 1,
+            "lexical_only": 1,
+            "both": 0,
+            "neither": 0
+          },
+          "cand_size": 75
+        },
+        {
+          "id": "q30",
+          "target": "phase curve",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 0.5
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 2,
+            "lexical_only": 0,
+            "both": 0,
+            "neither": 0
+          },
+          "cand_size": 76
+        }
+      ]
+    },
+    "100": {
+      "agg": {
+        "all": {
+          "n": 29,
+          "relevant": 49,
+          "dense": {
+            "r10": 0.5287356321839081,
+            "r50": 0.7758620689655172
+          },
+          "lexical": {
+            "r10": 0.43678160919540227,
+            "r50": 0.8103448275862069
+          },
+          "hybrid": {
+            "r10": 0.5919540229885057,
+            "r50": 0.8620689655172413
+          },
+          "union_recall": 0.9655172413793104,
+          "gap10": 0.37356321839080464,
+          "gap50": 0.10344827586206906,
+          "docs": {
+            "dense_only": 3,
+            "lexical_only": 3,
+            "both": 41,
+            "neither": 2
+          },
+          "mean_cand_size": 157.24137931034483
+        },
+        "known_item": {
+          "n": 17,
+          "relevant": 29,
+          "dense": {
+            "r10": 0.6372549019607844,
+            "r50": 0.8529411764705882
+          },
+          "lexical": {
+            "r10": 0.5392156862745098,
+            "r50": 0.9411764705882353
+          },
+          "hybrid": {
+            "r10": 0.7156862745098039,
+            "r50": 0.9411764705882353
+          },
+          "union_recall": 1.0,
+          "gap10": 0.28431372549019607,
+          "gap50": 0.05882352941176472,
+          "docs": {
+            "dense_only": 0,
+            "lexical_only": 1,
+            "both": 28,
+            "neither": 0
+          },
+          "mean_cand_size": 155.58823529411765
+        },
+        "broad_entity": {
+          "n": 12,
+          "relevant": 20,
+          "dense": {
+            "r10": 0.375,
+            "r50": 0.6666666666666666
+          },
+          "lexical": {
+            "r10": 0.2916666666666667,
+            "r50": 0.625
+          },
+          "hybrid": {
+            "r10": 0.4166666666666667,
+            "r50": 0.75
+          },
+          "union_recall": 0.9166666666666666,
+          "gap10": 0.49999999999999994,
+          "gap50": 0.16666666666666663,
+          "docs": {
+            "dense_only": 3,
+            "lexical_only": 2,
+            "both": 13,
+            "neither": 2
+          },
+          "mean_cand_size": 159.58333333333334
+        }
+      },
+      "per_query": [
+        {
+          "id": "q01",
+          "target": "WASP-39b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 3,
+          "arms": {
+            "dense": {
+              "r10": 0.6666666666666666,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.3333333333333333,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.6666666666666666,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 3,
+            "neither": 0
+          },
+          "cand_size": 157
+        },
+        {
+          "id": "q02",
+          "target": "WASP-39b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 161
+        },
+        {
+          "id": "q03",
+          "target": "K2-18b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.5,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 157
+        },
+        {
+          "id": "q04",
+          "target": "K2-18b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 150
+        },
+        {
+          "id": "q05",
+          "target": "TRAPPIST-1e",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 142
+        },
+        {
+          "id": "q06",
+          "target": "TRAPPIST-1b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 166
+        },
+        {
+          "id": "q07",
+          "target": "HD 189733b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.5,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 143
+        },
+        {
+          "id": "q08",
+          "target": "HD 209458b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 3,
+          "arms": {
+            "dense": {
+              "r10": 0.6666666666666666,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.3333333333333333,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 3,
+            "neither": 0
+          },
+          "cand_size": 152
+        },
+        {
+          "id": "q09",
+          "target": "55 Cancri e",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 172
+        },
+        {
+          "id": "q10",
+          "target": "GJ 1214b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 154
+        },
+        {
+          "id": "q11",
+          "target": "WASP-121b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 140
+        },
+        {
+          "id": "q12",
+          "target": "WASP-96b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 0.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 1,
+            "both": 0,
+            "neither": 0
+          },
+          "cand_size": 158
+        },
+        {
+          "id": "q13",
+          "target": "LTT 9779b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 169
+        },
+        {
+          "id": "q14",
+          "target": "GJ 486b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 160
+        },
+        {
+          "id": "q16",
+          "target": "TOI-270d",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 152
+        },
+        {
+          "id": "q17",
+          "target": "WASP-17b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 158
+        },
+        {
+          "id": "q18",
+          "target": "WASP-43b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.5,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 154
+        },
+        {
+          "id": "q19",
+          "target": "CO2",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 183
+        },
+        {
+          "id": "q20",
+          "target": "SO2",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 168
+        },
+        {
+          "id": "q21",
+          "target": "H2O",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 0.0
+            }
+          },
+          "union_recall": 0.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 0,
+            "neither": 2
+          },
+          "cand_size": 171
+        },
+        {
+          "id": "q22",
+          "target": "CH4",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 159
+        },
+        {
+          "id": "q23",
+          "target": "CO",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 166
+        },
+        {
+          "id": "q24",
+          "target": "Na",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 0.5
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 1,
+            "lexical_only": 1,
+            "both": 0,
+            "neither": 0
+          },
+          "cand_size": 157
+        },
+        {
+          "id": "q25",
+          "target": "escape",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.5,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 141
+        },
+        {
+          "id": "q26",
+          "target": "clouds",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 0.5
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.5,
+              "r50": 0.5
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 1,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 165
+        },
+        {
+          "id": "q27",
+          "target": "retrieval",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 162
+        },
+        {
+          "id": "q28",
+          "target": "C/O ratio",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 0.5
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 1,
+            "lexical_only": 1,
+            "both": 0,
+            "neither": 0
+          },
+          "cand_size": 154
+        },
+        {
+          "id": "q29",
+          "target": "emission",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 0.5
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 140
+        },
+        {
+          "id": "q30",
+          "target": "phase curve",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 149
+        }
+      ]
+    },
+    "200": {
+      "agg": {
+        "all": {
+          "n": 29,
+          "relevant": 49,
+          "dense": {
+            "r10": 0.5287356321839081,
+            "r50": 0.7758620689655172
+          },
+          "lexical": {
+            "r10": 0.43678160919540227,
+            "r50": 0.8103448275862069
+          },
+          "hybrid": {
+            "r10": 0.5919540229885057,
+            "r50": 0.8275862068965517
+          },
+          "union_recall": 0.9655172413793104,
+          "gap10": 0.37356321839080464,
+          "gap50": 0.13793103448275867,
+          "docs": {
+            "dense_only": 2,
+            "lexical_only": 3,
+            "both": 42,
+            "neither": 2
+          },
+          "mean_cand_size": 310.2413793103448
+        },
+        "known_item": {
+          "n": 17,
+          "relevant": 29,
+          "dense": {
+            "r10": 0.6372549019607844,
+            "r50": 0.8529411764705882
+          },
+          "lexical": {
+            "r10": 0.5392156862745098,
+            "r50": 0.9411764705882353
+          },
+          "hybrid": {
+            "r10": 0.7156862745098039,
+            "r50": 0.9411764705882353
+          },
+          "union_recall": 1.0,
+          "gap10": 0.28431372549019607,
+          "gap50": 0.05882352941176472,
+          "docs": {
+            "dense_only": 0,
+            "lexical_only": 1,
+            "both": 28,
+            "neither": 0
+          },
+          "mean_cand_size": 309.1764705882353
+        },
+        "broad_entity": {
+          "n": 12,
+          "relevant": 20,
+          "dense": {
+            "r10": 0.375,
+            "r50": 0.6666666666666666
+          },
+          "lexical": {
+            "r10": 0.2916666666666667,
+            "r50": 0.625
+          },
+          "hybrid": {
+            "r10": 0.4166666666666667,
+            "r50": 0.6666666666666666
+          },
+          "union_recall": 0.9166666666666666,
+          "gap10": 0.49999999999999994,
+          "gap50": 0.25,
+          "docs": {
+            "dense_only": 2,
+            "lexical_only": 2,
+            "both": 14,
+            "neither": 2
+          },
+          "mean_cand_size": 311.75
+        }
+      },
+      "per_query": [
+        {
+          "id": "q01",
+          "target": "WASP-39b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 3,
+          "arms": {
+            "dense": {
+              "r10": 0.6666666666666666,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.3333333333333333,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.6666666666666666,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 3,
+            "neither": 0
+          },
+          "cand_size": 304
+        },
+        {
+          "id": "q02",
+          "target": "WASP-39b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 316
+        },
+        {
+          "id": "q03",
+          "target": "K2-18b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.5,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 321
+        },
+        {
+          "id": "q04",
+          "target": "K2-18b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 311
+        },
+        {
+          "id": "q05",
+          "target": "TRAPPIST-1e",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 321
+        },
+        {
+          "id": "q06",
+          "target": "TRAPPIST-1b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 306
+        },
+        {
+          "id": "q07",
+          "target": "HD 189733b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.5,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 287
+        },
+        {
+          "id": "q08",
+          "target": "HD 209458b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 3,
+          "arms": {
+            "dense": {
+              "r10": 0.6666666666666666,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.3333333333333333,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 3,
+            "neither": 0
+          },
+          "cand_size": 303
+        },
+        {
+          "id": "q09",
+          "target": "55 Cancri e",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 357
+        },
+        {
+          "id": "q10",
+          "target": "GJ 1214b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 313
+        },
+        {
+          "id": "q11",
+          "target": "WASP-121b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 281
+        },
+        {
+          "id": "q12",
+          "target": "WASP-96b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 0.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 1,
+            "both": 0,
+            "neither": 0
+          },
+          "cand_size": 313
+        },
+        {
+          "id": "q13",
+          "target": "LTT 9779b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 321
+        },
+        {
+          "id": "q14",
+          "target": "GJ 486b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 300
+        },
+        {
+          "id": "q16",
+          "target": "TOI-270d",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 295
+        },
+        {
+          "id": "q17",
+          "target": "WASP-17b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 317
+        },
+        {
+          "id": "q18",
+          "target": "WASP-43b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.5,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 290
+        },
+        {
+          "id": "q19",
+          "target": "CO2",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 346
+        },
+        {
+          "id": "q20",
+          "target": "SO2",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 324
+        },
+        {
+          "id": "q21",
+          "target": "H2O",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 0.0
+            }
+          },
+          "union_recall": 0.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 0,
+            "neither": 2
+          },
+          "cand_size": 322
+        },
+        {
+          "id": "q22",
+          "target": "CH4",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 292
+        },
+        {
+          "id": "q23",
+          "target": "CO",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 335
+        },
+        {
+          "id": "q24",
+          "target": "Na",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 0.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 1,
+            "lexical_only": 1,
+            "both": 0,
+            "neither": 0
+          },
+          "cand_size": 331
+        },
+        {
+          "id": "q25",
+          "target": "escape",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.5,
+              "r50": 0.5
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 267
+        },
+        {
+          "id": "q26",
+          "target": "clouds",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 0.5
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.5,
+              "r50": 0.5
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 1,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 314
+        },
+        {
+          "id": "q27",
+          "target": "retrieval",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 308
+        },
+        {
+          "id": "q28",
+          "target": "C/O ratio",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 0.5
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 1,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 300
+        },
+        {
+          "id": "q29",
+          "target": "emission",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 0.5
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 296
+        },
+        {
+          "id": "q30",
+          "target": "phase curve",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 306
+        }
+      ]
+    },
+    "500": {
+      "agg": {
+        "all": {
+          "n": 29,
+          "relevant": 49,
+          "dense": {
+            "r10": 0.5287356321839081,
+            "r50": 0.7758620689655172
+          },
+          "lexical": {
+            "r10": 0.43678160919540227,
+            "r50": 0.8103448275862069
+          },
+          "hybrid": {
+            "r10": 0.5919540229885057,
+            "r50": 0.8448275862068966
+          },
+          "union_recall": 1.0,
+          "gap10": 0.40804597701149425,
+          "gap50": 0.15517241379310343,
+          "docs": {
+            "dense_only": 0,
+            "lexical_only": 2,
+            "both": 47,
+            "neither": 0
+          },
+          "mean_cand_size": 734.1379310344828
+        },
+        "known_item": {
+          "n": 17,
+          "relevant": 29,
+          "dense": {
+            "r10": 0.6372549019607844,
+            "r50": 0.8529411764705882
+          },
+          "lexical": {
+            "r10": 0.5392156862745098,
+            "r50": 0.9411764705882353
+          },
+          "hybrid": {
+            "r10": 0.7156862745098039,
+            "r50": 0.9411764705882353
+          },
+          "union_recall": 1.0,
+          "gap10": 0.28431372549019607,
+          "gap50": 0.05882352941176472,
+          "docs": {
+            "dense_only": 0,
+            "lexical_only": 1,
+            "both": 28,
+            "neither": 0
+          },
+          "mean_cand_size": 726.6470588235294
+        },
+        "broad_entity": {
+          "n": 12,
+          "relevant": 20,
+          "dense": {
+            "r10": 0.375,
+            "r50": 0.6666666666666666
+          },
+          "lexical": {
+            "r10": 0.2916666666666667,
+            "r50": 0.625
+          },
+          "hybrid": {
+            "r10": 0.4166666666666667,
+            "r50": 0.7083333333333334
+          },
+          "union_recall": 1.0,
+          "gap10": 0.5833333333333333,
+          "gap50": 0.29166666666666663,
+          "docs": {
+            "dense_only": 0,
+            "lexical_only": 1,
+            "both": 19,
+            "neither": 0
+          },
+          "mean_cand_size": 744.75
+        }
+      },
+      "per_query": [
+        {
+          "id": "q01",
+          "target": "WASP-39b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 3,
+          "arms": {
+            "dense": {
+              "r10": 0.6666666666666666,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.3333333333333333,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.6666666666666666,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 3,
+            "neither": 0
+          },
+          "cand_size": 698
+        },
+        {
+          "id": "q02",
+          "target": "WASP-39b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 675
+        },
+        {
+          "id": "q03",
+          "target": "K2-18b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.5,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 741
+        },
+        {
+          "id": "q04",
+          "target": "K2-18b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 578
+        },
+        {
+          "id": "q05",
+          "target": "TRAPPIST-1e",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 824
+        },
+        {
+          "id": "q06",
+          "target": "TRAPPIST-1b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 753
+        },
+        {
+          "id": "q07",
+          "target": "HD 189733b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.5,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 729
+        },
+        {
+          "id": "q08",
+          "target": "HD 209458b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 3,
+          "arms": {
+            "dense": {
+              "r10": 0.6666666666666666,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.3333333333333333,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 3,
+            "neither": 0
+          },
+          "cand_size": 723
+        },
+        {
+          "id": "q09",
+          "target": "55 Cancri e",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 850
+        },
+        {
+          "id": "q10",
+          "target": "GJ 1214b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 755
+        },
+        {
+          "id": "q11",
+          "target": "WASP-121b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 666
+        },
+        {
+          "id": "q12",
+          "target": "WASP-96b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 0.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 1,
+            "both": 0,
+            "neither": 0
+          },
+          "cand_size": 747
+        },
+        {
+          "id": "q13",
+          "target": "LTT 9779b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 748
+        },
+        {
+          "id": "q14",
+          "target": "GJ 486b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 758
+        },
+        {
+          "id": "q16",
+          "target": "TOI-270d",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 707
+        },
+        {
+          "id": "q17",
+          "target": "WASP-17b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 710
+        },
+        {
+          "id": "q18",
+          "target": "WASP-43b",
+          "kind": "named",
+          "partition": "known_item",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.5,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 691
+        },
+        {
+          "id": "q19",
+          "target": "CO2",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 782
+        },
+        {
+          "id": "q20",
+          "target": "SO2",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 714
+        },
+        {
+          "id": "q21",
+          "target": "H2O",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 0.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 1,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 744
+        },
+        {
+          "id": "q22",
+          "target": "CH4",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 727
+        },
+        {
+          "id": "q23",
+          "target": "CO",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 1,
+          "arms": {
+            "dense": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 1.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 1,
+            "neither": 0
+          },
+          "cand_size": 766
+        },
+        {
+          "id": "q24",
+          "target": "Na",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 0.5
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 815
+        },
+        {
+          "id": "q25",
+          "target": "escape",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.5,
+              "r50": 0.5
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 740
+        },
+        {
+          "id": "q26",
+          "target": "clouds",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 0.5
+            },
+            "lexical": {
+              "r10": 0.5,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.5,
+              "r50": 0.5
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 725
+        },
+        {
+          "id": "q27",
+          "target": "retrieval",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.5,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "hybrid": {
+              "r10": 1.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 732
+        },
+        {
+          "id": "q28",
+          "target": "C/O ratio",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 0.5
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 738
+        },
+        {
+          "id": "q29",
+          "target": "emission",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.5
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 0.5
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 689
+        },
+        {
+          "id": "q30",
+          "target": "phase curve",
+          "kind": "broad",
+          "partition": "broad_entity",
+          "n_gold": 2,
+          "arms": {
+            "dense": {
+              "r10": 0.0,
+              "r50": 1.0
+            },
+            "lexical": {
+              "r10": 0.0,
+              "r50": 0.0
+            },
+            "hybrid": {
+              "r10": 0.0,
+              "r50": 1.0
+            }
+          },
+          "union_recall": 1.0,
+          "tags": {
+            "dense_only": 0,
+            "lexical_only": 0,
+            "both": 2,
+            "neither": 0
+          },
+          "cand_size": 765
+        }
+      ]
+    }
+  },
+  "bootstrap": {
+    "50": {
+      "dense_minus_hybrid": {
+        "mean": -0.06321839080459771,
+        "lo": -0.12643678160919541,
+        "hi": -0.01149425287356322,
+        "excludes_zero": true,
+        "loo_surviving": 25,
+        "loo_total": 29,
+        "hinge_queries": [
+          "q08",
+          "q14",
+          "q18",
+          "q27"
+        ]
+      },
+      "lexical_minus_hybrid": {
+        "mean": -0.15517241379310345,
+        "lo": -0.27011494252873564,
+        "hi": -0.057471264367816084,
+        "excludes_zero": true,
+        "loo_surviving": 29,
+        "loo_total": 29,
+        "hinge_queries": []
+      }
+    },
+    "100": {
+      "dense_minus_hybrid": {
+        "mean": -0.06321839080459771,
+        "lo": -0.12643678160919541,
+        "hi": -0.01149425287356322,
+        "excludes_zero": true,
+        "loo_surviving": 25,
+        "loo_total": 29,
+        "hinge_queries": [
+          "q08",
+          "q14",
+          "q18",
+          "q27"
+        ]
+      },
+      "lexical_minus_hybrid": {
+        "mean": -0.15517241379310345,
+        "lo": -0.27011494252873564,
+        "hi": -0.057471264367816084,
+        "excludes_zero": true,
+        "loo_surviving": 29,
+        "loo_total": 29,
+        "hinge_queries": []
+      }
+    },
+    "200": {
+      "dense_minus_hybrid": {
+        "mean": -0.06321839080459771,
+        "lo": -0.12643678160919541,
+        "hi": -0.01149425287356322,
+        "excludes_zero": true,
+        "loo_surviving": 25,
+        "loo_total": 29,
+        "hinge_queries": [
+          "q08",
+          "q14",
+          "q18",
+          "q27"
+        ]
+      },
+      "lexical_minus_hybrid": {
+        "mean": -0.15517241379310345,
+        "lo": -0.27011494252873564,
+        "hi": -0.057471264367816084,
+        "excludes_zero": true,
+        "loo_surviving": 29,
+        "loo_total": 29,
+        "hinge_queries": []
+      }
+    },
+    "500": {
+      "dense_minus_hybrid": {
+        "mean": -0.06321839080459771,
+        "lo": -0.12643678160919541,
+        "hi": -0.01149425287356322,
+        "excludes_zero": true,
+        "loo_surviving": 25,
+        "loo_total": 29,
+        "hinge_queries": [
+          "q08",
+          "q14",
+          "q18",
+          "q27"
+        ]
+      },
+      "lexical_minus_hybrid": {
+        "mean": -0.15517241379310345,
+        "lo": -0.27011494252873564,
+        "hi": -0.057471264367816084,
+        "excludes_zero": true,
+        "loo_surviving": 29,
+        "loo_total": 29,
+        "hinge_queries": []
+      }
+    }
+  }
+}
