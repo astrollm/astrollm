@@ -104,6 +104,37 @@ Frozen-index ablation (no re-index); sweep only `pool ∈ {50, 100, 200, 500}`.
   lexical−hybrid edge stays robust at every depth.
 - **H10 lever call** — the lever is stage-2 reranking, not pool depth; operating point **pool = 100**.
 
+### EXP-004: RAG-SFT pilot — curation-recipe pre-registration (Phase A)
+**Date**: 2026-06-01 · **Type**: data · **Status**: pre-registered (PR #10), no data generated · **Detail**: [sft-pilot.md](research/sft-pilot.md)
+
+Executes the 2026-06-01 pivot (Decision Log below): from the closed retrieval thread to SFT data
+curation, the active critical path for the week-12 beta. Phase A holds the exoplanet-atmosphere
+corpus **frozen** (the 2,500-abstract pool-sweep index, context assembled hybrid RRF @ pool=100) and
+treats the **curation recipe** as the single manipulated variable — gold seed (150–250 hand-curated,
+disjoint verifier-calibration / eval-seed partitions) → teacher synthesis (Claude API, grounded on
+the frozen `retrieve()`) → in-repo citation-grounding verification → manifest + 95/5 split by task
+family. Same pilot→widen, single-variable discipline as the retrieval thread; Phase B (separate
+commission) freezes the recipe and widens the corpus to a general astro-ph slice for the shippable v1
+set. Every example is retrieval-augmented `(query + retrieved abstracts) → cited answer` across three
+families — literature-grounded QA (~45%), citation-grounded summarization (~35%), explicit abstention
+(~20%, deliberately over-weighted).
+
+Five hypotheses registered **before any data is generated**; comparison is always QLoRA-SFT
+Qwen3.5-4B vs the same base on the held-out eval-seed set, with paired-bootstrap CIs as in the
+retrieval thread:
+
+- **SFT-H1 (grounding lift)** — CI on (SFT − base) faithfulness excludes 0, target ≥ +0.10 absolute.
+- **SFT-H2 (citation accuracy)** — cited-bibcode-supports-claim clears the V1 >80% target and beats base.
+- **SFT-H3 (abstention, two-sided)** — refusal rate beats base, subject to a false-refusal cap ≤ 0.10.
+- **SFT-H4 (no knowledge regression)** — AstroMLab-1 subset drops ≤ 2 pp vs base (larger = kill signal).
+- **SFT-H5 (verifier validity)** — verifier precision/recall vs gold; trusted as a filter only at
+  precision ≥ 0.85, else every "passed" example is human-reviewed.
+
+**Gate**: fine-tune into the beta only if H1 ∧ H2 ∧ H4 hold; otherwise the honest status is
+"RAG-grounded beta on the base model, SFT iterating" — the week-12 date does not override the gates.
+Pre-registration only: nothing is fine-tuned and no SFT data is curated yet. Results /
+Interpretation / Verdict append at the results step (separate commit).
+
 ---
 
 ## Key Learnings
