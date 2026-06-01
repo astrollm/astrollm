@@ -84,6 +84,7 @@ nav:
     - Pilot Retrieval Ablation: research/pilot-ablation.md
     - Corpus Widening: research/corpus-widening.md
     - Pool-Depth Sweep: research/pool-sweep.md
+    - RAG-SFT Pilot (Pre-Registration): research/sft-pilot.md
     - Experiments:
       - research/experiments/index.md
       - EXP-000 Baselines: research/experiments/EXP-000-baselines.md
