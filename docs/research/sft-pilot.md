@@ -213,6 +213,13 @@ iterating"** — not a fine-tune shipped to hit week 12. The differentiation is 
 honest answers; shipping weak grounding to make a milestone forfeits exactly that. The week-12 date
 does not override the gates.
 
+## Amendments
+
+- **2026-06-02** (pre-data — before any SFT data generated or eval run): SFT-H4 revised. Original
+  closed-book −2 pp AstroMLab-1 gate replaced with an open-book topic-overlap gate (closed-book
+  reported as drift + catastrophe backstop; general retention deferred to Phase B). Rationale:
+  closed-book MCQ conflates knowledge loss with by-design abstention hedging. See commit a60e1c9.
+
 ---
 
 *Pre-registration commit. Results, Interpretation, Verdict on the hypotheses, and Reproduce are
