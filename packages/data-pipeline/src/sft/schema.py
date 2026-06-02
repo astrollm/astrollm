@@ -78,7 +78,16 @@ class GoldExample(BaseModel):
 
     @model_validator(mode="after")
     def _check_contract(self) -> GoldExample:
-        """Cross-field rules 1-5 (rule 6 needs the corpus — see validate_against_corpus)."""
+        """Rules 1-5 + non-empty human fields. (Rule 6 + cited-bibcode existence need the
+        corpus — see validate_against_corpus.)"""
+        # Human-authored fields must be filled — catches an unedited `prepare` template
+        # (answer:"" and claim text:"") slipping into the calibration/eval seed.
+        if not self.answer.strip():
+            raise ValueError("answer must not be empty")
+        for i, claim in enumerate(self.claims):
+            if not claim.text.strip():
+                raise ValueError(f"claim[{i}].text must not be empty")
+
         is_abstention = self.task_family is TaskFamily.ABSTENTION
 
         # Rule 1: ABSTENTION ⇒ abstention_reason set (claims may have cited_bibcode=None).
@@ -117,11 +126,11 @@ class GoldExample(BaseModel):
 def validate_against_corpus(
     example: GoldExample, corpus_bibcodes: set[str]
 ) -> tuple[list[str], list[str]]:
-    """Rule 6 + advisory grounding checks against the frozen corpus snapshot.
+    """Rule 6 + cited-bibcode existence + advisory grounding checks against the frozen corpus.
 
-    Returns ``(errors, warnings)``. Errors reject the example; warnings are surfaced to the labeler
-    but never block — they flag likely mistakes (e.g. citing a paper outside the retrieved pool)
-    without inventing rejection rules beyond the contract.
+    Returns ``(errors, warnings)``. Errors reject the example — a retrieved *or cited* bibcode that
+    does not exist in the snapshot. Warnings never block: they flag grounding smells that are
+    legitimate for some examples (e.g. a negative citing a real paper outside this query's pool).
     """
     errors: list[str] = []
     warnings: list[str] = []
@@ -137,14 +146,15 @@ def validate_against_corpus(
             f"{', '.join(missing[:5])}{' …' if len(missing) > 5 else ''}"
         )
 
-    # Advisory: a cited bibcode should be a real corpus paper, and grounding means it should be
-    # one the retriever actually surfaced for this query (a WRONG_PAPER negative deliberately cites
-    # the wrong-but-real paper, so out-of-pool citations are warned, never rejected).
+    # A non-None cited bibcode must be a real corpus paper: a citation outside the snapshot is a
+    # typo'd/invented pointer, not publishable provenance — a WRONG_PAPER negative still cites a
+    # wrong-but-*real* paper. Citing a real paper outside *this query's* retrieved pool is a
+    # grounding smell but legitimate for negatives, so it stays a warning.
     for i, claim in enumerate(example.claims):
         if claim.cited_bibcode is None:
             continue
         if claim.cited_bibcode not in corpus_bibcodes:
-            warnings.append(f"claim[{i}] cites {claim.cited_bibcode}, not in corpus snapshot")
+            errors.append(f"claim[{i}] cites {claim.cited_bibcode}, absent from corpus snapshot")
         elif claim.cited_bibcode not in retrieved:
             warnings.append(
                 f"claim[{i}] cites {claim.cited_bibcode}, not in this query's retrieved_context"
