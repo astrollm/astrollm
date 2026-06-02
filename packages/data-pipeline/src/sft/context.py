@@ -44,6 +44,29 @@ def _load_retriever():
     return pilot_retrieval
 
 
+def indexed_bibcodes(pr) -> dict[str, set[str]]:
+    """The COMPLETE bibcode set of each live index store, keyed by store name.
+
+    Both the dense (pgvector ``papers``) and lexical (SQLite FTS ``docs``) indexes are read in full
+    so a subset / superset / wrong index is caught — e.g. ``DATABASE_URL`` pointing at the pilot-500
+    DB while the configured snapshot is the 2,500-doc corpus — not just a returned bibcode that
+    happens to fall outside the snapshot.
+    """
+    import sqlite3
+
+    with pr.db_connect() as conn, conn.cursor() as cur:
+        cur.execute("SELECT bibcode FROM papers")
+        dense = {row[0] for row in cur.fetchall()}
+    if not pr.FTS_DB_PATH.exists():
+        raise FileNotFoundError(f"FTS index missing: {pr.FTS_DB_PATH}. Run index_corpus.py first.")
+    fts = sqlite3.connect(pr.FTS_DB_PATH)
+    try:
+        lexical = {row[0] for row in fts.execute("SELECT bibcode FROM docs").fetchall()}
+    finally:
+        fts.close()
+    return {"pgvector": dense, "FTS": lexical}
+
+
 def retriever_config() -> dict[str, Any]:
     """The frozen retrieval config, with embedding details read from the rag module."""
     pr = _load_retriever()
@@ -96,21 +119,33 @@ def assemble_context(
     """Run the frozen retriever for ``query`` and return schema `Retrieved` records + provenance.
 
     `retrieval_score` is the retriever's fused RRF score; `chunk_id` is the snapshot's deterministic
-    one-chunk-per-abstract id. Every returned bibcode is asserted present in the snapshot — a miss
-    means the live index and the corpus file have drifted, which would silently corrupt provenance.
+    one-chunk-per-abstract id. Before trusting any retrieval, the *complete* live index is asserted
+    to equal the snapshot, so the stamped corpus_snapshot_hash was the corpus retrieval ran over,
+    not merely a superset of it.
     """
     pr = _load_retriever()
     config = retriever_config()
+
+    # Provenance integrity: the live index must BE the snapshot, not merely contain it. A subset
+    # index (e.g. the pilot-500 DB under a 2,500-doc snapshot) passes a returned-bibcode check yet
+    # stamps the worksheet with a snapshot hash retrieval never ran over. Verify the full indexed
+    # bibcode set of every store equals the snapshot first.
+    snap_set = snapshot.bibcodes
+    for store, idx in indexed_bibcodes(pr).items():
+        if idx != snap_set:
+            only_snap = sorted(snap_set - idx)
+            only_idx = sorted(idx - snap_set)
+            raise RuntimeError(
+                f"live {store} index does not match the corpus snapshot ({snapshot.path}): "
+                f"{len(idx)} indexed vs {len(snap_set)} in snapshot — "
+                f"{len(only_snap)} snapshot bibcode(s) not indexed, "
+                f"{len(only_idx)} indexed bibcode(s) absent from snapshot. The stamped "
+                f"corpus_snapshot_hash would be wrong; point DATABASE_URL + the FTS index at the "
+                f"snapshot corpus, or re-index."
+                + (f" e.g. not indexed: {', '.join(only_snap[:3])}" if only_snap else "")
+            )
+
     raw = pr.retrieve(query, arm=ARM, k=K, pool=POOL)
-
-    drift = sorted(r["bibcode"] for r in raw if r["bibcode"] not in snapshot)
-    if drift:
-        raise RuntimeError(
-            f"retriever returned {len(drift)} bibcode(s) absent from the corpus snapshot "
-            f"({snapshot.path}); the live index has drifted from the frozen corpus: "
-            f"{', '.join(drift[:5])}{' …' if len(drift) > 5 else ''}"
-        )
-
     retrieved = [
         Retrieved(
             bibcode=r["bibcode"],
