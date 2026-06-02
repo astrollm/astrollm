@@ -18,34 +18,34 @@ out — errors reject the example, warnings are surfaced to the labeler but do n
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, Field, ValidationError, model_validator
 
 
-# Enums kept as (str, Enum) verbatim from the commission's contract; UP042 (StrEnum) is suppressed
-# rather than silently changing the specified base classes.
-class TaskFamily(str, Enum):  # noqa: UP042
+# The contract specifies (str, Enum); StrEnum is its behavior-equivalent, ruff-idiomatic form
+# (requires-python >= 3.11) — members are still str and every .value below is unchanged.
+class TaskFamily(StrEnum):
     LIT_QA = "lit_qa"
     SUMMARIZATION = "summarization"
     ABSTENTION = "abstention"
 
 
-class AbstentionReason(str, Enum):  # noqa: UP042
+class AbstentionReason(StrEnum):
     THIN = "thin"
     CONTRADICTORY = "contradictory"
     OFF_TOPIC = "off_topic"
     ABSENT = "absent"
 
 
-class NegativeType(str, Enum):  # noqa: UP042
+class NegativeType(StrEnum):
     CLAIM_NOT_SUPPORTED = "claim_not_supported"
     CONTRADICTS = "contradicts"
     WRONG_PAPER = "wrong_paper"
     OVERGENERALIZATION = "overgeneralization"
 
 
-class Partition(str, Enum):  # noqa: UP042
+class Partition(StrEnum):
     CALIBRATION = "calibration"
     EVAL = "eval"  # gold seed NEVER trains
 
