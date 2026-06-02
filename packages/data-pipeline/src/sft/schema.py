@@ -94,13 +94,16 @@ class GoldExample(BaseModel):
         if is_abstention and self.abstention_reason is None:
             raise ValueError("abstention task_family requires abstention_reason")
 
-        # Rule 2: non-ABSTENTION ⇒ abstention_reason is None AND ≥1 claim has a cited_bibcode.
+        # Rule 2: non-ABSTENTION ⇒ abstention_reason is None AND EVERY claim cites a bibcode.
+        # cited_bibcode=None is contract-restricted to abstention; each claim must be verifiable
+        # on its own, so one citation can't cover an uncited sibling claim.
         if not is_abstention:
             if self.abstention_reason is not None:
                 raise ValueError("abstention_reason is only valid for the abstention task_family")
-            if not any(c.cited_bibcode for c in self.claims):
+            if not self.claims or not all(c.cited_bibcode for c in self.claims):
                 raise ValueError(
-                    f"{self.task_family.value} requires at least one claim with a cited_bibcode"
+                    f"every {self.task_family.value} claim must cite a bibcode "
+                    "(≥1 claim; cited_bibcode=None is only for abstention)"
                 )
 
         # Rule 3: negative ⇒ CALIBRATION AND negative_type set AND ≥1 unsupported claim.
@@ -112,9 +115,18 @@ class GoldExample(BaseModel):
             if not any(not c.supported for c in self.claims):
                 raise ValueError("a negative must have at least one claim with supported=False")
 
-        # Rule 4: non-negative ⇒ negative_type is None.
-        if not self.is_negative and self.negative_type is not None:
-            raise ValueError("negative_type is only valid when is_negative=True")
+        # Rule 4: non-negative ⇒ negative_type is None AND every claim is supported.
+        # supported=False marks a calibration negative, so an unsupported claim ⇒ is_negative
+        # (this also catches an unsupported claim sneaking into an eval example, which can't be
+        # negative). Together with Rule 3 this makes is_negative ⟺ "has an unsupported claim".
+        if not self.is_negative:
+            if self.negative_type is not None:
+                raise ValueError("negative_type is only valid when is_negative=True")
+            if any(not c.supported for c in self.claims):
+                raise ValueError(
+                    "a non-negative example must have all claims supported "
+                    "(supported=False marks a calibration negative)"
+                )
 
         # Rule 5: EVAL ⇒ not negative (no negatives ever reach eval or training).
         if self.partition is Partition.EVAL and self.is_negative:
@@ -146,19 +158,23 @@ def validate_against_corpus(
             f"{', '.join(missing[:5])}{' …' if len(missing) > 5 else ''}"
         )
 
-    # A non-None cited bibcode must be a real corpus paper: a citation outside the snapshot is a
-    # typo'd/invented pointer, not publishable provenance — a WRONG_PAPER negative still cites a
-    # wrong-but-*real* paper. Citing a real paper outside *this query's* retrieved pool is a
-    # grounding smell but legitimate for negatives, so it stays a warning.
+    # Citation rules for a non-None cited bibcode:
+    #  - absent from the corpus snapshot → error (a typo'd/invented pointer, not provenance);
+    #  - in the corpus but outside *this query's* retrieved pool → error for positives, eval, and
+    #    non-WRONG_PAPER negatives (it breaks the frozen-context guarantee — the answer would rest
+    #    on a paper the model never saw); warning only for a deliberate WRONG_PAPER negative, which
+    #    cites a real-but-un-retrieved wrong paper on purpose.
     for i, claim in enumerate(example.claims):
         if claim.cited_bibcode is None:
             continue
         if claim.cited_bibcode not in corpus_bibcodes:
             errors.append(f"claim[{i}] cites {claim.cited_bibcode}, absent from corpus snapshot")
         elif claim.cited_bibcode not in retrieved:
-            warnings.append(
-                f"claim[{i}] cites {claim.cited_bibcode}, not in this query's retrieved_context"
+            is_wrong_paper = (
+                example.is_negative and example.negative_type is NegativeType.WRONG_PAPER
             )
+            msg = f"claim[{i}] cites {claim.cited_bibcode}, not in this query's retrieved_context"
+            (warnings if is_wrong_paper else errors).append(msg)
         if claim.supported and not claim.support_span:
             warnings.append(f"claim[{i}] is supported but has no support_span")
 
