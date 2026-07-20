@@ -220,6 +220,46 @@ does not override the gates.
   reported as drift + catastrophe backstop; general retention deferred to Phase B). Rationale:
   closed-book MCQ conflates knowledge loss with by-design abstention hedging. See commit a60e1c9.
 
+- **2026-07-21** (pre-data — still true: 0 of the 150–250 gold examples authored): the 2026-06-02
+  amendment operationalized after an adversarial review found it under-specified in four ways that
+  each, unintentionally, weakened the gate. Recorded as EXP-004-A1 in the
+  [Research Log](../RESEARCH_LOG.md); this bullet is the normative text.
+
+    1. **Frozen slice-selection rule.** "The subset of AstroMLab-1 the frozen corpus can genuinely
+       ground" was undefined — a post-hoc degree of freedom. The open-book topic-overlap slice is
+       now selected by a **committed keyword/topic filter over AstroMLab-1 question text, fixed
+       and recorded before any model output is seen**, and the slice size n is reported before the
+       eval runs. The filter is committed alongside the eval harness, not chosen after results.
+    2. **Minimum-power fallback.** "Regression beyond the CI is the operative kill" inverts the
+       gate's polarity on a small slice: a wide CI passes by default under noise. If the slice has
+       n < 40, or the paired-bootstrap CI half-width on the base arm exceeds 5 pp, the open-book
+       gate **additionally** requires the SFT point estimate ≥ base − 5 pp. The CI is still
+       reported; low power no longer converts to an automatic pass.
+    3. **Backstop defined, and made a ship-block.** "Approaching random-choice" is replaced with
+       thresholds: a closed-book drop > 10 pp vs base, **or** closed-book accuracy < 35% (4-option
+       MCQ, 25% chance), is a **ship-block pending investigation** — not merely a
+       training-stability check that shipping can outrun.
+    4. **The Phase-A fine-tune never ships.** The gates section read as if a passing Phase-A model
+       could "fine-tune into the beta," while the Scope section says the pilot set is not the
+       product artifact. Resolved in Scope's favor: **no Phase-A fine-tune ships into the beta
+       under any Phase-A result.** Phase A validates the recipe; only a Phase-B run that passes
+       the Phase-B pre-registered general-retention gate (to be written into the Phase-B
+       pre-registration before that run) ships. The acceptance gates decide whether the recipe is
+       validated for Phase B, not whether weights ship.
+
+  Same-review operationalizations of the other hypotheses (measurement hygiene; no gate changes):
+
+    - **SFT-H1**: the faithfulness rubric, scale, and judge identity are committed per metric
+      before the eval runs; the "human gold labels and/or a different-family judge" disjunction is
+      resolved to a named grader per metric at that time.
+    - **SFT-H2**: citation density / claim coverage is reported alongside the support rate (a
+      citation-parsimonious model can game the rate by citing only trivial claims), and the human
+      spot-check carries a pre-stated agreement floor with the verifier.
+    - **SFT-H3**: the refusal/flag judgment rubric is committed before the eval runs.
+    - **SFT-H5**: verifier **recall** and the distribution of dropped examples are reported next to
+      precision (a high-precision/low-recall verifier silently skews training data toward
+      trivially-verifiable claims). Reporting requirements, not new gates.
+
 ---
 
 *Pre-registration commit. Results, Interpretation, Verdict on the hypotheses, and Reproduce are
