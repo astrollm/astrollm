@@ -151,9 +151,37 @@ magnitudes.
   refusal-or-flag rate beats base, **subject to a pre-registered cap on over-abstention**: false
   refusal on answerable queries ≤ 0.10. The cap is load-bearing — naive abstention training "wins"
   by refusing everything, so the hypothesis is only met if both move the right way.
-- **SFT-H4 (no knowledge regression).** AstroMLab-1 subset does not drop more than 2 pp vs base. A
-  larger drop is a **kill signal**, not a footnote: this is the dual report — grounding gains *and*
-  knowledge retention, in the same table.
+- **SFT-H4 (no knowledge regression — disambiguated).** A drop on the AstroMLab-1 subset conflates
+  two causes that this model deliberately separates: genuine knowledge loss, and benign task-format
+  interference (the model was trained to attend to provided context, cite, and abstain on thin
+  context — handed a closed-book MCQ with no context, that training correctly fires as hedging,
+  which scores as "wrong" without being knowledge loss). The −2 pp tripwire could not tell these
+  apart and would mostly catch the benign one. AstroLLM is positioned as a grounded copilot, not a
+  closed-book MCQ competitor to AstroSage; gating Phase A on closed-book MCQ retention would measure
+  it against precisely the model it is positioned not to be. So H4 is measured both ways and
+  gated on the meaningful one:
+
+  - **Open-book, topic-overlap slice (the gate).** On the subset of AstroMLab-1 the frozen
+    exoplanet-atmosphere corpus can genuinely ground (exoplanet/atmosphere questions), evaluate
+    the MCQ with relevant retrieved context supplied (retrieve() @ pool=100), base and SFT in
+    the same mode. SFT open-book accuracy ≥ base open-book − 2 pp. A clear regression here means
+    the SFT degraded the model's ability to use astronomy knowledge even when handed the right
+    material — genuine damage, kill signal. The slice may be small (cf. the retrieval pilot at
+    n = 29): report a paired-bootstrap CI and read a directional regression beyond the CI as the
+    operative kill, not a knife-edge 2 pp.
+  - **Closed-book, full subset (reported drift, not gated).** Report the closed-book delta vs base
+    as an expected, documented Phase-A characteristic — the corpus is single-topic and the model
+    is abstention-trained, so some softening is by design, and Phase B's corpus widening is its
+    designed remedy. Catastrophe backstop: a closed-book drop > 10 pp, or accuracy sliding
+    toward the dataset's random-choice baseline, triggers a training-stability investigation
+    before Phase B — but is not on its own a Phase-A kill if the open-book gate passes.
+  - **Scope honesty.** Full open-book general-astronomy retention is not measurable in Phase A —
+    the single-topic corpus cannot ground general questions. The comprehensive knowledge-retention
+    gate is therefore a Phase-B responsibility, on the general corpus that actually ships,
+    where open-book general retention becomes measurable. Phase A keeps only the recipe-soundness
+    kill (open-book overlap regression) and the catastrophe backstop.
+    Dual reporting is preserved: both modes go in the same table; only the open-book overlap number
+    carries kill power in Phase A.
 - **SFT-H5 (verifier validity).** The verification pass's precision/recall against the gold-seed
   calibration partition is reported. The verifier is trusted as a filter only if precision ≥ 0.85 on
   the gold labels; below that, its drop decisions are advisory and every "passed" example feeding
@@ -174,14 +202,23 @@ magnitudes.
 ## Acceptance gates / kill criteria
 
 Fine-tune into the beta **only if**: SFT-H1 holds (grounding beats base), SFT-H2 holds (citation
-accuracy clears 80% and beats base), and SFT-H4 does not regress past −2 pp on AstroMLab-1. SFT-H3
-and SFT-H5 inform quality but a marginal abstention result does not by itself block a ship that
-otherwise clears H1/H2/H4.
+accuracy clears 80% and beats base), and SFT-H4's **open-book topic-overlap** gate holds (no clear
+regression beyond CI vs base, evaluated with relevant retrieved context). The closed-book number is
+reported but does not gate Phase A unless it trips the catastrophe backstop (> 10 pp drop or
+approaching random-choice), which triggers a training-stability check rather than an automatic kill.
+Comprehensive general-astronomy retention is gated at Phase B, on the corpus that ships.
 
 If the gates are not met, the honest outcome is **"RAG-grounded beta on the base model, SFT
 iterating"** — not a fine-tune shipped to hit week 12. The differentiation is grounded, cited,
 honest answers; shipping weak grounding to make a milestone forfeits exactly that. The week-12 date
 does not override the gates.
+
+## Amendments
+
+- **2026-06-02** (pre-data — before any SFT data generated or eval run): SFT-H4 revised. Original
+  closed-book −2 pp AstroMLab-1 gate replaced with an open-book topic-overlap gate (closed-book
+  reported as drift + catastrophe backstop; general retention deferred to Phase B). Rationale:
+  closed-book MCQ conflates knowledge loss with by-design abstention hedging. See commit a60e1c9.
 
 ---
 
