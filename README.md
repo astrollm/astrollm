@@ -2,7 +2,7 @@
 
 A domain-specialized Large Language Model for Astronomy & Astrophysics.
 
-> **Status**: Phase 1 (v1) — Retrieval-Grounded Copilot, in progress. The retrieval foundation is built and ablated end-to-end (pilot + widening + pool sweep); next up is SFT data curation. Not yet usable. Follow along as we build it in the open.
+> **Status**: Phase 1 (v1) — Retrieval-Grounded Copilot, in progress. The retrieval foundation is built and ablated end-to-end (pilot + widening + pool sweep); the RAG-SFT pilot is pre-registered and its gold-seed authoring harness is built — Phase A hand-authoring is the active work. Not yet usable. Follow along as we build it in the open.
 
 ## What is AstroLLM?
 
@@ -20,7 +20,7 @@ AstroLLM is an open-source system that connects fine-tuned language models with 
 - Tool integration (AstroSage is text-only, no database queries)
 - RAG pipeline (knowledge stays current, not frozen at training cutoff)
 - Pedagogy optimization (Socratic teaching, not just Q&A)
-- Runs on consumer hardware (8B model, not 70B)
+- Runs on consumer hardware (9B-class model, not 70B)
 
 ## Architecture
 
@@ -55,8 +55,8 @@ AstroLLM is an open-source system that connects fine-tuned language models with 
 |-------|------|----------|-----------------|
 | **0** | Foundation & Learning | Pre-v1 | Env setup + dev pipeline; NanoGPT learning exercise skipped (jumped to Phase 1) |
 | **1 (v1)** | Retrieval-Grounded Copilot | Months 1-3 | Qwen3.5-4B/9B QLoRA SFT + Gemma 4 E4B Track B, RAG + ADS/SIMBAD, beta at astrollm.org |
-| **2 (v2)** | Serious Astronomy Model | Months 4-8 | Full LoRA 8B, DPO, expanded tools (NED/PDS/Gaia/MAST), production web app |
-| **3 (v3)** | Scientific Tool Ecosystem | Months 9-18 | Model family (Nano 3B + Core 8B + Pro 32B), continuous learning, tool-use SFT |
+| **2 (v2)** | Serious Astronomy Model | Months 4-8 | Full LoRA 9B, DPO, expanded tools (NED/PDS/Gaia/MAST), production web app |
+| **3 (v3)** | Scientific Tool Ecosystem | Months 9-18 | Model family (Nano 3B + Core 9B + Pro 32B), continuous learning, tool-use SFT |
 | **4+ (v4+)** | Multimodal Knowledge House | Year 2+ | AION-1 vision bridge, Ultra 70B, agent workflows, spectra & light curves |
 
 See [`docs/V1_FINAL_PLAN.md`](docs/V1_FINAL_PLAN.md) for Phase 1 execution details and [`docs/MASTER_PLAN.md`](docs/MASTER_PLAN.md) for the full long-term vision.
