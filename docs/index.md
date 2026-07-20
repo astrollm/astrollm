@@ -3,7 +3,7 @@
 A domain-specialized Large Language Model for Astronomy & Astrophysics.
 
 !!! info "Current Status: Phase 1 (v1) — Retrieval-Grounded Copilot (in progress)"
-    Retrieval foundation built and ablated; the retrieval thread is closed (bottleneck = fusion ranking, not candidate generation). Next milestone: SFT data curation (weeks 5-6). Nothing is fine-tuned yet; the Phase-0 NanoGPT exercise was skipped in favor of the retrieval foundation.
+    Retrieval foundation built and ablated; the retrieval thread is closed (bottleneck = fusion ranking, not candidate generation). The RAG-SFT pilot is pre-registered ([EXP-004](RESEARCH_LOG.md), amended per EXP-004-A1) and its gold-seed authoring harness is built — **Phase A hand-authoring is the active milestone** (0 / 150–250 examples). Nothing is fine-tuned yet; the Phase-0 NanoGPT exercise was skipped in favor of the retrieval foundation.
 
 ## What is AstroLLM?
 
@@ -49,8 +49,8 @@ AstroLLM is an open-source system that connects fine-tuned language models with 
 |-------|------|----------|-----------------|
 | **0** | Foundation & Learning | Pre-v1 | Env setup + dev pipeline; NanoGPT learning exercise skipped (jumped to Phase 1) |
 | **1 (v1)** | Retrieval-Grounded Copilot | Months 1-3 | Qwen3.5-4B/9B QLoRA SFT + Gemma 4 E4B Track B, RAG + ADS/SIMBAD, beta at astrollm.org |
-| **2 (v2)** | Serious Astronomy Model | Months 4-8 | Full LoRA 8B, DPO, expanded tools, production web app |
-| **3 (v3)** | Scientific Tool Ecosystem | Months 9-18 | Model family (Nano 3B + Core 8B + Pro 32B), continuous learning |
+| **2 (v2)** | Serious Astronomy Model | Months 4-8 | Full LoRA 9B, DPO, expanded tools, production web app |
+| **3 (v3)** | Scientific Tool Ecosystem | Months 9-18 | Model family (Nano 3B + Core 9B + Pro 32B), continuous learning |
 | **4+ (v4+)** | Multimodal Knowledge House | Year 2+ | AION-1 vision bridge, Ultra 70B, agent workflows |
 
 ## Quick Links
