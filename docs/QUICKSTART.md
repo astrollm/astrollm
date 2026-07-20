@@ -1,6 +1,12 @@
 # AstroLLM Quickstart Guide
 
-Get from zero to your first fine-tuned astronomy model.
+Get from zero to a working dev environment, the pilot retrieval stack, and — eventually — your
+first fine-tuned astronomy model.
+
+!!! note "What exists vs what's planned"
+    Sections marked **exists today** run against real code in the repo. Sections marked
+    **planned** describe the intended workflow; their scripts are not implemented yet (nothing is
+    fine-tuned yet — see the [Research Log](RESEARCH_LOG.md) for current status).
 
 ---
 
@@ -54,88 +60,48 @@ print('SIMBAD working:', result['MAIN_ID'][0])
 "
 ```
 
-## Phase 0 (continued): Learn by Building
+> The Phase-0 NanoGPT learning exercise was skipped (see the Phase-0 note in
+> [`CLAUDE.md`](https://github.com/astrollm/astrollm/blob/main/CLAUDE.md)); it remains an optional
+> backfill — see [LEARNING_PATH_V1](LEARNING_PATH_V1.md) if you want to do it.
 
-### Week 1-2: NanoGPT on Astronomy Text
+## Phase 1: Pilot corpus + retrieval (exists today)
 
-```bash
-# Download a small astronomy corpus (10K abstracts)
-uv run python packages/data-pipeline/src/download_arxiv.py \
-  --category astro-ph \
-  --years 2023-2024 \
-  --max-papers 10000 \
-  --abstracts-only \
-  --output data/raw/abstracts/
-
-# Prepare for NanoGPT training
-uv run python scripts/prepare_nanogpt_data.py \
-  --input data/raw/abstracts/ \
-  --output data/processed/nanogpt/
-
-# Train NanoGPT (CPU/Mac is fine for this)
-# Follow Karpathy's instructions with your astronomy data
-```
-
-### Week 3-4: Baseline Evaluation
+This is the stack the retrieval experiments (EXP-001 – EXP-003) and the SFT authoring harness run
+on.
 
 ```bash
-# Evaluate base Qwen3.5-9B on astronomy benchmarks
-# (Requires GPU — use RunPod for this)
-uv run python packages/evaluation/src/run_benchmark.py \
-  --model Qwen/Qwen3.5-9B \
-  --benchmark astrolab-1 \
-  --output docs/baselines/
+# Ingest ADS abstracts into a frozen corpus snapshot (needs ADS_API_KEY in .env)
+uv run python packages/data-pipeline/src/ingest_ads.py --help
+
+# Bring up the isolated pilot stack (Postgres + pgvector)
+docker compose -f docker/docker-compose.pilot.yml up -d
+
+# Build the dense (pgvector) + lexical (SQLite FTS5) indexes from the snapshot
+uv run python packages/rag/src/index_corpus.py --help
+
+# Hybrid BM25+dense retrieval with RRF fusion, plus the eval harness
+uv run python packages/rag/src/pilot_retrieval.py --help
 ```
 
-## Phase 1: Data Pipeline + Training
+## Phase 1: SFT gold-seed authoring (exists today)
 
-### Download full corpus
+The Phase-A authoring harness (see [sft-pilot.md](research/sft-pilot.md) for the pre-registration):
 
 ```bash
-# Full arXiv astro-ph download (this takes hours)
-uv run python packages/data-pipeline/src/download_arxiv.py \
-  --category astro-ph \
-  --years 2020-2024 \
-  --output data/raw/papers/
+# 1. Machine assembles the frozen retrieval context and writes a worksheet
+uv run python packages/data-pipeline/src/sft/author.py prepare \
+  --query "What did JWST measure for the C/O ratio of WASP-39b?" \
+  --family lit_qa --partition eval
+
+# 2. You fill in answer/claims by hand, then validate + append to the gold seed
+uv run python packages/data-pipeline/src/sft/author.py commit \
+  --worksheet data/sft/worksheets/<id>.yaml
+
+# Progress vs the pre-registered composition targets
+uv run python packages/data-pipeline/src/sft/manifest.py status
 ```
 
-### Process and generate SFT data
-
-```bash
-# Extract clean text from papers
-uv run python packages/data-pipeline/src/process_papers.py \
-  --input data/raw/papers/ \
-  --output data/processed/
-
-# Generate Q&A pairs (uses Claude API — budget ~$20-50 for 10K pairs)
-uv run python packages/data-pipeline/src/generate_sft.py \
-  --input data/processed/ \
-  --output data/sft/ \
-  --type domain_qa \
-  --num-pairs 10000
-
-# Validate
-uv run python packages/data-pipeline/src/validate_dataset.py \
-  --input data/sft/train.jsonl \
-  --schema data/sft/schema.json
-
-# Split into train/eval
-uv run python packages/data-pipeline/src/split_dataset.py \
-  --input data/sft/ \
-  --eval-ratio 0.05
-```
-
-### Populate RAG database
-
-```bash
-# Chunk and embed papers into pgvector
-uv run python packages/rag/src/ingest.py \
-  --input data/processed/ \
-  --db-url postgres://astrollm:astrollm_dev@localhost:5432/astrollm \
-  --embedder-url http://localhost:8081
-```
-
-## Phase 1 (continued): First Fine-Tune
+## Phase 1 (continued): First Fine-Tune (planned — not yet implemented)
 
 ### Launch cloud training
 
