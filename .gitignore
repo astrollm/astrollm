@@ -57,3 +57,6 @@ site/
 
 # Jupyter
 .ipynb_checkpoints/
+
+# SFT gold-seed worksheets contain reproduced (copyrighted) abstract text — never commit them.
+data/sft/worksheets/
