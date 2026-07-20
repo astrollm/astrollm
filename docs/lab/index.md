@@ -15,6 +15,10 @@ Weekly lab reports documenting observations, learnings, and informal notes from 
 |------|------|-------|-------|-------------|
 | [01](week-01.md) | 2026-05-31 | 1 | Pilot retrieval prototype | Hybrid BM25+dense over 500 ADS abstracts: Recall@10 = 0.812, MRR = 0.776 (16 grounded queries, first-pass labels) |
 
+> **Gap**: no reports for calendar weeks 02–07 — work paused 2026-06-02 and resumed 2026-07-21
+> (see the Decision Log re-anchor entry in the [Research Log](../RESEARCH_LOG.md)). Cadence resumes
+> with the Phase-A gold-seed authoring thread.
+
 ## Weekly Lab Report Template
 
 Create a new file: `docs/lab/week-XX.md`

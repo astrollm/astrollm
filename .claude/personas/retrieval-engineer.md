@@ -42,8 +42,8 @@ Prompt assembly → LLM generates cited answer
 - Embedding dimension: 1024 (BGE-large), 768 (SPECTER2), or 3584 (GTE-Qwen2-7B — note storage implications)
 
 ## Embedding Strategy
-- **Phase 1**: Start with SPECTER2 for paper-level embeddings (science-specific, proven)
-- **Phase 2**: Benchmark against GTE-Qwen2-7B-instruct on the astro-ph corpus
+- **Phase 1 (as built)**: the pilot ships **BGE-small-en-v1.5** (384-dim — matches `docker/init.sql`), chosen for cost/speed on the pilot corpus; the beta default is hybrid BM25+dense with RRF at pool=100 (EXP-001–003)
+- **Post-beta retrieval cycle**: candidate upgrades — SPECTER2 (science-specific), GTE-Qwen2-instruct — benchmarked alongside the fusion-ranking ladder (RRF_K sweep → weighted fusion → cross-encoder reranking)
 - **Phase 3+**: Fine-tune an embedder on astro-ph abstracts + citation pairs (a potential research contribution — no astronomy-specific embedding model exists yet)
 
 ## Retrieval Evaluation (first-class discipline)

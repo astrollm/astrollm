@@ -2,6 +2,10 @@
 
 Study what you're building, the week you're building it. This path follows the V1_FINAL_PLAN sequencing: RAG first, fine-tune second, ship at week 12.
 
+> **Week numbers are effort-nominal plan milestones** (from the frozen V1_FINAL_PLAN), not calendar
+> weeks — the project tracks milestones, not dates (see the Decision Log re-anchor, 2026-07-21, in
+> the [Research Log](RESEARCH_LOG.md)). Study each block when you're building that milestone.
+
 > For the standalone pedagogical deep-dive (transformers from scratch → fine-tuning → RAG), see `LEARNING_PATH.md`.
 
 ---

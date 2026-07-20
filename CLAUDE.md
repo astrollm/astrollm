@@ -155,18 +155,24 @@ No local GPU. All training on RunPod/Lambda Labs.
 bun install                              # Install JS dependencies (packages/web)
 uv sync                                  # Install Python dependencies (pyproject.toml)
 
-# Data pipeline (Phase 1)
-uv run python packages/data-pipeline/src/download_arxiv.py --category astro-ph --years 2020-2024
-uv run python packages/data-pipeline/src/process_papers.py --input data/raw/ --output data/processed/
-uv run python packages/data-pipeline/src/generate_sft.py --input data/processed/ --output data/sft/
+# Pilot data + retrieval (what exists today)
+uv run python packages/data-pipeline/src/ingest_ads.py --help        # ADS abstract ingestion (data/raw/)
+uv run python packages/rag/src/index_corpus.py --help                # build pgvector + FTS indexes
+uv run python packages/rag/src/pilot_retrieval.py --help             # hybrid RRF retrieval + eval
+docker compose -f docker/docker-compose.pilot.yml up -d              # pilot Postgres/pgvector stack
 
-# Training (cloud, Phase 1)
+# SFT gold-seed authoring (Phase A — what exists today)
+uv run python packages/data-pipeline/src/sft/author.py prepare --query "..." --family lit_qa --partition eval
+uv run python packages/data-pipeline/src/sft/author.py commit --worksheet data/sft/worksheets/<id>.yaml
+uv run python packages/data-pipeline/src/sft/manifest.py status      # progress vs pre-registered targets
+
+# Training (cloud, Phase 1 — planned, not yet implemented)
 uv run python packages/training/scripts/train_qlora.py --config configs/qwen3.5-9b-qlora-astro-sft-v001.yaml
 
-# Evaluation (Phase 1)
+# Evaluation (Phase 1 — planned, not yet implemented)
 uv run python packages/evaluation/src/run_benchmark.py --model models/latest/ --benchmark astrolab-1
 
-# Serving (Phase 1)
+# Serving (Phase 1 — planned, not yet implemented)
 uv run python packages/inference/src/serve.py --model models/latest/ --quantize q4_k_m
 
 # Web (Phase 2)
@@ -181,8 +187,8 @@ cd packages/web && bun dev
 |-------|------|----------|-----------------|
 | **0** | Foundation & Learning | Pre-v1 | Env setup + dev pipeline; NanoGPT learning exercise skipped (jumped to Phase 1) |
 | **1 (v1)** | Retrieval-Grounded Copilot | Months 1-3 | Qwen3.5-4B/9B QLoRA SFT + Gemma 4 E4B Track B, RAG + ADS/SIMBAD, beta at astrollm.org |
-| **2 (v2)** | Serious Astronomy Model | Months 4-8 | Full LoRA 8B, DPO, expanded tools (NED/PDS/Gaia/MAST), TanStack Start web app |
-| **3 (v3)** | Scientific Tool Ecosystem | Months 9-18 | Model family (Nano 3B + Core 8B + Pro 32B), continuous learning, tool-use SFT |
+| **2 (v2)** | Serious Astronomy Model | Months 4-8 | Full LoRA 9B, DPO, expanded tools (NED/PDS/Gaia/MAST), TanStack Start web app |
+| **3 (v3)** | Scientific Tool Ecosystem | Months 9-18 | Model family (Nano 3B + Core 9B + Pro 32B), continuous learning, tool-use SFT |
 | **4+ (v4+)** | Multimodal Knowledge House | Year 2+ | AION-1 vision bridge, Ultra 70B, agent workflows |
 
 See `docs/V1_FINAL_PLAN.md` for Phase 1 execution details. See `docs/MASTER_PLAN.md` for the full long-term vision.
@@ -219,16 +225,17 @@ See `docs/V1_FINAL_PLAN.md` for Phase 1 execution details. See `docs/MASTER_PLAN
 - **MCP Servers** (`.mcp.json`): When Phase 1 tool integration starts, create MCP servers for NASA ADS and SIMBAD to make them native Claude Code tools. Use `example-skills:mcp-builder`.
 - **Hooks** (`settings.json → hooks`): When Python code exists, add `PostToolUse` hook on `Edit|Write` for `*.py` that runs `ruff check --fix`.
 - **Custom Agents** (`.claude/agents/`): Phase 1+ — `benchmark-runner` agent for eval, `data-validator` agent for dataset health checks.
-- **Persona: `end-user`** (`.claude/personas/`): Phase 1 weeks 3-4 (first copilot UI) — add a grad student end-user persona representing someone *using* AstroLLM, not building it. Useful for UX decisions, prompt template design, and explanation depth calibration.
+- **Persona: `end-user`** (`.claude/personas/`): at the first-copilot-UI milestone — add a grad student end-user persona representing someone *using* AstroLLM, not building it. Useful for UX decisions, prompt template design, and explanation depth calibration. (The plan's weeks-3-4 copilot demo was skipped in the 2026-06-01 pivot to SFT; the UI milestone now sits after Phase A — see the Decision Log re-anchor, 2026-07-21.)
 
 ---
 
 ## Current Status
 
-**Phase**: 1 (v1) — Retrieval-Grounded Copilot (in progress)
-**Done**: Retrieval foundation built and ablated end-to-end (pilot ablation + PR #6 widening + PR #7 pool sweep); **retrieval thread closed** — the bottleneck is fusion ranking, not candidate generation. Beta default: **hybrid RRF stage-1 @ pool=100**. See the [Research Log](docs/RESEARCH_LOG.md) DECISION (2026-06-01).
-**Next milestone**: SFT data curation (plan weeks 5-6) → fine-tuned weights + SFT dataset on HuggingFace → week-12 beta
+**Phase**: 1 (v1) — Retrieval-Grounded Copilot (in progress; paused 2026-06-02 → resumed 2026-07-21, see the Decision Log re-anchor)
+**Done**: Retrieval foundation built and ablated end-to-end (pilot ablation + PR #6 widening + PR #7 pool sweep); **retrieval thread closed** — the bottleneck is fusion ranking, not candidate generation. Beta default: **hybrid RRF stage-1 @ pool=100**. RAG-SFT pilot **pre-registered** (EXP-004, amended per EXP-004-A1) and the **gold-seed authoring harness built** (PR #11, `packages/data-pipeline/src/sft/`). Base-model choice re-affirmed 2026-07-21 (Qwen3.5-4B/9B + Gemma 4 E4B; Ornith-1.0-9B on watch). See the [Research Log](docs/RESEARCH_LOG.md).
+**Next milestone**: Phase A gold-seed authoring (0 / 150–250 examples) → teacher synthesis + verifier → QLoRA pilot eval vs gates → Phase B (recipe frozen, corpus widened) → fine-tuned weights + SFT dataset on HuggingFace → beta. Milestone-based: calendar-week labels retired (Decision Log, 2026-07-21); the beta date is re-committed when Phase A completes. Before authoring: decide Qwen3.5 `<think>`-trace handling (Decision Log nuance, 2026-07-21).
 **Deferred (post-beta)**: fusion-ranking ladder (RRF_K sweep → weighted fusion → cross-encoder reranking); query-widening lever
+**Known gaps**: zero automated tests in the repo (CI runs docs only) — a pytest suite over the `sft/` contract logic plus a Python CI workflow is the recommended next engineering step before authoring 150–250 examples against it. Docker DB integrity item still OPEN (Decision Log, 2026-07-21).
 **Blocking issues**: None
 
 > **Phase 0 note**: The Phase-0 NanoGPT learning exercise (train a small GPT on the astro corpus) was **not** completed — the project moved directly into the Phase-1 retrieval foundation. Nothing is fine-tuned yet and no SFT data is curated (that is the next milestone); NanoGPT remains an optional learning backfill, not a v1 blocker.
