@@ -1,0 +1,41 @@
+name: Python CI
+
+on:
+  pull_request:
+    paths:
+      - 'packages/**/*.py'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/python.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'packages/**/*.py'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/python.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.11"
+          enable-cache: true
+
+      # The dev group carries the tests' full runtime closure (pytest, ruff, pydantic, pyyaml,
+      # typer, rich), so CI never installs the heavy ML stack (torch/transformers/etc.).
+      - name: Install test dependencies
+        run: uv sync --only-group dev --no-install-project
+
+      - name: Lint (ruff)
+        run: uv run --no-sync ruff check packages/
+
+      - name: Tests (pytest)
+        run: uv run --no-sync pytest
