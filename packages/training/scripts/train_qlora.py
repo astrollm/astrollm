@@ -2,7 +2,8 @@
 AstroLLM QLoRA Training Script
 
 Usage:
-    uv run python packages/training/scripts/train_qlora.py --config configs/qwen3.5-9b-qlora-astro-sft-v001.yaml
+    uv run python packages/training/scripts/train_qlora.py \
+        --config configs/qwen3.5-9b-qlora-astro-sft-v001.yaml
 
 Supports:
     - QLoRA and LoRA fine-tuning
@@ -12,13 +13,10 @@ Supports:
     - Gradient checkpointing
 """
 
-import os
-import yaml
+
 import torch
 import typer
-import wandb
-from pathlib import Path
-from datetime import datetime
+import yaml
 from rich.console import Console
 from rich.table import Table
 
@@ -39,7 +37,7 @@ app = typer.Typer()
 
 def load_config(config_path: str) -> dict:
     """Load training configuration from YAML file."""
-    with open(config_path, "r") as f:
+    with open(config_path) as f:
         return yaml.safe_load(f)
 
 
@@ -54,7 +52,8 @@ def setup_quantization(config: dict):
     #     load_in_4bit=True,
     #     bnb_4bit_quant_type=quant_config.get("bnb_4bit_quant_type", "nf4"),
     #     bnb_4bit_use_double_quant=quant_config.get("bnb_4bit_use_double_quant", True),
-    #     bnb_4bit_compute_dtype=getattr(torch, quant_config.get("bnb_4bit_compute_dtype", "bfloat16")),
+    #     bnb_4bit_compute_dtype=getattr(
+    #         torch, quant_config.get("bnb_4bit_compute_dtype", "bfloat16")),
     # )
     console.print("[yellow]Quantization config prepared (uncomment imports to use)[/yellow]")
     return quant_config
@@ -205,7 +204,10 @@ def train(
     # trainer.save_model()
     # console.print(f"\n[green]Model saved to {cfg['checkpointing']['output_dir']}[/green]")
 
-    console.print("\n[yellow]Training pipeline is scaffolded. Uncomment imports and pipeline code to run.[/yellow]")
+    console.print(
+        "\n[yellow]Training pipeline is scaffolded. "
+        "Uncomment imports and pipeline code to run.[/yellow]"
+    )
     console.print("[yellow]See docs/V1_FINAL_PLAN.md for step-by-step instructions.[/yellow]")
 
 
