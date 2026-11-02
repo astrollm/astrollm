@@ -26,7 +26,9 @@ from schema import Retrieved
 # ── Frozen retrieval config (the beta stage-1 default; never varied by the harness) ──
 ARM = "hybrid"
 POOL = 100  # candidate depth fed to RRF — the beta stage-1 default
-K = 100  # context size returned == the full fused pool-100 stage-1 output
+K = 30  # D1 (2026-11-02): model-facing context = top-30 of the fused pool-100 ranking;
+#         rendered via render_context(limit=K). Gold records keep the full pool (POOL) for
+#         provenance. Measured in docs/research/d1-context-cut.md; budget 16,384 tokens.
 
 
 def _rag_src() -> Path:
@@ -145,7 +147,9 @@ def assemble_context(
                 + (f" e.g. not indexed: {', '.join(only_snap[:3])}" if only_snap else "")
             )
 
-    raw = pr.retrieve(query, arm=ARM, k=K, pool=POOL)
+    # Keep the FULL fused pool in retrieved_context (provenance); the model-facing top-K cut
+    # is applied at render time (render_context(limit=K)) per D1.
+    raw = pr.retrieve(query, arm=ARM, k=POOL, pool=POOL)
     retrieved = [
         Retrieved(
             bibcode=r["bibcode"],

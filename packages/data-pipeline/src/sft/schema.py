@@ -6,11 +6,12 @@ pure (no DB, no torch, no network) so it imports and lints offline and is cheap 
 Two layers of validation:
 
 1. **Structural + cross-field rules** (`GoldExample` model validator) — enforced at construction
-   time, so it is impossible to build a `GoldExample` that violates the contract's rules 1-5. These
-   need only the example itself.
+   time, so it is impossible to build a `GoldExample` that violates the contract's rules 1-5 or
+   rule 7's range (``1 <= delivered_k <= len(retrieved_context)``). These need only the example.
 2. **Corpus-grounding rules** (`validate_against_corpus`) — rule 6 (every retrieved bibcode exists
-   in the current corpus snapshot) plus advisory grounding warnings. These need the corpus snapshot,
-   so they live in a separate function the harness calls with the loaded snapshot.
+   in the current corpus snapshot), the citation rules (a cited bibcode must be in the corpus, in
+   this query's retrieved pool, and — rule 7 — within the delivered top-``delivered_k`` context the
+   labeler/model actually saw) plus advisory grounding warnings. These run with the loaded snapshot.
 
 `validate_record` ties both together for the authoring CLIs: dict in, `(example, errors, warnings)`
 out — errors reject the example, warnings are surfaced to the labeler but do not block.
@@ -68,7 +69,10 @@ class GoldExample(BaseModel):
     task_family: TaskFamily
     partition: Partition
     query: str
-    retrieved_context: list[Retrieved]  # actual frozen pool=100 output
+    retrieved_context: list[Retrieved]  # actual frozen pool=100 output (kept whole, provenance)
+    # D1: how many of retrieved_context's top-ranked abstracts were delivered to the labeler/model
+    # (the top-K cut after whole-abstract bottom-drop under the context token budget).
+    delivered_k: int
     answer: str
     claims: list[Claim]
     abstention_reason: AbstentionReason | None = None
@@ -132,6 +136,13 @@ class GoldExample(BaseModel):
         if self.partition is Partition.EVAL and self.is_negative:
             raise ValueError("eval partition must not contain negatives")
 
+        # Rule 7 (range): the delivered context is a non-empty prefix of retrieved_context.
+        if not 1 <= self.delivered_k <= len(self.retrieved_context):
+            raise ValueError(
+                f"delivered_k must satisfy 1 <= delivered_k <= len(retrieved_context) "
+                f"(= {len(self.retrieved_context)}), got {self.delivered_k}"
+            )
+
         return self
 
 
@@ -163,17 +174,24 @@ def validate_against_corpus(
     #  - in the corpus but outside *this query's* retrieved pool → error for positives, eval, and
     #    non-WRONG_PAPER negatives (it breaks the frozen-context guarantee — the answer would rest
     #    on a paper the model never saw); warning only for a deliberate WRONG_PAPER negative, which
-    #    cites a real-but-un-retrieved wrong paper on purpose.
+    #    cites a real-but-un-retrieved wrong paper on purpose;
+    #  - rule 7: in the pool but ranked below delivered_k → same treatment. The labeler/model saw
+    #    only retrieved_context[:delivered_k]; ranks beyond it are provenance, never citable.
+    rank = {r.bibcode: i + 1 for i, r in enumerate(example.retrieved_context)}
+    is_wrong_paper = example.is_negative and example.negative_type is NegativeType.WRONG_PAPER
     for i, claim in enumerate(example.claims):
         if claim.cited_bibcode is None:
             continue
         if claim.cited_bibcode not in corpus_bibcodes:
             errors.append(f"claim[{i}] cites {claim.cited_bibcode}, absent from corpus snapshot")
         elif claim.cited_bibcode not in retrieved:
-            is_wrong_paper = (
-                example.is_negative and example.negative_type is NegativeType.WRONG_PAPER
-            )
             msg = f"claim[{i}] cites {claim.cited_bibcode}, not in this query's retrieved_context"
+            (warnings if is_wrong_paper else errors).append(msg)
+        elif rank[claim.cited_bibcode] > example.delivered_k:
+            msg = (
+                f"claim[{i}] cites {claim.cited_bibcode} at rank {rank[claim.cited_bibcode]}, "
+                f"outside the delivered context (delivered_k={example.delivered_k})"
+            )
             (warnings if is_wrong_paper else errors).append(msg)
         if claim.supported and not claim.support_span:
             warnings.append(f"claim[{i}] is supported but has no support_span")

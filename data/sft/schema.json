@@ -45,6 +45,11 @@
           "enum": ["introductory", "undergraduate", "graduate", "research"]
         },
         "requires_tools": { "type": "boolean" },
+        "delivered_k": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "D1: number of top-ranked retrieved abstracts delivered in the prompt context (after whole-abstract bottom-drop under the context token budget); citations must come from these"
+        },
         "tools_used": {
           "type": "array",
           "items": { "type": "string" }

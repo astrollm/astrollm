@@ -91,6 +91,7 @@ def example(**overrides) -> dict:
         "partition": "eval",
         "query": "What did JWST measure for the C/O ratio of WASP-39b?",
         "retrieved_context": retrieved_context(),
+        "delivered_k": len(IN_POOL),  # D1: every retrieved abstract was delivered
         "answer": "JWST NIRSpec measured a sub-solar C/O ratio for WASP-39b.",
         "claims": [claim()],
         "abstention_reason": None,

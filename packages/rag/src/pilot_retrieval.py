@@ -82,7 +82,18 @@ def _fts_match(query: str) -> str:
 
 
 def dense_search(query: str, k: int) -> list[tuple[str, float]]:
-    """Top-k by cosine similarity in pgvector. Returns [(bibcode, similarity)]."""
+    """Top-k by cosine similarity in pgvector — EXACT kNN. Returns [(bibcode, similarity)].
+
+    The index scan is disabled for this query's transaction (pgvector's documented way to get
+    exact results; the HNSW index stays in place). Without it, an HNSW scan returns at most
+    ``hnsw.ef_search`` (default 40) rows and an approximate order, so ``dense_search(q, 100)``
+    silently yielded 40 rows that disagreed with the exact full-depth ranking the frozen
+    evaluation harnesses score. Exact search makes ``dense_search(q, k)`` equal
+    ``dense_search(q, corpus_n)[:k]`` (cheap at pilot scale). Caveat: the corpus holds a few
+    duplicate-embedding pairs (e.g. arXiv + SPIE copies) whose exactly tied similarities may be
+    ordered differently by a small-LIMIT top-N sort than by the full sort; on the 30 gold queries
+    the first such tie sits at rank 361, so every k <= 200 is an exact prefix of full depth.
+    """
     vec = embed_query(query)
     sql = (
         "SELECT p.bibcode, 1 - (c.embedding <=> %s::vector) AS sim "
@@ -90,6 +101,7 @@ def dense_search(query: str, k: int) -> list[tuple[str, float]]:
         "ORDER BY c.embedding <=> %s::vector LIMIT %s"
     )
     with db_connect() as conn, conn.cursor() as cur:
+        cur.execute("SET LOCAL enable_indexscan = off")  # same transaction as the query below
         cur.execute(sql, (vec, vec, k))
         return [(bibcode, float(sim)) for bibcode, sim in cur.fetchall()]
 
