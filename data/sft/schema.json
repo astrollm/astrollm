@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "AstroLLM SFT Training Example",
   "type": "object",
-  "required": ["messages"],
+  "required": ["messages", "metadata"],
   "properties": {
     "messages": {
       "type": "array",
@@ -34,6 +34,7 @@
     },
     "metadata": {
       "type": "object",
+      "required": ["delivered_k"],
       "properties": {
         "source": {
           "type": "string",
@@ -45,6 +46,12 @@
           "enum": ["introductory", "undergraduate", "graduate", "research"]
         },
         "requires_tools": { "type": "boolean" },
+        "delivered_k": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "D1: number of top-ranked retrieved abstracts delivered in the prompt context (after whole-abstract bottom-drop under the context token budget); citations must come from these. maximum = POOL = 100 (packages/data-pipeline/src/sft/context.py), the fused candidate pool the context is cut from"
+        },
         "tools_used": {
           "type": "array",
           "items": { "type": "string" }

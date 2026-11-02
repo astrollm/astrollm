@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 from conftest import (
     IN_CORPUS_NOT_RETRIEVED,
+    IN_POOL,
     NOT_IN_CORPUS,
     abstention_example,
     claim,
@@ -149,6 +150,54 @@ def test_citation_outside_pool_is_warning_for_wrong_paper_negative():
     ex, errors, warnings = validate_record(data, CORPUS)
     assert errors == [], errors
     assert any("not in this query's retrieved_context" in w for w in warnings)
+
+
+# ── Rule 7: delivered_k (the D1 context the labeler/model actually saw) ──────
+
+
+def test_citation_within_delivered_k_passes():
+    assert_valid(example(delivered_k=1, claims=[claim(cited_bibcode=IN_POOL[0])]))
+
+
+def test_citation_at_rank_delivered_k_plus_one_rejected():
+    # IN_POOL[1] is rank 2: retrieved (provenance) but not delivered when delivered_k=1.
+    assert_rejected(
+        example(delivered_k=1, claims=[claim(cited_bibcode=IN_POOL[1])]),
+        "outside the delivered context (delivered_k=1)",
+    )
+
+
+def test_delivered_k_larger_than_retrieved_context_rejected():
+    ex, errors, _ = validate_record(example(delivered_k=3), CORPUS)  # only 2 retrieved
+    assert ex is None
+    assert any("delivered_k must satisfy" in e for e in errors)
+
+
+def test_delivered_k_zero_rejected():
+    ex, errors, _ = validate_record(example(delivered_k=0), CORPUS)
+    assert ex is None and any("delivered_k must satisfy" in e for e in errors)
+
+
+def test_delivered_k_required():
+    data = example()
+    del data["delivered_k"]
+    ex, errors, _ = validate_record(data, CORPUS)
+    assert ex is None and any("delivered_k" in e for e in errors)
+
+
+def test_abstention_uncited_claims_unaffected_by_delivered_k():
+    assert_valid(abstention_example(delivered_k=1))
+
+
+def test_wrong_paper_negative_citing_below_delivered_k_is_warning():
+    # Same carve-out as the pool rule: a WRONG_PAPER negative cites an unseen paper on purpose.
+    data = negative_example(
+        negative_type="wrong_paper", delivered_k=1,
+        claims=[claim(cited_bibcode=IN_POOL[1], supported=False)],
+    )
+    ex, errors, warnings = validate_record(data, CORPUS)
+    assert errors == [], errors
+    assert any("outside the delivered context" in w for w in warnings)
 
 
 def test_supported_claim_without_span_warns_but_passes():

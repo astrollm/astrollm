@@ -271,8 +271,13 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "astropy" },
+    { name = "httpx" },
+    { name = "pgvector" },
+    { name = "psycopg2-binary" },
     { name = "pydantic" },
     { name = "pytest" },
+    { name = "python-dotenv" },
     { name = "pyyaml" },
     { name = "rich" },
     { name = "ruff" },
@@ -332,8 +337,13 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "astropy", specifier = ">=6.0" },
+    { name = "httpx", specifier = ">=0.27.0" },
+    { name = "pgvector", specifier = ">=0.3.0" },
+    { name = "psycopg2-binary", specifier = ">=2.9" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "pytest", specifier = ">=9.1.1" },
+    { name = "python-dotenv", specifier = ">=1.0.0" },
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "rich", specifier = ">=13.7.0" },
     { name = "ruff", specifier = ">=0.15.22" },
@@ -3905,7 +3915,6 @@ dependencies = [
     { name = "wheel" },
     { name = "xformers", marker = "(platform_machine == 'AMD64' and 'linux' in sys_platform) or (platform_machine == 'x86_64' and 'linux' in sys_platform) or (platform_machine == 'AMD64' and sys_platform == 'win32') or (platform_machine == 'x86_64' and sys_platform == 'win32')" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/05/f7/9ada1b1db172a1bd0a32db26dba1f186f6b3d266add58bce92a829df4c5f/unsloth-2026.4.2.tar.gz", hash = "sha256:cc2309977503b225336bd65e98115f214ba4d1b0ab162d4a4f557b801d4cfaeb", size = 67146994, upload-time = "2026-04-03T22:07:54.373Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/fb/ae/b467b045cb2000f1ce94be3dd1d5b845c872e31ee1e7021066f7888d47b5/unsloth-2026.4.2-py3-none-any.whl", hash = "sha256:1f7c966837cd3b397f1d1a2c3f474320a2a7be163bb269c9cd4ee8d583187d6a", size = 62976764, upload-time = "2026-04-03T22:07:43.935Z" },
 ]

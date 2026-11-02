@@ -9,7 +9,7 @@ from context import ARM, POOL, K, config_fingerprint, make_run_id, utc_stamp
 
 def test_frozen_retrieval_constants():
     # The harness's single-variable discipline: these are the beta stage-1 defaults, frozen.
-    assert (ARM, POOL, K) == ("hybrid", 100, 100)
+    assert (ARM, POOL, K) == ("hybrid", 100, 30)  # K=30 locked by D1 (2026-11-02)
 
 
 def test_config_fingerprint_is_deterministic_and_key_order_insensitive():

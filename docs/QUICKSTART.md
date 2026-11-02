@@ -101,6 +101,57 @@ uv run python packages/data-pipeline/src/sft/author.py commit \
 uv run python packages/data-pipeline/src/sft/manifest.py status
 ```
 
+## Phase 1: Copilot v0 — M1 (exists today)
+
+Grounded chat over base Qwen3.5-9B: the frozen hybrid retriever supplies the top-k abstracts (D1:
+**k = 30**), the model answers from them only, and a bibcode citation guard checks the result.
+Runs fully local (Apple silicon, ~18 GB) — no cloud spend.
+
+```bash
+# 1. Pilot Postgres/pgvector. If the volume is empty, rebuild the index from the frozen corpus:
+docker compose -p astrollm-pilot -f docker/docker-compose.pilot.yml up -d
+uv run python packages/rag/src/index_corpus.py \
+  --input data/raw/ads_exoplanet_atmospheres_widened/abstracts.jsonl
+
+# 2. Local model server (Qwen publishes no official 9B GGUF; this is the Unsloth quant, 5.68 GB)
+brew install llama.cpp
+uv run hf download unsloth/Qwen3.5-9B-GGUF Qwen3.5-9B-Q4_K_M.gguf --local-dir models/gguf
+llama-server -m models/gguf/Qwen3.5-9B-Q4_K_M.gguf -c 20480 --port 8080 --host 127.0.0.1 \
+  --jinja -ngl 99 -fa on
+
+# 3. .env (see .env.example):  LLM_BASE_URL=http://127.0.0.1:8080/v1   LLM_MODEL=qwen3.5-9b
+
+# 4. Ask one question, or open the REPL (answer on stdout, logs on stderr)
+uv run python packages/inference/src/copilot.py ask "JWST CO2 detection in WASP-39b"
+uv run python packages/inference/src/copilot.py chat --tag citation
+```
+
+Useful flags (same on `ask` and `chat`): `--dry-run` retrieves and renders the context and prints
+the request payload without calling the model; `--tag` records an error-taxonomy tag
+(`citation`, `object_identity`, `unit_system`, …); `--k` overrides the serving context (default 30);
+`--live` is an opt-in flagged experiment that adds live ADS results (needs `ADS_API_KEY`) and logs
+to a separate directory. In `chat`, `/simbad <name>` shows a display-only SIMBAD card and `/tag <tag>`
+tags the last turn; `ask --simbad <name>` shows the card too. Every turn appends one JSONL line to
+`data/eval/transcripts/` (live mode: `data/eval/transcripts/live/`).
+
+## Phase 1: Copilot tools (exists today)
+
+SIMBAD is a display-only object card; live ADS results are opt-in and never part of the grounded
+evidence contract ([Plan R2](V1_PLAN_R2.md#evidence-contract-grounded-mode-vs-live-mode)).
+
+```bash
+uv run python packages/inference/src/tools.py simbad "Vega"
+uv run python packages/inference/src/tools.py ads "JWST transmission spectrum WASP-39b" --live
+uv run pytest packages/inference/tests          # offline; no network
+```
+
+`.mcp.json` registers NASA-IMPACT `astroquery-mcp` (Apache-2.0), pinned to commit
+`b91b60c04fb659177962c08b640fcd310f262958` (2026-10-15). Upstream's `uvx --from git+...` form does not
+work at that commit (the wheel omits `server.py`), so `scripts/run_astroquery_mcp.sh` clones the
+pinned SHA into the gitignored `.vendor/` and runs it with upstream's `uv.lock`. Export
+`ADS_API_KEY` in your shell before starting Claude Code (`set -a; source .env; set +a`); the
+server does not read `.env`.
+
 ## Phase 1 (continued): First Fine-Tune (planned — not yet implemented)
 
 ### Launch cloud training

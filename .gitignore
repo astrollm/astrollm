@@ -60,3 +60,6 @@ site/
 
 # SFT gold-seed worksheets contain reproduced (copyrighted) abstract text — never commit them.
 data/sft/worksheets/
+
+# Third-party MCP server checkout (scripts/run_astroquery_mcp.sh)
+.vendor/

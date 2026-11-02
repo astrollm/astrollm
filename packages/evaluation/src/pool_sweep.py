@@ -34,10 +34,29 @@ Usage (frozen 2,500 index up):
         --queries packages/evaluation/queries/pilot_exoplanet_atmospheres.yaml \
         --known-item packages/evaluation/queries/pool_sweep_known_item.yaml \
         --json-out docs/research/pool-sweep-results.json
+
+D1 mode (``--d1-cut``; pre-registered decision D1 in docs/V1_PLAN_R2.md): score the fused hybrid
+pool-100 ranking at cuts {10, 20, 30, 50}, rendered exactly as the model sees it
+(``sft/context.render_context``), token-counted with the Qwen3.5 tokenizer under a 16,384-token
+context budget, overflow handled by whole-abstract bottom-drop, recall scored on the DELIVERED
+context (decision logic in ``context_cut.py``). Gated: pool=50 must reproduce PR #6 and pool=100's
+hybrid R@10/R@50 must reproduce ``docs/research/pool-sweep-results.json`` exactly, or nothing is
+emitted:
+    uv run python packages/evaluation/src/pool_sweep.py --d1-cut \
+        --queries packages/evaluation/queries/pilot_exoplanet_atmospheres.yaml \
+        --known-item packages/evaluation/queries/pool_sweep_known_item.yaml \
+        --cuts 10,20,30,50 --budget 16384 --tokenizer Qwen/Qwen3.5-4B \
+        --json-out docs/research/d1-context-cut-results.json \
+        --md-out docs/research/d1-context-cut.md
+
+Serving parity (``--verify-serving``): ``retrieve(arm="hybrid", k=100, pool=100)`` must equal the
+harness's fused top-100 on every scored gold query; exits 1 on any mismatch.
 """
 
 import json
 import sys
+from collections.abc import Callable
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -49,6 +68,8 @@ from rich.console import Console
 # Fusion/selection code — the held-fixed controlled variable — imported, never reimplemented.
 _RAG_SRC = Path(__file__).resolve().parents[3] / "packages" / "rag" / "src"
 sys.path.insert(0, str(_RAG_SRC))
+import context_cut  # noqa: E402  (pure D1 decision logic; same directory as this script)
+
 # Metric + bootstrap helpers — imported from the frozen harness so readouts are provably identical.
 from ablation_retrieval import (  # noqa: E402
     DEFAULT_BOOTSTRAP_B,
@@ -76,6 +97,10 @@ TAGS = ("dense_only", "lexical_only", "both", "neither")
 # pool=50 all-slice values published in PR #6 (corpus-widening-results.json) — validation target.
 PILOT50 = {"dense_r10": 0.529, "lexical_r10": 0.437, "hybrid_r10": 0.592,
            "dense_r50": 0.776, "lexical_r50": 0.810, "hybrid_r50": 0.793, "union": 0.948}
+# The committed PR #7 artifact — its pool=100 hybrid R@10/R@50 is the D1 validation target.
+COMMITTED_SWEEP = Path("docs/research/pool-sweep-results.json")
+D1_POOL = 100  # the beta stage-1 default (== sft/context.POOL, asserted at run time)
+_SFT_SRC = Path(__file__).resolve().parents[3] / "packages" / "data-pipeline" / "src" / "sft"
 
 
 def _read_full_rankings(items: list[dict[str, Any]], corpus_n: int) -> tuple[list, list]:
@@ -97,17 +122,26 @@ def _read_full_rankings(items: list[dict[str, Any]], corpus_n: int) -> tuple[lis
     return base, skipped
 
 
+def _fused_ranking(
+    d_rank: dict[str, int], l_rank: dict[str, int], pool: int
+) -> tuple[dict[str, int], dict[str, int], list[tuple[str, float]]]:
+    """Fuse each arm's top-`pool` with RRF → (dense pool, lexical pool, ranked [(bibcode, rrf)]).
+
+    Same ordering as ``pilot_retrieval.retrieve(arm="hybrid")`` given the same per-arm pools
+    (stable sort over the dense-then-lexical insertion order of ``_rrf_fuse``).
+    """
+    d_pool = {b: rk for b, rk in d_rank.items() if rk <= pool}
+    l_pool = {b: rk for b, rk in l_rank.items() if rk <= pool}
+    fused = _rrf_fuse(d_pool, l_pool)
+    return d_pool, l_pool, sorted(fused.items(), key=lambda kv: kv[1], reverse=True)
+
+
 def _score_at_pool(base: list[dict[str, Any]], pool: int, partition: dict[str, str]) -> list[dict]:
     """Score one pool depth — fuse top-`pool` per arm; recall at fixed cuts K/DEEP."""
     rows = []
     for r in base:
-        d_pool = {b: rk for b, rk in r["d_rank"].items() if rk <= pool}
-        l_pool = {b: rk for b, rk in r["l_rank"].items() if rk <= pool}
-        fused = _rrf_fuse(d_pool, l_pool)
-        fused_rank = {
-            b: i + 1
-            for i, (b, _) in enumerate(sorted(fused.items(), key=lambda kv: kv[1], reverse=True))
-        }
+        d_pool, l_pool, ordered = _fused_ranking(r["d_rank"], r["l_rank"], pool)
+        fused_rank = {b: i + 1 for i, (b, _) in enumerate(ordered)}
         arm_rank = {"dense": r["d_rank"], "lexical": r["l_rank"], "hybrid": fused_rank}
         exp = r["expected"]
         arms = {
@@ -203,8 +237,28 @@ def _validate_pool50(agg_all: dict[str, Any]) -> list[str]:
     ]
 
 
-def run(queries_path: Path, known_item_path: Path, pools: tuple[int, ...],
-        bootstrap_b: int, seed: int) -> dict[str, Any]:
+def _validate_pool100(agg: dict[str, Any], committed_path: Path) -> list[str]:
+    """D1 cross-check: pool=100 hybrid R@10/R@50 must reproduce the committed PR #7 artifact
+    EXACTLY (same arithmetic, same order), on the all / known-item / broad-entity slices."""
+    if not committed_path.exists():
+        return [f"committed artifact missing: {committed_path}"]
+    committed = json.loads(committed_path.read_text())["per_pool"].get(str(D1_POOL))
+    if committed is None:
+        return [f"committed artifact has no pool={D1_POOL} block"]
+    errors = []
+    for slice_key in ("all", *PARTITIONS):
+        for cut in ("r10", "r50"):
+            want = committed["agg"][slice_key]["hybrid"][cut]
+            got = agg[slice_key]["hybrid"][cut]
+            if got != want:
+                errors.append(f"{slice_key} hybrid {cut}: got {got!r} != committed {want!r}")
+    return errors
+
+
+def _load_gold(
+    queries_path: Path, known_item_path: Path
+) -> tuple[list[dict[str, Any]], dict[str, str]]:
+    """Frozen gold items + the committed a-priori partition (asserted equal to the gold)."""
     spec = yaml.safe_load(queries_path.read_text())
     items = spec["queries"] if isinstance(spec, dict) else spec
     gold = {it["id"]: (it.get("expected_bibcodes") or []) for it in items}
@@ -219,7 +273,12 @@ def run(queries_path: Path, known_item_path: Path, pools: tuple[int, ...],
     mismatched = [qid for qid, codes in ki["known_item"].items() if codes != gold.get(qid)]
     if mismatched:
         raise ValueError(f"committed known-item list diverges from frozen gold: {mismatched}")
+    return items, partition
 
+
+def run(queries_path: Path, known_item_path: Path, pools: tuple[int, ...],
+        bootstrap_b: int, seed: int) -> dict[str, Any]:
+    items, partition = _load_gold(queries_path, known_item_path)
     corpus_n = _corpus_size()
     base, skipped = _read_full_rankings(items, corpus_n)
     for r in base:  # every scored query must be partitioned a priori
@@ -258,6 +317,389 @@ def run(queries_path: Path, known_item_path: Path, pools: tuple[int, ...],
         },
         "bootstrap": _bootstrap(per_pool, bootstrap_b, seed),
     }
+
+
+# ── D1: serving context cut (k) under the context token budget ──
+
+
+def _load_sft() -> Any:
+    """Lazy import of the frozen SFT context module (render_context is reused, never rewritten)."""
+    if str(_SFT_SRC) not in sys.path:
+        sys.path.insert(0, str(_SFT_SRC))
+    import context as sft_context  # deferred: only the D1 mode needs it
+
+    return sft_context
+
+
+def _load_token_counter(name: str) -> tuple[Callable[[str], int], dict[str, Any]]:
+    """The shared D1 counter (``context_cut.qwen_token_counter``) + tokenizer provenance."""
+    from huggingface_hub import try_to_load_from_cache
+
+    count = context_cut.qwen_token_counter(name)
+    tok = context_cut.load_tokenizer(name)  # cached: the same instance the counter wraps
+    cached = try_to_load_from_cache(name, "tokenizer_config.json")
+    revision = Path(cached).parent.name if isinstance(cached, str) else None
+    info = {"name": name, "revision": revision, "class": type(tok).__name__,
+            "vocab_size": len(tok), "add_special_tokens": False,
+            "counter": "context_cut.qwen_token_counter"}
+    return count, info
+
+
+def _d1_delivery(sft_context: Any, assembled: Any, snapshot: Any, count: Callable[[str], int],
+                 k: int, budget: int) -> context_cut.Delivery:
+    """One query's D1 delivery at cut k: ``render_context(limit=n)`` under ``deliver``."""
+    bibs = [r.bibcode for r in assembled.retrieved]
+
+    def render_top(n: int) -> str:
+        return sft_context.render_context(assembled, snapshot, limit=n)
+
+    return context_cut.deliver(bibs, render_top, count, k, budget)
+
+
+def _assembled_for(sft_context: Any, query: str, ranking: list[tuple[str, float]],
+                   snapshot: Any, cfg: dict[str, Any]) -> Any:
+    """An AssembledContext identical to what ``assemble_context`` builds for this ranking
+    (``retrieve`` rounds the fused score to 6 dp; ``render_context`` prints it with ``:.6f``)."""
+    retrieved = [
+        sft_context.Retrieved(bibcode=b, chunk_id=snapshot.chunk_id(b),
+                              retrieval_score=float(round(score, 6)))
+        for b, score in ranking
+    ]
+    return sft_context.AssembledContext(
+        query=query, retrieved=retrieved,
+        retriever_run_id=sft_context.make_run_id(cfg, snapshot.snapshot_hash, "d1-cut"),
+        corpus_snapshot_hash=snapshot.snapshot_hash, retriever_config=cfg,
+        assembled_at="d1-cut",
+    )
+
+
+def _cut_rows(qid: str, expected: list[str], assembled: Any, snapshot: Any, sft_context: Any,
+              count: Callable[[str], int], cuts: tuple[int, ...], budget: int,
+              log_drops: bool) -> dict[str, dict[str, Any]]:
+    """Apply the D1 overflow policy at every cut for one query's ranking."""
+    bibs = [r.bibcode for r in assembled.retrieved]
+    out: dict[str, dict[str, Any]] = {}
+    for k in cuts:
+        d = _d1_delivery(sft_context, assembled, snapshot, count, k, budget)
+        out[str(k)] = {
+            "n_rendered": d.n_rendered, "n_delivered": d.n_delivered,
+            "rendered_tokens": d.rendered_tokens, "delivered_tokens": d.delivered_tokens,
+            "overflow": d.overflow, "n_dropped": len(d.dropped), "dropped": list(d.dropped),
+            "rendered_recall": context_cut.recall(expected, bibs[: d.n_rendered]),
+            "delivered_recall": context_cut.recall(expected, d.delivered),
+        }
+        if d.overflow and log_drops:
+            err.log(
+                f"[yellow]overflow[/yellow] {qid} k={k}: {d.rendered_tokens} > {budget} tokens "
+                f"→ dropped {len(d.dropped)} whole abstract(s) from the bottom "
+                f"(delivered {d.n_delivered}, {d.delivered_tokens} tokens): {', '.join(d.dropped)}"
+            )
+    return out
+
+
+def _d1_aggregate(per_query: list[dict[str, Any]], cuts: tuple[int, ...],
+                  key: str = "cuts") -> dict[str, Any]:
+    agg: dict[str, Any] = {}
+    for k in cuts:
+        slices = {"all": [q[key][str(k)] for q in per_query]}
+        for p in PARTITIONS:
+            slices[p] = [q[key][str(k)] for q in per_query if q["partition"] == p]
+        agg[str(k)] = {name: context_cut.summarize(rows) for name, rows in slices.items()}
+    return agg
+
+
+def _select(agg: dict[str, Any], cuts: tuple[int, ...]) -> dict[str, Any]:
+    sel = context_cut.select_k(
+        {k: agg[str(k)]["all"]["delivered_recall"] for k in cuts},
+        {k: agg[str(k)]["all"]["fit_rate"] for k in cuts},
+    )
+    return {"rule": "literal (k=50 is a first-branch candidate; the fallback is unreachable)",
+            "k": sel.k, "branch": sel.branch, "reference_k": context_cut.REFERENCE_K,
+            "reference_recall": sel.reference_recall, "recall_gap": sel.recall_gap,
+            "tolerance": context_cut.TOLERANCE, "min_fit_rate": context_cut.MIN_FIT_RATE,
+            "slice": "all", "reason": sel.reason,
+            "strict_k": sel.strict_k, "strict_branch": sel.strict_branch,
+            "strict_recall_gap": sel.strict_recall_gap,
+            "strict_note": "secondary readout: first branch restricted to k < 50, so the "
+                           "fallback can fire; not the selection"}
+
+
+def run_d1(queries_path: Path, known_item_path: Path, cuts: tuple[int, ...], budget: int,
+           tokenizer_name: str, committed_path: Path, corpus_path: Path | None) -> dict[str, Any]:
+    """D1 measurement. Gates first (pool=50 vs PR #6, pool=100 vs the committed artifact,
+    live index == corpus snapshot); nothing is computed against the tokenizer until all pass."""
+    if context_cut.REFERENCE_K not in cuts:
+        raise ValueError(f"cuts must include the reference cut {context_cut.REFERENCE_K}")
+    import pilot_retrieval  # already loaded above; module handle
+
+    sft_context = _load_sft()
+    if (sft_context.ARM, sft_context.POOL) != ("hybrid", D1_POOL):
+        raise RuntimeError(f"sft/context.py frozen config drifted: {sft_context.ARM} "
+                           f"pool={sft_context.POOL} (D1 measures hybrid pool={D1_POOL})")
+    from corpus import DEFAULT_CORPUS_PATH, CorpusSnapshot
+
+    items, partition = _load_gold(queries_path, known_item_path)
+    corpus_n = _corpus_size()
+    base, skipped = _read_full_rankings(items, corpus_n)
+    for r in base:
+        if r["id"] not in partition:
+            raise ValueError(f"query {r['id']} missing from the committed partition")
+
+    # ── Hard gates: certify the (possibly rebuilt) index equals the frozen one ──
+    gate_aggs = {p: _aggregate(_score_at_pool(base, p, partition)) for p in (50, D1_POOL)}
+    errors = [f"pool=50 {e}" for e in _validate_pool50(gate_aggs[50]["all"])]
+    errors += [f"pool={D1_POOL} {e}" for e in _validate_pool100(gate_aggs[D1_POOL],
+                                                                 committed_path)]
+    snapshot = CorpusSnapshot.load(corpus_path or DEFAULT_CORPUS_PATH)
+    for store, idx in sft_context.indexed_bibcodes(pilot_retrieval).items():
+        if idx != snapshot.bibcodes:
+            errors.append(f"live {store} index ({len(idx)}) != corpus snapshot "
+                          f"({len(snapshot.bibcodes)}) at {snapshot.path}")
+    if errors:
+        raise RuntimeError("D1 frozen-index validation FAILED — refusing to emit results: "
+                           f"{errors}")
+    gates = {
+        "pool50": "ok (reproduces PR #6 all-slice numbers)",
+        "pool100": "ok (hybrid R@10/R@50 equal the committed artifact on all/known/broad)",
+        "pool50_all": {a: gate_aggs[50]["all"][a] for a in ARMS}
+        | {"union_recall": gate_aggs[50]["all"]["union_recall"]},
+        "pool100_hybrid": {s: gate_aggs[D1_POOL][s]["hybrid"] for s in ("all", *PARTITIONS)},
+        "index_equals_snapshot": True,
+    }
+
+    count, tok_info = _load_token_counter(tokenizer_name)
+    cfg = sft_context.retriever_config()
+    per_query: list[dict[str, Any]] = []
+    serving: list[dict[str, Any]] = []
+    gate_rows = {r["id"]: r for r in _score_at_pool(base, D1_POOL, partition)}
+    for r in base:
+        _, _, ordered = _fused_ranking(r["d_rank"], r["l_rank"], D1_POOL)
+        assembled = _assembled_for(sft_context, r["query"], ordered[:D1_POOL], snapshot, cfg)
+        rows = _cut_rows(r["id"], r["expected"], assembled, snapshot, sft_context, count,
+                         cuts, budget, log_drops=True)
+        # The D1 ranking IS the gated ranking: pre-drop recall at 10/50 == the pool-100 rows.
+        for cut, key in ((K, "r10"), (DEEP, "r50")):
+            if str(cut) in rows and rows[str(cut)]["rendered_recall"] != (
+                    gate_rows[r["id"]]["arms"]["hybrid"][key]):
+                raise RuntimeError(f"{r['id']}: D1 ranking diverges from the gated pool-100 "
+                                   f"ranking at cut {cut}")
+        per_query.append({"id": r["id"], "target": r["target"], "partition": partition[r["id"]],
+                          "n_gold": len(r["expected"]), "cuts": rows})
+
+        # Diagnostic (not the pre-registered measurement): what the SERVING call returns.
+        live = pilot_retrieval.retrieve(r["query"], arm="hybrid", k=D1_POOL, pool=D1_POOL)
+        live_bibs = [x["bibcode"] for x in live]
+        harness_bibs = [b for b, _ in ordered[:D1_POOL]]
+        first_div = next((i + 1 for i, (a, b) in enumerate(zip(live_bibs, harness_bibs))
+                          if a != b), None)
+        live_ctx = sft_context.AssembledContext(
+            query=r["query"],
+            retrieved=[sft_context.Retrieved(bibcode=x["bibcode"],
+                                             chunk_id=snapshot.chunk_id(x["bibcode"]),
+                                             retrieval_score=float(x["score"])) for x in live],
+            retriever_run_id="d1-serving-diagnostic", corpus_snapshot_hash=snapshot.snapshot_hash,
+            retriever_config=cfg,
+        )
+        serving.append({
+            "id": r["id"], "partition": partition[r["id"]],
+            "dense_rows_returned": len(dense_search(r["query"], D1_POOL)),
+            "identical_top100": live_bibs == harness_bibs, "first_divergent_rank": first_div,
+            "top100_overlap": len(set(live_bibs) & set(harness_bibs)),
+            "cuts": _cut_rows(r["id"], r["expected"], live_ctx, snapshot, sft_context, count,
+                              cuts, budget, log_drops=False),
+        })
+
+    agg = _d1_aggregate(per_query, cuts)
+    serving_agg = _d1_aggregate(serving, cuts)
+    with pilot_retrieval.db_connect() as conn, conn.cursor() as cur:
+        cur.execute("SELECT '[1]'::vector")  # loads the vector library so its GUCs exist
+        cur.execute("SHOW hnsw.ef_search")
+        ef_search = cur.fetchone()[0]
+        cur.execute("SELECT extversion FROM pg_extension WHERE extname = 'vector'")
+        pgvector_version = cur.fetchone()[0]
+    return {
+        "config": {
+            "decision": "D1 (docs/V1_PLAN_R2.md, pre-registered constants)",
+            "generated_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "cuts": list(cuts), "budget": budget,
+            "preregistered": cuts == context_cut.CUTS and budget == context_cut.BUDGET,
+            "prompt_reserve": context_cut.PROMPT_RESERVE,
+            "answer_allowance": context_cut.ANSWER_ALLOWANCE,
+            "max_seq_length_stated": context_cut.MAX_SEQ_LENGTH,
+            "ranking": f"fused hybrid RRF, pool={D1_POOL} per arm, full-depth exact arm rankings "
+                       "truncated to pool (the gated pool-sweep ranking)",
+            "rendering": "sft/context.render_context(assembled, snapshot, limit=n) — includes the "
+                         "'query:' and 'retrieved … pool=100' header lines",
+            "token_count": "len(tokenizer.encode(rendering, add_special_tokens=False)); context "
+                           "rendering only (system prompt + question reserved separately)",
+            "overflow_policy": "drop whole abstracts from the bottom until the rendering fits; "
+                               "never truncate inside an abstract; drops logged per query/cut",
+            "recall": "fraction of gold bibcodes in the delivered context (== pool_sweep "
+                      "_recall_at for a top-n prefix)",
+            "tokenizer": tok_info, "retriever_config": cfg, "corpus_n": corpus_n,
+            "corpus_snapshot": str(snapshot.path), "corpus_snapshot_hash": snapshot.snapshot_hash,
+            "queries_file": str(queries_path), "known_item_file": str(known_item_path),
+            "committed_sweep": str(committed_path),
+            "n_scored": len(base), "skipped": skipped,
+            "n_known_item": sum(1 for q in per_query if q["partition"] == "known_item"),
+            "n_broad_entity": sum(1 for q in per_query if q["partition"] == "broad_entity"),
+        },
+        "gates": gates,
+        "aggregate": agg,
+        "selection": _select(agg, cuts),
+        "per_query": per_query,
+        "serving_path_diagnostic": {
+            "note": "NOT the pre-registered measurement. Same rendering/budget/policy applied to "
+                    "what pilot_retrieval.retrieve(arm='hybrid', k=100, pool=100) returns live — "
+                    "the call sft/context.assemble_context makes.",
+            "pgvector_version": pgvector_version, "hnsw_ef_search": ef_search,
+            "n_identical_top100": sum(1 for s in serving if s["identical_top100"]),
+            "n_queries": len(serving),
+            "aggregate": serving_agg,
+            "selection_if_applied": _select(serving_agg, cuts),
+            "per_query": serving,
+        },
+    }
+
+
+def _md_d1_table(agg: dict[str, Any], cuts: tuple[int, ...]) -> str:
+    lines = [
+        "| k | delivered recall (all) | known-item | broad-entity | median tokens | p95 tokens "
+        "| % queries overflowing | mean abstracts dropped |",
+        "|---|---|---|---|---|---|---|---|",
+    ]
+    for k in cuts:
+        a = agg[str(k)]
+        lines.append(
+            f"| {k} | {a['all']['delivered_recall']:.3f} "
+            f"| {a['known_item']['delivered_recall']:.3f} "
+            f"| {a['broad_entity']['delivered_recall']:.3f} "
+            f"| {a['all']['median_rendered_tokens']:,.0f} | {a['all']['p95_rendered_tokens']:,.0f} "
+            f"| {100 * a['all']['overflow_rate']:.1f}% | {a['all']['mean_dropped']:.2f} |"
+        )
+    return "\n".join(lines)
+
+
+def _md_d1(results: dict[str, Any]) -> str:
+    cfg, gates, sel = results["config"], results["gates"], results["selection"]
+    cuts = tuple(cfg["cuts"])
+    tok = cfg["tokenizer"]
+    g100 = gates["pool100_hybrid"]
+    g50 = gates["pool50_all"]
+    diag = results["serving_path_diagnostic"]
+    k_line = (f"**Candidate per pre-registered rule (literal): k = {sel['k']}** — branch "
+              f"`{sel['branch']}`: {sel['reason']}. Secondary readout (first branch restricted "
+              f"to k < {sel['reference_k']}, not the selection): `strict_k` = {sel['strict_k']} "
+              f"(`{sel['strict_branch']}`).")
+    drops = [
+        f"| {q['id']} | {k} | {c['rendered_tokens']:,} | {c['n_dropped']} "
+        f"| {c['delivered_tokens']:,} |"
+        for k in cuts for q in results["per_query"]
+        for c in [q["cuts"][str(k)]] if c["overflow"]
+    ]
+    out = [
+        "# D1 — Serving Context Cut Under the Context Budget",
+        "",
+        f"Generated {cfg['generated_at'][:10]} by `packages/evaluation/src/pool_sweep.py --d1-cut` "
+        "(raw: [`d1-context-cut-results.json`](d1-context-cut-results.json)). Decision D1 of "
+        "[Plan Revision 2](../V1_PLAN_R2.md): score the fused hybrid pool-100 ranking at cuts "
+        f"{{{', '.join(map(str, cuts))}}}, rendered exactly as the model sees it, under a "
+        f"{cfg['budget']:,}-token context budget; overflow drops whole abstracts from the bottom; "
+        "recall is scored on the delivered context.",
+        "",
+        "## Setup",
+        "",
+        f"- Ranking: {cfg['ranking']}; RRF_K = {cfg['retriever_config']['rrf_k']}; corpus "
+        f"{cfg['corpus_n']:,} abstracts (`{cfg['corpus_snapshot_hash'][:19]}…`).",
+        f"- Rendering: {cfg['rendering']}.",
+        f"- Tokens: `{tok['name']}` tokenizer (revision `{tok['revision']}`), "
+        "`add_special_tokens=False`, context rendering only; system prompt + question reserved "
+        f"separately ({cfg['prompt_reserve']:,}), answer allowance {cfg['answer_allowance']:,}.",
+        f"- Gold: the frozen {cfg['n_scored']}-query set ({cfg['n_known_item']} known-item, "
+        f"{cfg['n_broad_entity']} broad-entity; unscored: {', '.join(cfg['skipped']) or '—'}).",
+        "",
+        "## Validation gates (all passed before any D1 number was computed)",
+        "",
+        f"- pool=50 reproduces PR #6: dense R@10 {g50['dense']['r10']:.3f}, lexical R@10 "
+        f"{g50['lexical']['r10']:.3f}, hybrid R@10 {g50['hybrid']['r10']:.3f}, hybrid R@50 "
+        f"{g50['hybrid']['r50']:.3f}, union {g50['union_recall']:.3f}.",
+        f"- pool=100 hybrid R@10 / R@50 equal `{cfg['committed_sweep']}` exactly: all "
+        f"{g100['all']['r10']:.3f} / {g100['all']['r50']:.3f}, known-item "
+        f"{g100['known_item']['r10']:.3f} / {g100['known_item']['r50']:.3f}, broad-entity "
+        f"{g100['broad_entity']['r10']:.3f} / {g100['broad_entity']['r50']:.3f}.",
+        "- Live pgvector and FTS bibcode sets equal the corpus snapshot.",
+        "",
+        "## Result",
+        "",
+        _md_d1_table(results["aggregate"], cuts),
+        "",
+        "Token columns are the **rendered top-k (pre-drop)** context tokens over all scored "
+        "queries (p95: linear interpolation). Known-item / broad-entity columns are delivered "
+        "recall on those partitions (broad-entity is a coverage measurement, not true recall). "
+        "Max rendered tokens: "
+        + ", ".join(f"k={k} {results['aggregate'][str(k)]['all']['max_rendered_tokens']:,}"
+                    for k in cuts)
+        + f" (budget {cfg['budget']:,}).",
+        "",
+        k_line,
+        "",
+        "### Overflow log (whole abstracts dropped from the bottom)",
+        "",
+    ]
+    if drops:
+        out += ["| query | k | rendered tokens | dropped | delivered tokens |",
+                "|---|---|---|---|---|", *drops]
+    else:
+        out.append("No query overflowed the budget at any cut.")
+    sd = diag["aggregate"]
+    out += [
+        "",
+        "## Serving-path diagnostic (not the pre-registered measurement)",
+        "",
+        "The same rendering, budget and overflow policy applied to what "
+        "`pilot_retrieval.retrieve(arm=\"hybrid\", k=100, pool=100)` returns live (the call "
+        f"`sft/context.assemble_context` makes). pgvector {diag['pgvector_version']}; the dense "
+        "arm runs exact kNN (index scan disabled per query, so `hnsw.ef_search` = "
+        f"{diag['hnsw_ef_search']} does not bound it): top-100 identical to the harness ranking "
+        f"on {diag['n_identical_top100']}/{diag['n_queries']} queries.",
+        "",
+        "| k | serving delivered recall (all) | harness delivered recall (all) "
+        "| serving % overflowing |",
+        "|---|---|---|---|",
+        *[
+            f"| {k} | {sd[str(k)]['all']['delivered_recall']:.3f} "
+            f"| {results['aggregate'][str(k)]['all']['delivered_recall']:.3f} "
+            f"| {100 * sd[str(k)]['all']['overflow_rate']:.1f}% |"
+            for k in cuts
+        ],
+        "",
+    ]
+    return "\n".join(out)
+
+
+
+def verify_serving(queries_path: Path, known_item_path: Path,
+                   pool: int = D1_POOL) -> dict[str, Any]:
+    """Train/serve parity: the live serving call ``retrieve(arm="hybrid", k=pool, pool=pool)``
+    (what ``sft/context.assemble_context`` calls) must return exactly the harness's fused top-pool
+    (bibcode order and 6-dp score) on every scored gold query."""
+    import pilot_retrieval  # already loaded above; module handle
+
+    items, _ = _load_gold(queries_path, known_item_path)
+    base, _ = _read_full_rankings(items, _corpus_size())
+    mismatches = []
+    for r in base:
+        _, _, ordered = _fused_ranking(r["d_rank"], r["l_rank"], pool)
+        want = [(b, round(s, 6)) for b, s in ordered[:pool]]
+        live = pilot_retrieval.retrieve(r["query"], arm="hybrid", k=pool, pool=pool)
+        got = [(x["bibcode"], x["score"]) for x in live]
+        if got != want:
+            first = next((i + 1 for i, (a, b) in enumerate(zip(got, want)) if a != b),
+                         min(len(got), len(want)) + 1)
+            mismatches.append({"id": r["id"], "first_divergent_rank": first,
+                               "n_live": len(got), "n_harness": len(want)})
+    return {"pool": pool, "k": pool, "n_queries": len(base),
+            "n_identical": len(base) - len(mismatches), "mismatches": mismatches}
 
 
 # ── Markdown emitters (ready to paste into docs/research/pool-sweep.md) ──
@@ -337,7 +779,38 @@ def main(
     bootstrap_b: int = typer.Option(DEFAULT_BOOTSTRAP_B, "--bootstrap", help="Bootstrap N."),
     seed: int = typer.Option(DEFAULT_SEED, help="Bootstrap RNG seed."),
     json_out: Path = typer.Option(None, "--json-out", help="Write raw results JSON here."),
+    d1_cut: bool = typer.Option(
+        False, "--d1-cut", help="Run the D1 serving-context-cut measurement instead of the sweep."
+    ),
+    cuts: str = typer.Option("10,20,30,50", help="[D1] Comma-separated context cuts k."),
+    budget: int = typer.Option(context_cut.BUDGET, help="[D1] Context token budget per query."),
+    tokenizer: str = typer.Option("Qwen/Qwen3.5-4B", help="[D1] HF tokenizer for token counts."),
+    committed: Path = typer.Option(
+        COMMITTED_SWEEP, help="[D1] Committed pool-sweep artifact (pool=100 validation target)."
+    ),
+    corpus: Path = typer.Option(None, help="[D1] Corpus snapshot JSONL (default: sft corpus)."),
+    md_out: Path = typer.Option(None, "--md-out", help="[D1] Write the markdown report here."),
+    verify_serving_flag: bool = typer.Option(
+        False, "--verify-serving",
+        help="Check retrieve(hybrid, k=100, pool=100) == the harness fused top-100 on every "
+        "scored gold query (train/serve parity); exit 1 on any mismatch.",
+    ),
 ) -> None:
+    if verify_serving_flag:
+        res = verify_serving(queries, known_item)
+        err.log(f"serving parity @ pool=k={res['pool']}: {res['n_identical']}/{res['n_queries']} "
+                "queries identical (bibcode order + 6-dp fused score)")
+        for m in res["mismatches"]:
+            err.log(f"[red]mismatch[/red] {m['id']}: first divergent rank "
+                    f"{m['first_divergent_rank']} (live {m['n_live']} rows, harness "
+                    f"{m['n_harness']})")
+        if res["mismatches"]:
+            raise typer.Exit(1)
+        return
+    if d1_cut:
+        _main_d1(queries, known_item, tuple(int(c) for c in cuts.split(",")), budget, tokenizer,
+                 committed, corpus, json_out, md_out)
+        return
     pool_tuple = tuple(int(p) for p in pools.split(","))
     try:
         results = run(queries, known_item, pool_tuple, bootstrap_b, seed)
@@ -371,6 +844,38 @@ def main(
         json_out.parent.mkdir(parents=True, exist_ok=True)
         json_out.write_text(json.dumps(results, indent=2))
         err.log(f"[green]wrote raw results[/green] → {json_out}")
+
+
+def _main_d1(queries: Path, known_item: Path, cuts: tuple[int, ...], budget: int, tokenizer: str,
+             committed: Path, corpus: Path | None, json_out: Path | None,
+             md_out: Path | None) -> None:
+    try:
+        results = run_d1(queries, known_item, cuts, budget, tokenizer, committed, corpus)
+    except (RuntimeError, ValueError) as exc:  # frozen-index / partition guards: fail, never emit
+        err.log(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from exc
+    cfg, sel = results["config"], results["selection"]
+    err.log(f"gates: {results['gates']['pool50']}; {results['gates']['pool100']}")
+    err.log(f"tokenizer={cfg['tokenizer']['name']}@{cfg['tokenizer']['revision']} "
+            f"budget={cfg['budget']} cuts={cfg['cuts']} scored={cfg['n_scored']}")
+    print(_md_d1_table(results["aggregate"], cuts))
+    print(f"\ncandidate per pre-registered rule (literal): k = {sel['k']} [{sel['branch']}] — "
+          f"{sel['reason']} | strict_k (k<50 reading, secondary) = {sel['strict_k']} "
+          f"[{sel['strict_branch']}]")
+    diag = results["serving_path_diagnostic"]
+    if diag["n_identical_top100"] != diag["n_queries"]:
+        err.log(f"[yellow]serving-path diagnostic:[/yellow] retrieve(k=100, pool=100) matches "
+                f"the harness top-100 on {diag['n_identical_top100']}/{diag['n_queries']} "
+                f"queries (pgvector {diag['pgvector_version']}, hnsw.ef_search="
+                f"{diag['hnsw_ef_search']})")
+    if json_out:
+        json_out.parent.mkdir(parents=True, exist_ok=True)
+        json_out.write_text(json.dumps(results, indent=2))
+        err.log(f"[green]wrote raw D1 results[/green] → {json_out}")
+    if md_out:
+        md_out.parent.mkdir(parents=True, exist_ok=True)
+        md_out.write_text(_md_d1(results))
+        err.log(f"[green]wrote D1 report[/green] → {md_out}")
 
 
 if __name__ == "__main__":

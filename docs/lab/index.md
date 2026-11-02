@@ -15,6 +15,7 @@ Weekly lab reports documenting observations, learnings, and informal notes from 
 |------|------|-------|-------|-------------|
 | [01](week-01.md) | 2026-05-31 | 1 | Pilot retrieval prototype | Hybrid BM25+dense over 500 ADS abstracts: Recall@10 = 0.812, MRR = 0.776 (16 grounded queries, first-pass labels) |
 | [note](2026-11-02-plan-revision-2.md) | 2026-11-02 | 1 | Plan Revision 2 | Docs-only session: R2 adopted, EXP-004-A2 + EXP-005 pre-registered, three Codex rounds; next session builds copilot v0 |
+| [note](2026-11-02-m1-copilot-v0.md) | 2026-11-02 | 1 | M1 Copilot v0 | Local llama-server + guarded chat CLI; D1 = k 30 (delivered recall 0.707), D2 verified; serving path diverged from the gated ranking (hnsw ef_search 40) |
 
 > **Gaps**: no reports for calendar weeks 02–07 (pause 2026-06-02 → 07-21) and none between
 > 2026-07-21 and 2026-11-02 (second pause). Under [Plan R2](../V1_PLAN_R2.md) process rule 5,

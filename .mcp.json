@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "astroquery": {
+      "type": "stdio",
+      "command": "scripts/run_astroquery_mcp.sh",
+      "args": ["b91b60c04fb659177962c08b640fcd310f262958"],
+      "env": {
+        "ADS_API_KEY": "${ADS_API_KEY:-}"
+      }
+    }
+  }
+}

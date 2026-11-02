@@ -52,7 +52,7 @@ training:
   warmup_ratio: 0.05
   weight_decay: 0.01
   max_grad_norm: 1.0
-  max_seq_length: 4096
+  max_seq_length: 20480  # D1 (2026-11-02): 16,384 context + 1,024 prompt + 2,048 answer (+1,024 slack)
   bf16: true
   gradient_checkpointing: true
   group_by_length: true
