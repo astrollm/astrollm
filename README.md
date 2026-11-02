@@ -2,7 +2,7 @@
 
 A domain-specialized Large Language Model for Astronomy & Astrophysics.
 
-> **Status**: Phase 1 (v1) — Retrieval-Grounded Copilot, in progress. The retrieval foundation is built and ablated end-to-end (pilot + widening + pool sweep); the RAG-SFT pilot is pre-registered and its gold-seed authoring harness is built — Phase A hand-authoring is the active work. Not yet usable. Follow along as we build it in the open.
+> **Status**: Phase 1 (v1) — Retrieval-Grounded Copilot, in progress under [Plan Revision 2](docs/V1_PLAN_R2.md) (2026-11-02). The retrieval foundation is built and ablated end-to-end; the RAG-SFT pilot (EXP-004) and a three-arm training pilot (EXP-005) are pre-registered. The next milestone is **Copilot v0**: the base model behind a CLI with the retriever, live SIMBAD/ADS tools, and a citation guard. Not yet usable. Follow along as we build it in the open.
 
 ## What is AstroLLM?
 
@@ -59,7 +59,7 @@ AstroLLM is an open-source system that connects fine-tuned language models with 
 | **3 (v3)** | Scientific Tool Ecosystem | Months 9-18 | Model family (Nano 3B + Core 9B + Pro 32B), continuous learning, tool-use SFT |
 | **4+ (v4+)** | Multimodal Knowledge House | Year 2+ | AION-1 vision bridge, Ultra 70B, agent workflows, spectra & light curves |
 
-See [`docs/V1_FINAL_PLAN.md`](docs/V1_FINAL_PLAN.md) for Phase 1 execution details and [`docs/MASTER_PLAN.md`](docs/MASTER_PLAN.md) for the full long-term vision.
+See [`docs/V1_PLAN_R2.md`](docs/V1_PLAN_R2.md) for the current Phase 1 execution plan (Revision 2; [`docs/V1_FINAL_PLAN.md`](docs/V1_FINAL_PLAN.md) is the frozen Revision 1) and [`docs/MASTER_PLAN.md`](docs/MASTER_PLAN.md) for the full long-term vision.
 
 ## Tech Stack
 
@@ -161,7 +161,8 @@ See [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md) for detailed API patterns and
 | Document | Purpose |
 |----------|---------|
 | [`CLAUDE.md`](CLAUDE.md) | Project conventions and quick reference |
-| [`docs/V1_FINAL_PLAN.md`](docs/V1_FINAL_PLAN.md) | Phase 1 execution plan (12-week scope) |
+| [`docs/V1_PLAN_R2.md`](docs/V1_PLAN_R2.md) | Phase 1 execution plan — Revision 2 (current) |
+| [`docs/V1_FINAL_PLAN.md`](docs/V1_FINAL_PLAN.md) | Phase 1 execution plan — Revision 1 (frozen, 2026-03-23) |
 | [`docs/MASTER_PLAN.md`](docs/MASTER_PLAN.md) | Long-term vision (Phase 0-4+) |
 | [`docs/ARCHITECTURE_V2.md`](docs/ARCHITECTURE_V2.md) | Technical deep dive: ADS strategy, model family, multimodal |
 | [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md) | Per-database API patterns and code examples |

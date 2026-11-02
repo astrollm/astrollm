@@ -160,6 +160,60 @@ recall + dropped-example distribution reporting.
 recorded as appended `EXP-XXX-A#` entries plus a dated bullet in the experiment doc's Amendments
 section; the original entry and pre-registration text are never modified.
 
+### EXP-004-A2: gold seed = teacher-drafted, human-verified; model-facing context = top-k
+**Decision date**: 2026-11-02 · **Type**: data · **Status**: pre-data (0 of 150–250 gold examples
+authored) · **Detail**: [sft-pilot.md § Amendments](research/sft-pilot.md#amendments)
+
+Second amendment to EXP-004 (original and A1 unchanged). Adopted with V1 Plan R2 after the
+[2026-10 plan review](research/plan-review-2026-10.md). (1) The teacher (`claude-opus-5-5`,
+recorded per record) drafts the cited answer and claims; the human verifies every claim's support
+span and sets every label — the human labels, not the prose, remain the verifier-calibration and
+eval reference. (2) `retrieved_context` keeps the full pool-100 output for provenance but every
+consumer (worksheet, teacher, SFT/RL prompts, serving) sees the top-k slice, k fixed by decision
+D1 before EXP-000 — the harness's frozen K=100 context (~25–30K tokens) contradicted the
+`max_seq_length: 4096` in every committed training config. (3) Eval partition is authored first,
+calibration second. (4) Eval metrics are judged against context, never against gold answer text;
+judge ≠ teacher family. (5) Teacher-selection-bias control: every calibration negative and ≥ 25%
+of calibration positives are human-authored from scratch (a challenge subset on which H5 is
+reported separately and must also clear the ≥ 0.85 trust gate), and every teacher-drafted record
+gets a context-wide answerability review. Targets, families, gates and "Phase A never ships" are
+unchanged.
+
+### EXP-005: Training pilot — base vs SFT vs GRPO-with-verifier-reward (Phase A, pre-registration)
+**Date**: 2026-11-02 · **Type**: training · **W&B Run**: [pending] · **Config**: committed under
+`configs/` at the run · **Status**: pre-registered, nothing run · **Detail**:
+[training-pilot.md](research/training-pilot.md)
+
+Extends EXP-004 with a third arm. Fixed: the frozen 2,500-abstract corpus, hybrid RRF @ pool 100
+with the D1 serving context, Qwen3.5-4B QLoRA, no-think for all arms, the EXP-004 eval partition,
+judge ≠ teacher. Arms: **A** prompted base; **B** SFT on teacher-synthesized, verifier-filtered
+data (the EXP-004 recipe); **C** GRPO with a committed programmatic reward — citation validity
+(hard), calibrated claim support (dense), two-sided abstention, format — and **no judge-scored
+answer-correctness term**. Arm C runs only if the verifier clears the H5 trust gate (precision
+≥ 0.85); budget cap $80, two attempts.
+
+Pre-registered: **T-H1** arm B meets SFT-H1/H2 vs A; **T-H2** arm C meets SFT-H1/H2 vs A
+*independently* with false-refusal ≤ 0.10; **T-H2′** (between validated arms only) C is
+non-inferior to B on the human-audited claim-support rate iff the lower 95% CI bound of (C − B)
+is > −0.05, superior iff the CI is > 0, else inconclusive and B is preferred; **T-H3**
+reward-hacking tripwires with bands fixed from arm A before B/C are scored (the trained arm's
+per-query median vs arm-A median ± 1.5 IQR for citation density and claims per answer, with
+pre-stated absolute fallback bands if A's median is 0; a one-sided +0.10 band for abstention on
+answerable queries; a violation in the hacking direction fails the arm regardless, the opposite
+direction is reported); **T-H4** the
+EXP-004-A1 retention gate, min-power fallback and closed-book ship-block apply to every trained
+arm. A recipe is validated only by clearing SFT-H1 ∧ H2 ∧ the H3 cap ∧ T-H3 ∧ T-H4 on its own
+against arm A; T-H2′ only chooses between validated recipes. Arm C additionally needs
+human-audited answerability labels on its prompt set (100% of non-answerable, 20% of answerable;
+> 10% label error ⇒ not run), claim extraction over every declarative sentence incl. quotations (uncited = unsupported; zero
+claims, zero citations or zero words on a non-abstention ⇒ reward floor; citation validity is
+checked on every answer, pure abstentions included, before any other component; answers are
+classified by the shared D4 answer-format contract, implemented before M2; an arm with < 10
+non-abstaining eval answers fails T-H3), and a blinded,
+paired 30-query human audit per arm with a 0.85 agreement floor that invalidates verifier-scored
+numbers below it. Nothing from EXP-005 ships. A C-think variant is a pre-registered secondary arm
+if budget remains, never substituted for the mode-matched primary comparison.
+
 ---
 
 ## Key Learnings
@@ -198,3 +252,10 @@ section; the original entry and pre-registration text are never modified.
 | 2026-07-21 | **Freeze-policy violation acknowledged; frozen baseline redefined at `1739826`** | The 2026-04-23 entry above states "V1_FINAL_PLAN.md remains frozen; this Decision Log entry overrides it" — but commits `73b2bc3` and `1739826` (PR #2, 2026-05-30) in fact edited `V1_FINAL_PLAN.md` (and `73b2bc3` edited `MASTER_PLAN.md`) to reconcile base-model references, contrary to the freeze rule. Resolution: the current text is **not** reverted (reverting would resurrect Qwen3-4B/8B references that no config or doc matches, and git preserves the original at `e2406e8`); the frozen baseline is redefined as the state at `1739826`; `.claude/rules/docs.md` now codifies that supersessions are recorded only in this Decision Log and that a Decision Log entry cannot authorize editing the frozen files. No banner is added to the frozen docs — that would be a further edit. |
 | 2026-07-21 | **Docker DB integrity verification: still OPEN** (restating the 2026-05-31 item) | The independent row-count verification of the collided project's database was not performed during the pause. Remains OPEN. Trigger: verify before that project's DB is next used, and before treating this Docker host's state as trustworthy for anything load-bearing; the pilot stack itself was re-isolated by the `name: astrollm-pilot` fix (PR #3) and is unaffected. |
 | 2026-07-21 | **Phase A trains and serves no-think** (Qwen3.5 `<think>`-trace handling) | Qwen3.5 small models default to thinking-mode-on; the gold seed defines the answer format, and Phase B re-runs the recipe frozen, so trace handling had to be decided pre-authoring. **Decision: thinking disabled** — gold answers are the cited answer + claims only, exactly the harness worksheet shape. Rationale: (1) hand-authoring plausible traces for 150–250 examples roughly doubles the bottleneck cost; (2) traces carry uncited intermediate assertions the pre-registered citation verifier cannot check without an un-pre-registered extension; (3) single-variable discipline — traces would be a second manipulated recipe variable; (4) the task is open-book grounded synthesis, not the closed-book parametric QA where AstroSage's trace-SFT precedent lives; (5) Gemma 4 E4B Track B has no native think block, so formats align across tracks. **Rider 1 (mode symmetry)**: every SFT-vs-base comparison (SFT-H1–H4, incl. the open-book MCQ slice) runs BOTH arms in no-think mode; base-with-thinking may be reported as a reference row but the gates read the mode-matched pair. **Rider 2 (template check)**: the concrete no-think mechanism (template flag vs empty think block — Qwen versions differ) is verified against the actual tokenizer before the fine-tune, not assumed. Trace-SFT remains a legitimate future recipe *variant*, pre-registered against the validated no-think baseline if ever tried. |
+| 2026-11-02 | **V1 Plan Revision 2 adopted** — `docs/V1_PLAN_R2.md` supersedes `V1_FINAL_PLAN.md` (Revision 1) as the Phase-1 execution plan | Trigger: the [2026-10 plan review](research/plan-review-2026-10.md) after a second pause (07-21 → 10-23). the Master Plan's Phase 1–2 risk #1 (invisible progress → project death) materialized once Revision 1's protected week-4 demo was skipped; the current plan was spread across ten Decision Log rows and an amendments section. R2 is one document; `.claude/rules/docs.md` now defines revisions as whole, frozen-on-merge files. `MASTER_PLAN.md` vision unchanged. |
+| 2026-11-02 | **Copilot v0 is the next milestone (M1); training is not a prerequisite for the beta** | Base Qwen3.5-9B + the as-built retriever as a tool + `astroquery-mcp` + a citation-enforcing prompt + a bibcode citation guard, CLI first. It is the skipped R1 week-4 demo and the plan's own fallback outcome. **First three M1 tasks**: (1) decide D1 by scoring fused recall at cuts {10, 20, 30, 50} with the pool-sweep harness; (2) a `uv run` chat CLI over the frozen retriever with the citation guard; (3) wire `astroquery-mcp` (pinned) for SIMBAD/ADS under R2's evidence contract (grounded mode = frozen top-k only, the evaluated path; live ADS results only in a separately logged, never-trained-on live mode). EXP-000 baselines follow immediately (M2). |
+| 2026-11-02 | **Serving-context decision D1 opened: train/serve context is top-k of the pool-100 ranking, k to be measured before EXP-000** | Found in review: `context.py` freezes K=100 abstracts (~25–30K tokens) as each example's context while all three training configs cap `max_seq_length` at 4,096. The pre-registration's train/serve equality cannot hold as written. Full pool kept for provenance; every consumer sees top-k; `max_seq_length` raised to fit. R2 commits the measurement: delivered-context token budget 16,384 (Qwen3.5 tokenizer), whole-abstract overflow drops, recall scored on the delivered context, selection rule and fallback fixed before any model output is seen. |
+| 2026-11-02 | **Tools layer adopted, not built**: NASA-IMPACT `astroquery-mcp` (pinned) for SIMBAD/ADS; `tools-integration` retired as a build target; the project's retriever to be published as an MCP server | Verified 2026-10-23: 141 functions / 14 services, Apache-2.0, Claude Code plugin, backend of NASA's AKD agent + AstroAKD-Bench; `cbyrohl/mcp-server-ads` for citation graphs. Tool access is now table stakes; differentiation moves to an open small model that cites faithfully + a public eval set. Serving loop calls astroquery directly; MCP is the interface for Claude clients. |
+| 2026-11-02 | **EXP-004-A2** (gold = teacher-drafted, human-verified; top-k context; eval partition first) and **EXP-005** (three-arm training pilot incl. GRPO with the verifier as reward) recorded | See the entries above and `docs/research/training-pilot.md`. Basis: arXiv 2609.23053 (RL on answer correctness does not fix post-rationalized citations), 2506.15522 (Ground-GRPO), 2609.28765 (dense rewards for small search agents). |
+| 2026-11-02 | **Landscape re-check (verified 2026-10-23)**: base-model decision holds; Gemma 4 12B dense (2026-05-23) added to the watch list, not as an arm; AstroSage unchanged (70B-20251009); prior art to cite: Pathfinder (2408.01556), Astro2Method (2610.30282) | Qwen3.6 and Qwen3.8 (08-2026) ship no dense model below 27B. `ornith-ai/Ornith-1.0-9B` remains the alternative 9B checkpoint. Next re-check at fine-tune time. |
+| 2026-11-02 | **Process rules R2**: pre-registration only for runs that spend GPU money or gate a ship decision; every session ends with a runnable artifact or a measured number; per-session lab notes replace weekly reports; one Codex round per PR, run last | Two of the last four merged PRs were docs-only, and the two code PRs built and tested a harness that has produced zero examples. The research-log and amendment conventions are unchanged; the rigor is kept where it decides something. |
