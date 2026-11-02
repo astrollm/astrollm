@@ -14,10 +14,11 @@ Weekly lab reports documenting observations, learnings, and informal notes from 
 | Week | Date | Phase | Title | Key Takeaway |
 |------|------|-------|-------|-------------|
 | [01](week-01.md) | 2026-05-31 | 1 | Pilot retrieval prototype | Hybrid BM25+dense over 500 ADS abstracts: Recall@10 = 0.812, MRR = 0.776 (16 grounded queries, first-pass labels) |
+| [note](2026-11-02-plan-revision-2.md) | 2026-11-02 | 1 | Plan Revision 2 | Docs-only session: R2 adopted, EXP-004-A2 + EXP-005 pre-registered, three Codex rounds; next session builds copilot v0 |
 
-> **Gap**: no reports for calendar weeks 02–07 — work paused 2026-06-02 and resumed 2026-07-21
-> (see the Decision Log re-anchor entry in the [Research Log](../RESEARCH_LOG.md)). Cadence resumes
-> with the Phase-A gold-seed authoring thread.
+> **Gaps**: no reports for calendar weeks 02–07 (pause 2026-06-02 → 07-21) and none between
+> 2026-07-21 and 2026-11-02 (second pause). Under [Plan R2](../V1_PLAN_R2.md) process rule 5,
+> per-session lab notes replace weekly reports from 2026-11-02.
 
 ## Weekly Lab Report Template
 

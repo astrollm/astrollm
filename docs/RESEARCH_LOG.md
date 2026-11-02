@@ -205,9 +205,11 @@ EXP-004-A1 retention gate, min-power fallback and closed-book ship-block apply t
 arm. A recipe is validated only by clearing SFT-H1 ∧ H2 ∧ the H3 cap ∧ T-H3 ∧ T-H4 on its own
 against arm A; T-H2′ only chooses between validated recipes. Arm C additionally needs
 human-audited answerability labels on its prompt set (100% of non-answerable, 20% of answerable;
-> 10% label error ⇒ not run), claim extraction over every declarative sentence (uncited =
-unsupported; zero claims or zero citations on a non-abstention ⇒ reward floor; citation validity
-is checked on every answer, pure abstentions included, before any other component), and a blinded,
+> 10% label error ⇒ not run), claim extraction over every declarative sentence incl. quotations (uncited = unsupported; zero
+claims, zero citations or zero words on a non-abstention ⇒ reward floor; citation validity is
+checked on every answer, pure abstentions included, before any other component; answers are
+classified by the shared D4 answer-format contract, implemented before M2; an arm with < 10
+non-abstaining eval answers fails T-H3), and a blinded,
 paired 30-query human audit per arm with a 0.85 agreement floor that invalidates verifier-scored
 numbers below it. Nothing from EXP-005 ships. A C-think variant is a pre-registered secondary arm
 if budget remains, never substituted for the mode-matched primary comparison.

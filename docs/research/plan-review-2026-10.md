@@ -124,9 +124,17 @@ none was deferred.
 | R3 | P2 | "An abstaining answer is scored by component 3 only" let a fabricated citation inside an abstention escape the hard citation-validity floor; mixed refusal-plus-claims responses were unclassified | Citation validity now applies to every answer first; pure abstention defined by a fixed marker and no substantive sentences; mixed responses scored as non-abstaining |
 | R4 | P2 | The architecture diagram still routed the query through SIMBAD alias expansion before the frozen retriever, contradicting the evidence contract and `author.py prepare` | Diagram redrawn: grounded path takes the verbatim query; alias expansion and live ADS appear only on the live-mode branch |
 
-### Round 3
+### Round 3 — no P1 remaining (review closes under the policy); R1, R3, R4 FIXED, R2 PARTIAL; 3 P2. All accepted and folded in.
 
-*Pending.*
+| # | Sev | Finding | Change made |
+|---|-----|---------|-------------|
+| F1 | P2 | The `ABSTAIN:` marker was required by the reward but not by the gold schema, worksheet or fixtures, so equivalent refusals could be classified differently across arms | New pre-registered constant **D4** in R2: one answer-format contract (marker + reason code + ≤ 1 sentence) implemented in the harness before M2 and used by the gold seed, synthesis, serving, H3/T-H3 and the reward |
+| F2 | P2 | Zero-word density was 0/0; an arm with no non-abstaining answers left the T-H3 median undefined | Density of an empty output = 0; an arm with < 10 non-abstaining eval answers fails T-H3; if arm A has < 10, the absolute fallback bands apply |
+| F3 | P2 | Quotations and a "sources" line were excluded from claim extraction, so unsupported assertions could hide there; the abstention "reason" had no machine rule | Quoted material is a claim; only a bibcode-only `Sources:` line is excluded; pure abstention is machine-defined by D4 (marker, reason code, ≤ 1 sentence, ≤ 40 words) |
+
+**Outcome.** Three targeted rounds, 2 + 1 + 0 P1s. Every finding across all rounds was accepted;
+none was deferred. The pre-registration text that results is the one the next session builds
+against. A native (light) Codex pass remains available before merge under the local policy.
 
 ---
 
