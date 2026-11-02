@@ -260,6 +260,33 @@ does not override the gates.
       precision (a high-precision/low-recall verifier silently skews training data toward
       trivially-verifiable claims). Reporting requirements, not new gates.
 
+- **2026-11-02** (pre-data — still 0 of the 150–250 gold examples authored): **EXP-004-A2**,
+  adopted with [V1 Plan R2](../V1_PLAN_R2.md) after the
+  [2026-10 plan review](plan-review-2026-10.md). Recorded in the
+  [Research Log](../RESEARCH_LOG.md) as EXP-004-A2; this bullet is the normative text.
+
+    1. **Gold seed = teacher-drafted, human-verified.** The teacher (D3: `claude-opus-5-5`,
+       recorded in every record's `provenance.drafting_model`) drafts the cited answer and the
+       claim list from the rendered context; the human **verifies every claim** against its cited
+       abstract — setting `support_span`, `supported`, `abstention_reason`, negatives — and may
+       rewrite freely. The human labels remain the reference the verifier is calibrated against
+       (H5) and the eval is scored with; the prose is not. Rationale: the 100-abstract worksheet
+       made hand-authoring ≈ 30 min/example and stalled the project for five months; verification
+       is ≈ 5 min/example and is where the judgment lives.
+    2. **Model-facing context is top-k, not the full pool.** `retrieved_context` keeps the full
+       pool-100 output for provenance; the worksheet, the teacher, the SFT prompt, the RL prompt and
+       the serving prompt all see the top-k slice, with k fixed by decision D1 before EXP-000.
+       Rationale: the frozen K=100 context (~25–30K tokens) contradicted `max_seq_length: 4096` in
+       every committed training config; the train/serve equality the pre-registration promises
+       must hold at the context the model actually sees.
+    3. **Authoring order: eval partition first** (M2 — it is what EXP-000 needs), calibration
+       partition second (M3). Composition targets unchanged.
+    4. **Shared-bias control strengthened.** Eval scoring (H1–H3) is judged against the context,
+       never against gold answer text; judge ≠ teacher family (D3); the drafting model is reported
+       next to every eval table.
+    5. **Scope unchanged.** Three families, abstention over-weighted, no tool-call or object-QA
+       examples, nothing from Phase A ships.
+
 ---
 
 *Pre-registration commit. Results, Interpretation, Verdict on the hypotheses, and Reproduce are
