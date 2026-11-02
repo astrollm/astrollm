@@ -16,7 +16,6 @@ from typing import Any
 import copilot
 import httpx
 import pytest
-from typer.testing import CliRunner
 
 B1, B2, B3 = "2023Natur.614..649J", "2023Natur.614..664A", "2023ApJ...956L..13M"
 TIMEOUT = object()  # sentinel: the mock LLM raises httpx.ReadTimeout for this reply
@@ -263,8 +262,11 @@ def test_shared_counter_is_loaded_once_per_session(
 
 @pytest.mark.parametrize("command", ["ask", "chat"])
 def test_cli_exposes_tokenizer_option(command: str) -> None:
-    result = CliRunner().invoke(
-        copilot.app, [command, "--help"], env={"NO_COLOR": "1", "COLUMNS": "200"}
-    )
-    assert result.exit_code == 0
-    assert "--tokenizer" in result.output
+    # Inspect the registered click parameters rather than rendered --help text: rich wraps the
+    # help box to the detected terminal width, which differs between a developer shell and CI.
+    import typer.main
+
+    cmd = typer.main.get_command(copilot.app).commands[command]
+    param = next((p for p in cmd.params if "--tokenizer" in getattr(p, "opts", [])), None)
+    assert param is not None, f"{command} has no --tokenizer option"
+    assert param.default == "Qwen/Qwen3.5-4B"
