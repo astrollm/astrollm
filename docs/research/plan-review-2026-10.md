@@ -115,7 +115,16 @@ local review policy (`CODEX_ROUND=targeted:v1-plan-r2`, effort high, read-only).
 Three-questions triage: every P1/P2 was judged real, introduced by this diff, and worth curing;
 none was deferred.
 
-### Round 2
+### Round 2 — verdict NEEDS-ATTENTION: F1–F4, F6, F8, F9 and the P3s confirmed FIXED; F5, F7, F10 PARTIAL. 1 P1, 3 P2. All accepted.
+
+| # | Sev | Finding | Change made |
+|---|-----|---------|-------------|
+| R1 | P1 | R2's Evaluation section said an arm outside *any* T-H3 band fails, while the pre-registration makes the non-hacking direction report-only; the two documents gave opposite verdicts for the same result | R2 now states the directional failure rule verbatim and names `training-pilot.md` as the normative text |
+| R2 | P2 | T-H3 never said which B/C aggregate is compared with the band; a zero arm-A median collapsed the fallback band to [0, 0] | Comparison statistic = the trained arm's per-query median (rate for (c)); (a)/(b) computed on non-abstaining answers; empty outputs defined; pre-stated absolute fallback bands when A's median is 0 |
+| R3 | P2 | "An abstaining answer is scored by component 3 only" let a fabricated citation inside an abstention escape the hard citation-validity floor; mixed refusal-plus-claims responses were unclassified | Citation validity now applies to every answer first; pure abstention defined by a fixed marker and no substantive sentences; mixed responses scored as non-abstaining |
+| R4 | P2 | The architecture diagram still routed the query through SIMBAD alias expansion before the frozen retriever, contradicting the evidence contract and `author.py prepare` | Diagram redrawn: grounded path takes the verbatim query; alias expansion and live ADS appear only on the live-mode branch |
+
+### Round 3
 
 *Pending.*
 

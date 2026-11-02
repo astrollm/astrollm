@@ -196,15 +196,18 @@ Pre-registered: **T-H1** arm B meets SFT-H1/H2 vs A; **T-H2** arm C meets SFT-H1
 *independently* with false-refusal ≤ 0.10; **T-H2′** (between validated arms only) C is
 non-inferior to B on the human-audited claim-support rate iff the lower 95% CI bound of (C − B)
 is > −0.05, superior iff the CI is > 0, else inconclusive and B is preferred; **T-H3**
-reward-hacking tripwires with bands fixed from arm A before B/C are scored (per-query median
-± 1.5 IQR for citation density and claims per answer; a one-sided +0.10 band for abstention on
-answerable queries; a violation in the hacking direction fails the arm regardless); **T-H4** the
+reward-hacking tripwires with bands fixed from arm A before B/C are scored (the trained arm's
+per-query median vs arm-A median ± 1.5 IQR for citation density and claims per answer, with
+pre-stated absolute fallback bands if A's median is 0; a one-sided +0.10 band for abstention on
+answerable queries; a violation in the hacking direction fails the arm regardless, the opposite
+direction is reported); **T-H4** the
 EXP-004-A1 retention gate, min-power fallback and closed-book ship-block apply to every trained
 arm. A recipe is validated only by clearing SFT-H1 ∧ H2 ∧ the H3 cap ∧ T-H3 ∧ T-H4 on its own
 against arm A; T-H2′ only chooses between validated recipes. Arm C additionally needs
 human-audited answerability labels on its prompt set (100% of non-answerable, 20% of answerable;
 > 10% label error ⇒ not run), claim extraction over every declarative sentence (uncited =
-unsupported; zero claims or zero citations on a non-abstention ⇒ reward floor), and a blinded,
+unsupported; zero claims or zero citations on a non-abstention ⇒ reward floor; citation validity
+is checked on every answer, pure abstentions included, before any other component), and a blinded,
 paired 30-query human audit per arm with a 0.85 agreement floor that invalidates verifier-scored
 numbers below it. Nothing from EXP-005 ships. A C-think variant is a pre-registered secondary arm
 if budget remains, never substituted for the mode-matched primary comparison.

@@ -91,11 +91,15 @@ free-running autonomous agent.
 ## Architecture (as built → target)
 
 ```
-query ─► [SIMBAD alias expand: astroquery-mcp]
-       ─► hybrid RRF stage-1 (pool=100, frozen)  ─► top-k serving context (D1)
-       ─► Qwen3.5-9B (no-think) + system prompt: cite bibcodes from context only; abstain if thin
-       ─► citation guard: bibcode ∈ context (hard) · claim-support verifier (M3+)
-       ─► answer + bibcode links  ·  logged with error-taxonomy tags
+GROUNDED MODE (default; the evaluated path — identical to `author.py prepare`)
+query (verbatim) ─► hybrid RRF stage-1 (pool=100, frozen) ─► top-k serving context (D1)
+                 ─► Qwen3.5-9B (no-think) + system prompt: cite bibcodes from context only; abstain if thin
+                 ─► citation guard: bibcode ∈ top-k (hard) · claim-support verifier (M3+)
+                 ─► answer + bibcode links · SIMBAD object card (display only) · logged, mode=grounded
+
+LIVE MODE (opt-in flag; flagged experiment, separate log, never evaluated or trained on)
+query ─► SIMBAD alias expansion + live ADS search (astroquery-mcp) ─► frozen top-k ∪ live results
+      ─► same model + guard with the union as the allowlist ─► logged, mode=live
 ```
 
 Serving: llama.cpp GGUF Q4_K_M on Apple Silicon or a hosted Qwen3.5-9B endpoint for v0 (same
@@ -201,9 +205,12 @@ page, feedback form, failed-query log. Target: 5 beta users.
 ## Evaluation (unchanged gates, one addition)
 
 - EXP-004 hypotheses H1–H5 and the EXP-004-A1 operationalization stand verbatim.
-- Addition for EXP-005: reward-hacking tripwires (citation density, claims per answer, abstention
-  rate on answerable queries) reported for every arm; any arm outside the pre-stated bands fails
-  regardless of headline metrics.
+- Addition for EXP-005 (T-H3, normative text in [training-pilot.md](research/training-pilot.md)):
+  reward-hacking tripwires reported for every arm — citation density, claims per answer,
+  abstention rate on answerable queries — with bands fixed from the base arm before any trained arm
+  is scored. A violation **in the hacking direction** (density above band, claim count below band,
+  abstention on answerable queries above band) fails the arm regardless of headline metrics; the
+  opposite direction is reported, not failed.
 - AstroMLab-1 remains the external comparability number. Per EXP-004-A1 its **open-book
   topic-overlap slice is the Phase-A retention gate** and its **closed-book catastrophe thresholds
   (> 10 pp drop, or < 35% on 4-option MCQ) are a ship-block**; only the ordinary closed-book score
