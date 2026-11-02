@@ -2,8 +2,8 @@
 
 A domain-specialized Large Language Model for Astronomy & Astrophysics.
 
-!!! info "Current Status: Phase 1 (v1) — Retrieval-Grounded Copilot (in progress)"
-    Retrieval foundation built and ablated; the retrieval thread is closed (bottleneck = fusion ranking, not candidate generation). The RAG-SFT pilot is pre-registered ([EXP-004](RESEARCH_LOG.md), amended per EXP-004-A1) and its gold-seed authoring harness is built — **Phase A hand-authoring is the active milestone** (0 / 150–250 examples). Nothing is fine-tuned yet; the Phase-0 NanoGPT exercise was skipped in favor of the retrieval foundation.
+!!! info "Current Status: Phase 1 (v1) — Retrieval-Grounded Copilot, Plan Revision 2 (2026-11-02)"
+    Retrieval foundation built and ablated; the retrieval thread is closed (bottleneck = fusion ranking, not candidate generation). The RAG-SFT pilot is pre-registered ([EXP-004](RESEARCH_LOG.md), amended A1 + A2) with its authoring harness, and a three-arm training pilot ([EXP-005](research/training-pilot.md)) is pre-registered. **Next milestone: Copilot v0** — the base Qwen3.5-9B behind a CLI with the retriever, live SIMBAD/ADS tools and a citation guard — then EXP-000 baselines. See the [plan review](research/plan-review-2026-10.md) for why the plan was revised. Nothing is fine-tuned yet.
 
 ## What is AstroLLM?
 
@@ -79,7 +79,7 @@ AstroLLM is an open-source system that connects fine-tuned language models with 
 
     V1 execution plan and long-term vision
 
-    [:octicons-arrow-right-24: V1 Plan](V1_FINAL_PLAN.md)
+    [:octicons-arrow-right-24: V1 Plan R2](V1_PLAN_R2.md)
 
 -   :material-book-open-variant:{ .lg .middle } **Learning**
 

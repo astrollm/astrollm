@@ -191,7 +191,7 @@ cd packages/web && bun dev
 | **3 (v3)** | Scientific Tool Ecosystem | Months 9-18 | Model family (Nano 3B + Core 9B + Pro 32B), continuous learning, tool-use SFT |
 | **4+ (v4+)** | Multimodal Knowledge House | Year 2+ | AION-1 vision bridge, Ultra 70B, agent workflows |
 
-See `docs/V1_FINAL_PLAN.md` for Phase 1 execution details. See `docs/MASTER_PLAN.md` for the full long-term vision.
+See `docs/V1_PLAN_R2.md` for Phase 1 execution details (Revision 2, adopted 2026-11-02; `docs/V1_FINAL_PLAN.md` is the frozen Revision 1). See `docs/MASTER_PLAN.md` for the full long-term vision.
 
 ---
 
@@ -204,7 +204,7 @@ See `docs/V1_FINAL_PLAN.md` for Phase 1 execution details. See `docs/MASTER_PLAN
 - **Searching for papers**: Use `/ads-search` during development and SFT curation
 - **Writing Python code**: Rules in `.claude/rules/python.md` auto-activate — type hints, ruff, uv, httpx
 - **Working on the web UI**: Rules in `.claude/rules/web.md` auto-activate — bun, TS strict, Biome
-- **Writing docs**: Rules in `.claude/rules/docs.md` auto-activate — never modify V1_FINAL_PLAN or MASTER_PLAN
+- **Writing docs**: Rules in `.claude/rules/docs.md` auto-activate — never modify V1_FINAL_PLAN, MASTER_PLAN, or a merged `V1_PLAN_R<N>`; plan changes go in the next revision + a Decision Log row
 - **Building SFT data generation scripts**: Use the `claude-api` built-in skill (triggers on `import anthropic`)
 - **Building the web UI**: Use the `example-skills:frontend-design` built-in skill for high-quality components
 - **Testing the web app**: Use the `example-skills:webapp-testing` built-in skill for Playwright testing
@@ -222,7 +222,7 @@ See `docs/V1_FINAL_PLAN.md` for Phase 1 execution details. See `docs/MASTER_PLAN
 - **Memory** (`~/.claude/projects/.../memory/`): persistent project context across sessions (user-local, not in repo)
 
 ### Deferred — Set Up When Needed
-- **MCP Servers** (`.mcp.json`): When Phase 1 tool integration starts, create MCP servers for NASA ADS and SIMBAD to make them native Claude Code tools. Use `example-skills:mcp-builder`.
+- **MCP Servers** (`.mcp.json`): Decided 2026-11-02 — **adopt** NASA-IMPACT `astroquery-mcp` (pinned; SIMBAD + ADS + 12 more services) rather than build ADS/SIMBAD servers; the one server to *build* is the project's own retriever as an MCP server (M1/M3). Use `example-skills:mcp-builder` for that.
 - **Hooks** (`settings.json → hooks`): When Python code exists, add `PostToolUse` hook on `Edit|Write` for `*.py` that runs `ruff check --fix`.
 - **Custom Agents** (`.claude/agents/`): Phase 1+ — `benchmark-runner` agent for eval, `data-validator` agent for dataset health checks.
 - **Persona: `end-user`** (`.claude/personas/`): at the first-copilot-UI milestone — add a grad student end-user persona representing someone *using* AstroLLM, not building it. Useful for UX decisions, prompt template design, and explanation depth calibration. (The plan's weeks-3-4 copilot demo was skipped in the 2026-06-01 pivot to SFT; the UI milestone now sits after Phase A — see the Decision Log re-anchor, 2026-07-21.)
@@ -231,11 +231,12 @@ See `docs/V1_FINAL_PLAN.md` for Phase 1 execution details. See `docs/MASTER_PLAN
 
 ## Current Status
 
-**Phase**: 1 (v1) — Retrieval-Grounded Copilot (in progress; paused 2026-06-02 → resumed 2026-07-21, see the Decision Log re-anchor)
-**Done**: Retrieval foundation built and ablated end-to-end (pilot ablation + PR #6 widening + PR #7 pool sweep); **retrieval thread closed** — the bottleneck is fusion ranking, not candidate generation. Beta default: **hybrid RRF stage-1 @ pool=100**. RAG-SFT pilot **pre-registered** (EXP-004, amended per EXP-004-A1) and the **gold-seed authoring harness built** (PR #11, `packages/data-pipeline/src/sft/`). Base-model choice re-affirmed 2026-07-21 (Qwen3.5-4B/9B + Gemma 4 E4B; Ornith-1.0-9B on watch). See the [Research Log](docs/RESEARCH_LOG.md).
-**Next milestone**: Phase A gold-seed authoring (0 / 150–250 examples) → teacher synthesis + verifier → QLoRA pilot eval vs gates → Phase B (recipe frozen, corpus widened) → fine-tuned weights + SFT dataset on HuggingFace → beta. Milestone-based: calendar-week labels retired (Decision Log, 2026-07-21); the beta date is re-committed when Phase A completes. Before authoring: decide Qwen3.5 `<think>`-trace handling (Decision Log nuance, 2026-07-21).
-**Deferred (post-beta)**: fusion-ranking ladder (RRF_K sweep → weighted fusion → cross-encoder reranking); query-widening lever
-**Known gaps**: zero automated tests in the repo (CI runs docs only) — a pytest suite over the `sft/` contract logic plus a Python CI workflow is the recommended next engineering step before authoring 150–250 examples against it. Docker DB integrity item still OPEN (Decision Log, 2026-07-21).
+**Phase**: 1 (v1) — Retrieval-Grounded Copilot, under **[Plan Revision 2](docs/V1_PLAN_R2.md)** (adopted 2026-11-02 after the [2026-10 plan review](docs/research/plan-review-2026-10.md); paused 2026-06-02 → 07-21 and 07-21 → 10-23)
+**Done**: Retrieval foundation built and ablated end-to-end (EXP-001–003; retrieval thread closed, bottleneck = fusion ranking, beta default hybrid RRF stage-1 @ pool=100). RAG-SFT pilot pre-registered (EXP-004, amended A1 + A2) with its gold-seed authoring harness and a 67-test suite + Python CI. EXP-005 (three-arm training pilot: base / SFT / GRPO-with-verifier-reward) pre-registered. Base-model choice re-verified 2026-10-23 (Qwen3.5-4B/9B; no smaller Qwen3.6/3.8 dense exists). See the [Research Log](docs/RESEARCH_LOG.md).
+**Next milestone — M1, Copilot v0** (the skipped R1 week-4 demo): base Qwen3.5-9B behind a `uv run` chat CLI, the frozen retriever as a tool at the D1 serving context, `astroquery-mcp` (pinned) for SIMBAD/ADS, a citation-enforcing prompt and a bibcode citation guard, conversations logged with error-taxonomy tags. First three tasks: (1) decide **D1** (serving context k) by scoring fused recall at cuts {10, 20, 30, 50} with the pool-sweep harness; (2) the chat CLI + citation guard; (3) wire `astroquery-mcp`. Then **M2**: author the eval partition under EXP-004-A2 (teacher-drafted, human-verified) and run EXP-000 baselines. Milestone-based, no calendar dates until M4 completes.
+**Gold seed**: 0 / 170–230 (eval partition authored first, in M2; calibration partition in M3).
+**Deferred (post-beta)**: fusion-ranking ladder (RRF_K sweep → weighted fusion → cross-encoder); query widening; multi-call agentic retrieval (flagged experiment only until training contexts match)
+**Known gaps**: `train_qlora.py` is a stub; `max_seq_length` in all configs must be raised to the D1 context; no LLM is called anywhere in the pipeline yet; Docker DB integrity item still OPEN (Decision Log, 2026-07-21).
 **Blocking issues**: None
 
 > **Phase 0 note**: The Phase-0 NanoGPT learning exercise (train a small GPT on the astro corpus) was **not** completed — the project moved directly into the Phase-1 retrieval foundation. Nothing is fine-tuned yet and no SFT data is curated (that is the next milestone); NanoGPT remains an optional learning backfill, not a v1 blocker.
