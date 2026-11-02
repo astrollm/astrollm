@@ -131,7 +131,7 @@ def test_selection_within_tolerance_picks_smallest_qualifying_k() -> None:
     fit = {10: 1.0, 20: 1.0, 30: 1.0, 50: 0.90}
     s = select_k(rec, fit)
     assert s.branch == "within_tolerance"
-    assert s.k == 30 and s.literal_k == 30
+    assert s.k == 30 and s.strict_k == 30  # both readings agree when a k < 50 qualifies
     assert s.recall_gap == pytest.approx(0.042)
 
 
@@ -141,29 +141,47 @@ def test_selection_tolerance_is_inclusive_despite_float_error() -> None:
     assert select_k(rec, fit).k == 20
 
 
-def test_selection_fallback_largest_k_fitting_on_95_percent() -> None:
+def test_literal_rule_lets_the_reference_cut_win_against_itself() -> None:
+    # No k < 50 is within 0.05, and k=50 overflows on 20% of queries: the LITERAL rule still
+    # selects 50 (gap 0 vs itself); only the secondary strict reading falls back to 30.
     rec = {10: 0.5, 20: 0.6, 30: 0.7, 50: 0.9}
     fit = {10: 1.0, 20: 1.0, 30: 0.97, 50: 0.80}
     s = select_k(rec, fit)
-    assert s.branch == "fallback_budget_fit"
-    assert s.k == 30
-    assert s.recall_gap == pytest.approx(0.2)
-    assert s.literal_k == 50  # the reading where R@50 wins the first branch trivially
+    assert s.k == 50 and s.branch == "within_tolerance" and s.recall_gap == 0.0
+    assert s.strict_k == 30 and s.strict_branch == "fallback_budget_fit"
+    assert s.strict_recall_gap == pytest.approx(0.2)
 
 
-def test_selection_fallback_can_choose_the_reference_cut() -> None:
+def test_literal_fallback_is_unreachable_while_the_reference_is_a_cut() -> None:
+    # Documents the pre-registered rule's structure: k=50 is a first-branch candidate with gap 0,
+    # so whatever the recalls and fit rates, the literal fallback ("largest k fitting on >= 95%")
+    # never fires. The fallback code is kept for completeness and exercised by the strict reading.
+    import random
+
+    rng = random.Random(20261102)
+    for _ in range(500):
+        rec = {k: rng.random() for k in (10, 20, 30, 50)}
+        fit = {k: rng.choice((0.0, 0.5, 0.94, 0.95, 1.0)) for k in rec}
+        s = select_k(rec, fit)
+        assert s.branch == "within_tolerance"
+        assert s.k is not None and s.recall_gap is not None and s.recall_gap <= 0.05 + 1e-9
+
+
+def test_strict_reading_fallback_can_choose_the_reference_cut() -> None:
     rec = {10: 0.5, 20: 0.6, 30: 0.7, 50: 0.9}
     fit = {10: 1.0, 20: 1.0, 30: 1.0, 50: 0.95}  # exactly 95% counts as fitting
     s = select_k(rec, fit)
-    assert s.branch == "fallback_budget_fit"
-    assert s.k == 50 and s.recall_gap == 0.0
+    assert s.k == 50
+    assert s.strict_branch == "fallback_budget_fit" and s.strict_k == 50
+    assert s.strict_recall_gap == 0.0
 
 
-def test_selection_none_when_nothing_fits() -> None:
+def test_strict_reading_none_when_nothing_fits() -> None:
     rec = {10: 0.5, 20: 0.6, 30: 0.7, 50: 0.9}
     fit = dict.fromkeys(rec, 0.5)
     s = select_k(rec, fit)
-    assert s.k is None and s.branch == "none"
+    assert s.k == 50  # literal: the reference cut still qualifies against itself
+    assert s.strict_k is None and s.strict_branch == "none"
 
 
 def test_selection_rejects_inconsistent_inputs() -> None:

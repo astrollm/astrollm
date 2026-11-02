@@ -17,10 +17,11 @@ Two steps, so the human labeler supplies only judgment and never plumbing:
 (all 100, for provenance), `retriever_run_id`, and `corpus_snapshot_hash` into the worksheet. The
 labeler is shown exactly what serving delivers: the top-K rendering under the D1 context token
 budget, with whole abstracts dropped from the bottom on overflow (`context_cut.deliver`, the same
-policy the copilot and the D1 measurement use). The outcome is locked as `delivered_k`,
-`context_budget_tokens`, `context_tokens`, `context_tokenizer` and `dropped_bibcodes`. `commit`
-rejects anything that fails the schema contract — including a citation ranked below `delivered_k`
-— or whose locked corpus hash no longer matches the live corpus. Negatives (deliberate
+policy the copilot and the D1 measurement use). The outcome is locked as `context_k`,
+`delivered_k`, `context_budget_tokens`, `context_tokens`, `context_tokenizer` and
+`dropped_bibcodes`. `commit` verifies that metadata against the pool and the rendering shown, and
+rejects anything that fails it or the schema contract — including a citation ranked below
+`delivered_k` — or whose locked corpus hash no longer matches the live corpus. Negatives (deliberate
 wrong-citation calibration examples) are seeded with `--negative --negative-type ...`.
 
 Per repo Python rules: progress logs go to stderr; the resulting path/id is printed to stdout.
@@ -30,6 +31,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import sys
 from collections.abc import Callable
 from datetime import UTC, datetime
@@ -53,27 +55,87 @@ from schema import (
 _EVAL_SRC = Path(__file__).resolve().parents[3] / "evaluation" / "src"
 if str(_EVAL_SRC) not in sys.path:
     sys.path.append(str(_EVAL_SRC))
-from context_cut import BUDGET, deliver  # noqa: E402
+from context_cut import (  # noqa: E402
+    BUDGET,
+    QWEN_TOKENIZER,
+    Delivery,
+    deliver,
+    qwen_token_counter,
+)
 
 err = Console(stderr=True)
 app = typer.Typer(add_completion=False, help=__doc__)
 
-DEFAULT_TOKENIZER = "Qwen/Qwen3.5-4B"  # the D1 token counter (tokenizer files only, no weights)
+DEFAULT_TOKENIZER = QWEN_TOKENIZER  # the shared D1 counter (tokenizer files only, no weights)
 
 # Keys the labeler fills; everything else lives under the locked block.
 _FILL_KEYS = ("answer", "claims", "abstention_reason", "is_negative", "negative_type")
-# Worksheet-only context-delivery metadata: locked for audit, stripped at commit (not GoldExample
-# fields). `delivered_k` is the one delivery field that IS part of the GoldExample contract.
-_DELIVERY_META = ("context_budget_tokens", "context_tokens", "context_tokenizer",
+# Worksheet-only context-delivery metadata: locked at prepare, VERIFIED at commit, then stripped
+# (not GoldExample fields). `delivered_k` is the one delivery field in the GoldExample contract.
+_DELIVERY_META = ("context_k", "context_budget_tokens", "context_tokens", "context_tokenizer",
                   "dropped_bibcodes")
+# One abstract header line of render_context ("[  1] <bibcode>  (score 0.032787)") as it appears
+# in the worksheet banner (prefixed "# "). Title/abstract lines are indented, so never match.
+_HEADER_RE = re.compile(r"^# \[\s*(\d+)\] (\S+)  \(score -?\d+\.\d{6}\)$")
 
 
-def load_token_counter(name: str) -> Callable[[str], int]:
-    """HF tokenizer → token counter over the context rendering (no special tokens)."""
-    from transformers import AutoTokenizer  # deferred: heavy, and only `prepare` needs it
+def deliver_context(
+    assembled, snapshot: CorpusSnapshot, k: int, budget: int, count_tokens: Callable[[str], int]
+) -> Delivery:
+    """The worksheet's (= the model's) context: top-k rendered by ``render_context(limit=n)``
+    under the D1 overflow policy — whole abstracts dropped from the bottom to fit ``budget``."""
 
-    tok = AutoTokenizer.from_pretrained(name)
-    return lambda text: len(tok.encode(text, add_special_tokens=False))
+    def render_top(n: int) -> str:
+        return render_context(assembled, snapshot, limit=n)
+
+    return deliver([r.bibcode for r in assembled.retrieved], render_top, count_tokens, k, budget)
+
+
+def _visible_headers(worksheet_text: str) -> list[tuple[int, str]]:
+    """(rank, bibcode) of each abstract header line in the worksheet's leading comment banner."""
+    out: list[tuple[int, str]] = []
+    for line in worksheet_text.splitlines():
+        if line and not line.startswith("#"):
+            break  # the banner ends at the first YAML line
+        m = _HEADER_RE.match(line)
+        if m:
+            out.append((int(m.group(1)), m.group(2)))
+    return out
+
+
+def verify_delivery(locked: dict, worksheet_text: str) -> list[str]:
+    """Check the locked D1 delivery metadata against itself, the retrieved pool and the rendering
+    the labeler was actually shown. Every mismatch is a hard error naming the field."""
+    missing = [f for f in ("delivered_k", "context_k", "dropped_bibcodes") if f not in locked]
+    if missing:
+        return [f"_locked.{f} missing — the worksheet predates the D1 delivery lock; re-run "
+                "`prepare`" for f in missing]
+    retrieved = [r.get("bibcode") for r in locked.get("retrieved_context") or []]
+    dk, ck, dropped = locked["delivered_k"], locked["context_k"], locked["dropped_bibcodes"]
+    errors: list[str] = []
+    for name, val in (("delivered_k", dk), ("context_k", ck)):  # (c), and context_k's own range
+        if not isinstance(val, int) or isinstance(val, bool) or not 1 <= val <= len(retrieved):
+            errors.append(f"{name}: must be an int with 1 <= {name} <= len(retrieved_context) "
+                          f"(= {len(retrieved)}), got {val!r}")
+    if not isinstance(dropped, list):
+        errors.append(f"dropped_bibcodes: must be a list, got {type(dropped).__name__}")
+    if errors:
+        return errors
+    if dk + len(dropped) != ck:  # (a)
+        errors.append(f"delivered_k + len(dropped_bibcodes) = {dk} + {len(dropped)} != "
+                      f"context_k = {ck}")
+    if dropped != retrieved[dk:ck]:  # (b)
+        errors.append(f"dropped_bibcodes: {dropped} != retrieved_context ranks {dk + 1}..{ck} "
+                      f"{retrieved[dk:ck]}")
+    visible = _visible_headers(worksheet_text)  # (d)
+    if visible != [(i + 1, b) for i, b in enumerate(retrieved[:dk])]:
+        undelivered = [b for _, b in visible if b in set(retrieved[dk:])]
+        errors.append(
+            f"visible rendering: the worksheet shows abstract ranks {[r for r, _ in visible]}, "
+            f"expected exactly ranks 1..{dk} (delivered_k) with matching bibcodes"
+            + (f"; shows undelivered/dropped {undelivered}" if undelivered else "")
+        )
+    return errors
 
 
 def _query_slug(query: str) -> str:
@@ -174,16 +236,8 @@ def prepare(
 
     # D1 delivery: exactly what serving shows — top-k rendered by render_context, whole abstracts
     # dropped from the bottom until the rendering fits the context token budget.
-    pool_bibcodes = [r.bibcode for r in assembled.retrieved]
-    cache: dict[int, str] = {}
-
-    def render_top(n: int) -> str:
-        if n not in cache:
-            cache[n] = render_context(assembled, snapshot, limit=n)
-        return cache[n]
-
-    k = render_limit if render_limit is not None else len(pool_bibcodes)
-    delivery = deliver(pool_bibcodes, render_top, load_token_counter(tokenizer), k, budget)
+    k = render_limit if render_limit is not None else len(assembled.retrieved)
+    delivery = deliver_context(assembled, snapshot, k, budget, qwen_token_counter(tokenizer))
     if not delivery.fits or delivery.n_delivered < 1:
         err.log(f"[red]no abstract fits the {budget}-token context budget[/red]")
         raise typer.Exit(1)
@@ -216,6 +270,7 @@ def prepare(
             "partition": partition.value,
             "query": query,
             "retrieved_context": [r.model_dump() for r in assembled.retrieved],
+            "context_k": delivery.n_rendered,  # the cut actually rendered: min(k, |pool|)
             "delivered_k": delivery.n_delivered,
             "context_budget_tokens": budget,
             "context_tokens": delivery.delivered_tokens,
@@ -255,15 +310,19 @@ def commit(
     dry_run: bool = typer.Option(False, "--dry-run", help="Validate only; do not append."),
 ) -> None:
     """Validate a filled worksheet against the schema + corpus and append it to the gold seed."""
-    sheet = yaml.safe_load(worksheet.read_text())
+    text = worksheet.read_text()
+    sheet = yaml.safe_load(text)
     if not isinstance(sheet, dict) or "_locked" not in sheet:
         err.log("[red]worksheet missing the _locked block — was it produced by `prepare`?[/red]")
         raise typer.Exit(1)
 
     locked = dict(sheet["_locked"])
-    if "delivered_k" not in locked:
-        err.log("[red]worksheet has no _locked.delivered_k — it predates the D1 context cut; "
-                "re-run `prepare`[/red]")
+    # The delivery metadata is verified, not trusted: it decides which citations are legal.
+    delivery_errors = verify_delivery(locked, text)
+    if delivery_errors:
+        for e in delivery_errors:
+            err.log(f"[red]delivery error[/red]: {e}")
+        err.log(f"[red]rejected {worksheet.name} — D1 delivery metadata does not match[/red]")
         raise typer.Exit(1)
     locked.pop("retriever_config", None)  # not part of the GoldExample contract; lives in manifest
     for key in _DELIVERY_META:  # worksheet audit trail only; delivered_k stays (schema field)

@@ -332,16 +332,28 @@ def _load_sft() -> Any:
 
 
 def _load_token_counter(name: str) -> tuple[Callable[[str], int], dict[str, Any]]:
-    """Qwen3.5 tokenizer (tokenizer files only, no weights) → (counter, provenance)."""
+    """The shared D1 counter (``context_cut.qwen_token_counter``) + tokenizer provenance."""
     from huggingface_hub import try_to_load_from_cache
-    from transformers import AutoTokenizer
 
-    tok = AutoTokenizer.from_pretrained(name)
+    count = context_cut.qwen_token_counter(name)
+    tok = context_cut.load_tokenizer(name)  # cached: the same instance the counter wraps
     cached = try_to_load_from_cache(name, "tokenizer_config.json")
     revision = Path(cached).parent.name if isinstance(cached, str) else None
     info = {"name": name, "revision": revision, "class": type(tok).__name__,
-            "vocab_size": len(tok), "add_special_tokens": False}
-    return (lambda text: len(tok.encode(text, add_special_tokens=False))), info
+            "vocab_size": len(tok), "add_special_tokens": False,
+            "counter": "context_cut.qwen_token_counter"}
+    return count, info
+
+
+def _d1_delivery(sft_context: Any, assembled: Any, snapshot: Any, count: Callable[[str], int],
+                 k: int, budget: int) -> context_cut.Delivery:
+    """One query's D1 delivery at cut k: ``render_context(limit=n)`` under ``deliver``."""
+    bibs = [r.bibcode for r in assembled.retrieved]
+
+    def render_top(n: int) -> str:
+        return sft_context.render_context(assembled, snapshot, limit=n)
+
+    return context_cut.deliver(bibs, render_top, count, k, budget)
 
 
 def _assembled_for(sft_context: Any, query: str, ranking: list[tuple[str, float]],
@@ -366,16 +378,9 @@ def _cut_rows(qid: str, expected: list[str], assembled: Any, snapshot: Any, sft_
               log_drops: bool) -> dict[str, dict[str, Any]]:
     """Apply the D1 overflow policy at every cut for one query's ranking."""
     bibs = [r.bibcode for r in assembled.retrieved]
-    cache: dict[int, str] = {}
-
-    def render_top(n: int) -> str:
-        if n not in cache:
-            cache[n] = sft_context.render_context(assembled, snapshot, limit=n)
-        return cache[n]
-
     out: dict[str, dict[str, Any]] = {}
     for k in cuts:
-        d = context_cut.deliver(bibs, render_top, count, k, budget)
+        d = _d1_delivery(sft_context, assembled, snapshot, count, k, budget)
         out[str(k)] = {
             "n_rendered": d.n_rendered, "n_delivered": d.n_delivered,
             "rendered_tokens": d.rendered_tokens, "delivered_tokens": d.delivered_tokens,
@@ -408,10 +413,15 @@ def _select(agg: dict[str, Any], cuts: tuple[int, ...]) -> dict[str, Any]:
         {k: agg[str(k)]["all"]["delivered_recall"] for k in cuts},
         {k: agg[str(k)]["all"]["fit_rate"] for k in cuts},
     )
-    return {"k": sel.k, "branch": sel.branch, "reference_k": context_cut.REFERENCE_K,
+    return {"rule": "literal (k=50 is a first-branch candidate; the fallback is unreachable)",
+            "k": sel.k, "branch": sel.branch, "reference_k": context_cut.REFERENCE_K,
             "reference_recall": sel.reference_recall, "recall_gap": sel.recall_gap,
-            "literal_reading_k": sel.literal_k, "tolerance": context_cut.TOLERANCE,
-            "min_fit_rate": context_cut.MIN_FIT_RATE, "slice": "all", "reason": sel.reason}
+            "tolerance": context_cut.TOLERANCE, "min_fit_rate": context_cut.MIN_FIT_RATE,
+            "slice": "all", "reason": sel.reason,
+            "strict_k": sel.strict_k, "strict_branch": sel.strict_branch,
+            "strict_recall_gap": sel.strict_recall_gap,
+            "strict_note": "secondary readout: first branch restricted to k < 50, so the "
+                           "fallback can fire; not the selection"}
 
 
 def run_d1(queries_path: Path, known_item_path: Path, cuts: tuple[int, ...], budget: int,
@@ -577,11 +587,10 @@ def _md_d1(results: dict[str, Any]) -> str:
     g100 = gates["pool100_hybrid"]
     g50 = gates["pool50_all"]
     diag = results["serving_path_diagnostic"]
-    k_line = (f"**Candidate per pre-registered rule: k = {sel['k']}** — branch "
-              f"`{sel['branch']}`: {sel['reason']}.")
-    if sel["literal_reading_k"] != sel["k"]:
-        k_line += (f" (Reading in which k = {sel['reference_k']} may win the first branch "
-                   f"against itself: k = {sel['literal_reading_k']}.)")
+    k_line = (f"**Candidate per pre-registered rule (literal): k = {sel['k']}** — branch "
+              f"`{sel['branch']}`: {sel['reason']}. Secondary readout (first branch restricted "
+              f"to k < {sel['reference_k']}, not the selection): `strict_k` = {sel['strict_k']} "
+              f"(`{sel['strict_branch']}`).")
     drops = [
         f"| {q['id']} | {k} | {c['rendered_tokens']:,} | {c['n_dropped']} "
         f"| {c['delivered_tokens']:,} |"
@@ -850,9 +859,9 @@ def _main_d1(queries: Path, known_item: Path, cuts: tuple[int, ...], budget: int
     err.log(f"tokenizer={cfg['tokenizer']['name']}@{cfg['tokenizer']['revision']} "
             f"budget={cfg['budget']} cuts={cfg['cuts']} scored={cfg['n_scored']}")
     print(_md_d1_table(results["aggregate"], cuts))
-    print(f"\ncandidate per pre-registered rule: k = {sel['k']} [{sel['branch']}] — {sel['reason']}"
-          + (f" (literal reading: k = {sel['literal_reading_k']})"
-             if sel["literal_reading_k"] != sel["k"] else ""))
+    print(f"\ncandidate per pre-registered rule (literal): k = {sel['k']} [{sel['branch']}] — "
+          f"{sel['reason']} | strict_k (k<50 reading, secondary) = {sel['strict_k']} "
+          f"[{sel['strict_branch']}]")
     diag = results["serving_path_diagnostic"]
     if diag["n_identical_top100"] != diag["n_queries"]:
         err.log(f"[yellow]serving-path diagnostic:[/yellow] retrieve(k=100, pool=100) matches "

@@ -26,7 +26,7 @@ Generated 2026-11-02 by `packages/evaluation/src/pool_sweep.py --d1-cut` (raw: [
 
 Token columns are the **rendered top-k (pre-drop)** context tokens over all scored queries (p95: linear interpolation). Known-item / broad-entity columns are delivered recall on those partitions (broad-entity is a coverage measurement, not true recall). Max rendered tokens: k=10 5,146, k=20 10,578, k=30 16,099, k=50 25,753 (budget 16,384).
 
-**Candidate per pre-registered rule: k = 30** — branch `within_tolerance`: smallest k with delivered recall within 0.05 of delivered R@50 (0.741); gap +0.034.
+**Candidate per pre-registered rule (literal): k = 30** — branch `within_tolerance`: smallest k with delivered recall within 0.05 of delivered R@50 (0.741); gap +0.034. Secondary readout (first branch restricted to k < 50, not the selection): `strict_k` = 30 (`within_tolerance`).
 
 ### Overflow log (whole abstracts dropped from the bottom)
 

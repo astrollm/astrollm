@@ -1,7 +1,7 @@
 {
   "config": {
     "decision": "D1 (docs/V1_PLAN_R2.md, pre-registered constants)",
-    "generated_at": "2026-11-02T04:56:43Z",
+    "generated_at": "2026-11-02T05:46:37Z",
     "cuts": [
       10,
       20,
@@ -23,7 +23,8 @@
       "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
       "class": "TokenizersBackend",
       "vocab_size": 248077,
-      "add_special_tokens": false
+      "add_special_tokens": false,
+      "counter": "context_cut.qwen_token_counter"
     },
     "retriever_config": {
       "arm": "hybrid",
@@ -272,16 +273,20 @@
     }
   },
   "selection": {
+    "rule": "literal (k=50 is a first-branch candidate; the fallback is unreachable)",
     "k": 30,
     "branch": "within_tolerance",
     "reference_k": 50,
     "reference_recall": 0.7413793103448276,
     "recall_gap": 0.034482758620689724,
-    "literal_reading_k": 30,
     "tolerance": 0.05,
     "min_fit_rate": 0.95,
     "slice": "all",
-    "reason": "smallest k with delivered recall within 0.05 of delivered R@50 (0.741); gap +0.034"
+    "reason": "smallest k with delivered recall within 0.05 of delivered R@50 (0.741); gap +0.034",
+    "strict_k": 30,
+    "strict_branch": "within_tolerance",
+    "strict_recall_gap": 0.034482758620689724,
+    "strict_note": "secondary readout: first branch restricted to k < 50, so the fallback can fire; not the selection"
   },
   "per_query": [
     {
@@ -2406,16 +2411,20 @@
       }
     },
     "selection_if_applied": {
+      "rule": "literal (k=50 is a first-branch candidate; the fallback is unreachable)",
       "k": 30,
       "branch": "within_tolerance",
       "reference_k": 50,
       "reference_recall": 0.7413793103448276,
       "recall_gap": 0.034482758620689724,
-      "literal_reading_k": 30,
       "tolerance": 0.05,
       "min_fit_rate": 0.95,
       "slice": "all",
-      "reason": "smallest k with delivered recall within 0.05 of delivered R@50 (0.741); gap +0.034"
+      "reason": "smallest k with delivered recall within 0.05 of delivered R@50 (0.741); gap +0.034",
+      "strict_k": 30,
+      "strict_branch": "within_tolerance",
+      "strict_recall_gap": 0.034482758620689724,
+      "strict_note": "secondary readout: first branch restricted to k < 50, so the fallback can fire; not the selection"
     },
     "per_query": [
       {

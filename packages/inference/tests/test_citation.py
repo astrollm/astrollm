@@ -15,6 +15,7 @@ from citation import (
     ABSTAIN_REASONS,
     BIBCODE_RE,
     check_citations,
+    count_sentences,
     extract_bibcodes,
     parse_answer,
     strip_think,
@@ -298,3 +299,109 @@ def test_pilot_expected_bibcodes_all_match_regex_fully() -> None:
     assert bibcodes, "no expected_bibcodes found — wrong file?"
     bad = [b for b in bibcodes if not BIBCODE_RE.fullmatch(b)]
     assert bad == []
+
+
+# --- Codex round (PR #17) ---------------------------------------------------------------------
+
+CORPUS = REPO_ROOT / "data" / "raw" / "ads_exoplanet_atmospheres_widened" / "abstracts.jsonl"
+
+
+@pytest.mark.parametrize("prefix", [".", "..", "&", "A&", "x."])
+def test_regex_sees_bibcode_right_after_dot_or_ampersand(prefix: str) -> None:
+    # Finding 1: the old lookbehind hid e.g. "...2019A&A...621A..68P." from the guard.
+    assert extract_bibcodes(f"see {prefix}{AANDA}.") == [AANDA]
+    guard = check_citations(parse_answer(f"Claim [{B1}] and {prefix}{AANDA}."), {B1})
+    assert guard.violations == [AANDA]
+
+
+@pytest.mark.skipif(not CORPUS.exists(), reason="frozen corpus is local-only (data/raw)")
+def test_regex_matches_every_frozen_corpus_bibcode() -> None:
+    import json
+
+    bibcodes = [json.loads(line)["bibcode"] for line in CORPUS.read_text().splitlines() if line]
+    assert len(bibcodes) == 2500
+    assert [b for b in bibcodes if not BIBCODE_RE.fullmatch(b)] == []
+
+
+def test_sentence_line_break_inside_a_sentence_is_not_a_boundary() -> None:
+    # Finding 2a: whitespace is normalised before splitting.
+    parsed = parse_answer("ABSTAIN: thin. The abstracts mention\nthe planet only\n\nin passing.")
+    assert parsed.abstain_sentences == 1
+    assert parsed.pure_abstention
+
+
+@pytest.mark.parametrize("closer", ['"', "”", "’", ")", "]"])
+def test_sentence_terminator_before_closing_quote_or_bracket_ends_sentence(closer: str) -> None:
+    # Finding 2b.
+    assert count_sentences(f"It is thin.{closer} A second sentence.") == 2
+    parsed = parse_answer(f"ABSTAIN: thin. It is thin.{closer} A second sentence.")
+    assert parsed.mixed
+
+
+@pytest.mark.parametrize(
+    "abbr",
+    ["Dr.", "Mr.", "Ms.", "Prof.", "Fig.", "Eq.", "Sect.", "e.g.", "i.e.", "et al.", "vs.",
+     "ca.", "approx.", "No.", "J."],
+)
+def test_sentence_abbreviations_and_initials_do_not_split(abbr: str) -> None:
+    # Finding 2c: the fixed abbreviation list plus single capital initials.
+    assert count_sentences(f"Only {abbr} Smith reports this value.") == 1
+    parsed = parse_answer(f"ABSTAIN: thin. Only {abbr} Smith reports this value.")
+    assert parsed.pure_abstention
+
+
+def test_sources_line_alone_does_not_satisfy_must_cite() -> None:
+    # Finding 3: the uncited check uses inline bibcodes only.
+    parsed = parse_answer(f"CO2 was detected in WASP-39b.\nSources: {B1}")
+    assert parsed.inline_bibcodes == []
+    assert parsed.sources_bibcodes == [B1]
+    result = check_citations(parsed, {B1})
+    assert result.status == "violation"
+    assert result.violations == []
+    assert not result.uncited_ok
+
+
+def test_earlier_sources_line_is_malformed_and_still_allowlist_checked() -> None:
+    # Finding 4: only the last non-empty line may be the Sources line.
+    parsed = parse_answer(f"Claim [{B1}].\nSources: {B3}\nMore detail [{B1}].")
+    assert parsed.sources_line_malformed
+    assert parsed.sources_line is None
+    assert parsed.inline_bibcodes == [B1]
+    assert parsed.sources_bibcodes == [B3]
+    assert check_citations(parsed, {B1}).violations == [B3]
+
+
+def test_second_sources_line_is_malformed() -> None:
+    parsed = parse_answer(f"Claim [{B1}].\nSources: {B1}\nSources: {B2}")
+    assert parsed.sources_line_malformed
+    assert parsed.sources_bibcodes == [B1, B2]
+    assert check_citations(parsed, {B1}).violations == [B2]
+
+
+@pytest.mark.parametrize("text", [f"Claim [{B1}].\nSource: {B1}", f"Source: {B2}\nClaim [{B1}]."])
+def test_singular_source_line_is_malformed_anywhere(text: str) -> None:
+    parsed = parse_answer(text)
+    assert parsed.sources_line_malformed
+    assert parsed.inline_bibcodes == [B1]
+
+
+def test_trailing_source_line_never_counts_as_inline_citation() -> None:
+    parsed = parse_answer(f"An uncited claim.\nSource: {B1}")
+    assert parsed.sources_line_malformed
+    assert parsed.inline_bibcodes == []
+    assert not check_citations(parsed, {B1}).uncited_ok
+
+
+def test_misplaced_abstain_marker_is_recorded_not_reclassified() -> None:
+    # Finding 5: marker_misplaced is recorded; classification stays non-abstaining.
+    parsed = parse_answer(f"CO2 was detected [{B1}]. ABSTAIN: thin.")
+    assert not parsed.is_abstain
+    assert parsed.marker_misplaced
+    assert parsed.to_dict()["marker_misplaced"] is True
+    assert check_citations(parsed, {B1}).status == "pass"
+
+
+def test_leading_abstain_marker_is_not_misplaced() -> None:
+    parsed = parse_answer("ABSTAIN: absent. None of the abstracts discuss it.")
+    assert parsed.pure_abstention
+    assert not parsed.marker_misplaced

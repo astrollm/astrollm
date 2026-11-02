@@ -30,6 +30,7 @@ import hashlib
 import json
 import os
 import sys
+import tempfile
 import time
 import uuid
 from collections.abc import Callable
@@ -55,10 +56,10 @@ for _p in (_SRC_DIR, _SFT_SRC, _EVAL_SRC):
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
 
-# The pure D1 overflow policy, the frozen renderer and the D4 guard are imported, never rewritten.
+# The pure D1 overflow policy + shared Qwen token counter, the frozen renderer and the D4 guard
+# are imported, never rewritten: serving counts tokens exactly as D1 measurement and authoring do.
 from citation import (  # noqa: E402
     GuardResult,
-    ParsedAnswer,
     check_citations,
     parse_answer,
     strip_think,
@@ -75,7 +76,7 @@ from context import (  # noqa: E402
     retriever_config,
     utc_stamp,
 )
-from context_cut import BUDGET, deliver  # noqa: E402
+from context_cut import BUDGET, QWEN_TOKENIZER, deliver, qwen_token_counter  # noqa: E402
 from corpus import DEFAULT_CORPUS_PATH, CorpusSnapshot  # noqa: E402
 from schema import Retrieved  # noqa: E402
 
@@ -87,7 +88,6 @@ DEFAULT_LLM_MODEL = "qwen3.5-9b"
 DEFAULT_TEMPERATURE = 0.2
 DEFAULT_MAX_TOKENS = 2048
 LLM_TIMEOUT_S = 300.0
-TOKENIZE_TIMEOUT_S = 30.0
 TRANSCRIPT_DIR = REPO_ROOT / "data" / "eval" / "transcripts"
 LIVE_TRANSCRIPT_DIR = TRANSCRIPT_DIR / "live"
 LIVE_ROWS = 10
@@ -205,14 +205,9 @@ def final_status(first: GuardResult, second: GuardResult | None) -> str:
     return "flagged"
 
 
-def server_root(base_url: str) -> str:
-    """``http://host:port/v1`` → ``http://host:port`` (llama-server's non-OpenAI endpoints)."""
-    root = base_url.rstrip("/")
-    return root[: -len("/v1")] if root.endswith("/v1") else root
-
-
 def transcript_path(directory: Path, session_id: str, day: str) -> Path:
-    return directory / f"{day}-{session_id[:8]}.jsonl"
+    """``<day>-<full session id>.jsonl`` — the whole id, so same-day sessions never collide."""
+    return directory / f"{day}-{session_id}.jsonl"
 
 
 def resolve_temperature(cli_value: float | None) -> float:
@@ -232,45 +227,20 @@ def retag_last_turn(path: Path, tag: str) -> bool:
     record = json.loads(lines[-1])
     record["tag"] = tag
     lines[-1] = json.dumps(record, ensure_ascii=False)
-    path.write_text("\n".join(lines) + "\n")
+    _atomic_write(path, "\n".join(lines) + "\n")
     return True
 
 
-# ── Token counting (llama-server /tokenize; chars/4 fallback) ────────────────
-
-
-class TokenCounter:
-    """Counts tokens with the served model's tokenizer; falls back to ``len(text)//4``."""
-
-    def __init__(self, base_url: str, client: httpx.Client) -> None:
-        self.url = f"{server_root(base_url)}/tokenize"
-        self.client = client
-        self.fallback = False
-        self._cache: dict[str, int] = {}
-
-    @property
-    def source(self) -> str:
-        return "chars/4 (fallback)" if self.fallback else f"llama-server {self.url}"
-
-    def __call__(self, text: str) -> int:
-        if text in self._cache:
-            return self._cache[text]
-        n: int | None = None
-        if not self.fallback:
-            try:
-                r = self.client.post(self.url, json={"content": text}, timeout=TOKENIZE_TIMEOUT_S)
-                r.raise_for_status()
-                n = len(r.json()["tokens"])
-            except (httpx.HTTPError, KeyError, ValueError) as exc:
-                self.fallback = True
-                err.print(
-                    f"[yellow]WARNING: {self.url} unavailable ({type(exc).__name__}); "
-                    "counting tokens as len(text)//4 — the budget is approximate.[/yellow]"
-                )
-        if n is None:
-            n = len(text) // 4
-        self._cache[text] = n
-        return n
+def _atomic_write(path: Path, text: str) -> None:
+    """Write via a temp file in the same directory + ``os.replace`` (never a truncated file)."""
+    fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(text)
+        os.replace(tmp, path)
+    except BaseException:
+        Path(tmp).unlink(missing_ok=True)
+        raise
 
 
 # ── Retrieval + context ──────────────────────────────────────────────────────
@@ -451,6 +421,7 @@ class Settings:
     dry_run: bool
     tag: str | None
     corpus: Path
+    tokenizer: str = QWEN_TOKENIZER
 
 
 def _load_tools() -> ModuleType | None:
@@ -463,13 +434,25 @@ def _load_tools() -> ModuleType | None:
 
 
 class Session:
-    def __init__(self, settings: Settings) -> None:
+    """One CLI session. ``retriever``/``client``/``transcript_dir``/``count_tokens`` are injectable
+    for offline tests (a fake retriever, an ``httpx.MockTransport`` client, a temp directory, a
+    fake counter)."""
+
+    def __init__(
+        self,
+        settings: Settings,
+        *,
+        retriever: GroundedRetriever | None = None,
+        client: httpx.Client | None = None,
+        transcript_dir: Path | None = None,
+        count_tokens: Callable[[str], int] | None = None,
+    ) -> None:
         self.s = settings
         self.id = uuid.uuid4().hex
         self.turn = 0
-        self.client = httpx.Client()
-        self.count = TokenCounter(settings.base_url, self.client)
-        self.retriever = GroundedRetriever(settings.corpus)
+        self.client = client or httpx.Client()
+        self._count = count_tokens
+        self.retriever = retriever or GroundedRetriever(settings.corpus)
         self.tools: ModuleType | None = None
         self.live = False
         if settings.live:
@@ -479,12 +462,21 @@ class Session:
             else:
                 self.live = True
         directory = LIVE_TRANSCRIPT_DIR if self.live else TRANSCRIPT_DIR
+        if transcript_dir is not None:
+            directory = transcript_dir / "live" if self.live else transcript_dir
         day = datetime.now(UTC).date().isoformat()
         self.path = transcript_path(directory, self.id, day)
 
     @property
     def mode(self) -> str:
         return "live" if self.live else "grounded"
+
+    def count_tokens(self) -> Callable[[str], int]:
+        """The shared D1 Qwen counter, loaded once per session on first use (inside a turn, so a
+        load failure fails that turn loudly and is logged). There is no fallback counter."""
+        if self._count is None:
+            self._count = qwen_token_counter(self.s.tokenizer)
+        return self._count
 
     def show_simbad(self, name: str) -> None:
         """Display-only SIMBAD card: never enters the context or the allowlist."""
@@ -503,66 +495,17 @@ class Session:
         return chat_completion(self.client, self.s.base_url, body)
 
     def run_turn(self, query: str, tag: str | None = None) -> dict[str, Any] | None:
-        """One grounded (or live) turn. Returns the transcript record (None on --dry-run)."""
+        """One grounded (or live) turn. Returns the transcript record (None on --dry-run).
+
+        Every non-dry-run turn leaves exactly one transcript line, failures included: an
+        exception (empty retrieval, DB error, first-call LLM timeout/HTTP error) writes a record
+        with ``error: {type, message}`` plus whatever was built so far, then re-raises. A
+        regeneration failure is not re-raised: the first answer is kept, status ``flagged``.
+        """
         t0 = time.perf_counter()
         s = self.s
-        grounding = self.retriever.retrieve(query, s.k, s.pool)
-        ctx = build_grounded_context(grounding, self.retriever.snapshot, self.count, s.budget)
-        live: LiveContext | None = None
-        if self.live and self.tools is not None:
-            live = build_live_context(self.tools, query, ctx, self.count, s.budget)
-        allowlist = list(ctx.delivered) + (live.bibcodes if live else [])
-        messages = build_messages(ctx.text, query, live.text if live else None)
-
-        summary = (
-            f"mode={self.mode} k={s.k} delivered={len(ctx.delivered)} dropped={len(ctx.dropped)} "
-            f"context_tokens={ctx.tokens}/{s.budget} counter={self.count.source}"
-        )
-        if live is not None:
-            summary += (
-                f" live={len(live.bibcodes)} live_dropped_budget={len(live.dropped_budget)} "
-                f"live_dropped_no_abstract={len(live.dropped_no_abstract)}"
-            )
-        if ctx.dropped:
-            err.print(
-                f"[yellow]budget: dropped {len(ctx.dropped)} abstract(s) from the bottom of the "
-                f"top-{s.k}: {', '.join(ctx.dropped)}[/yellow]",
-                highlight=False,
-            )
-        if s.dry_run:
-            err.print(f"[bold]DRY RUN[/bold] — no LLM call. {summary}", highlight=False)
-            body = chat_request_body(s.model, messages, s.temperature, s.max_tokens)
-            print(json.dumps(body, ensure_ascii=False, indent=2), flush=True)
-            return None
-
-        first = self._ask_llm(messages)
-        parsed1 = parse_answer(first.text)
-        guard1 = check_citations(parsed1, set(allowlist))
-        second: Completion | None = None
-        parsed2: ParsedAnswer | None = None
-        guard2: GuardResult | None = None
-        if guard1.status == "violation":
-            err.print(
-                f"[yellow]citation guard: violation (not in context: "
-                f"{escape(', '.join(guard1.violations)) or '-'}; cites nothing: "
-                f"{not guard1.uncited_ok}) — regenerating once[/yellow]",
-                highlight=False,
-            )
-            retry = [
-                *messages,
-                {"role": "assistant", "content": first.text},
-                {"role": "user", "content": corrective_message(guard1)},
-            ]
-            second = self._ask_llm(retry)
-            parsed2 = parse_answer(second.text)
-            guard2 = check_citations(parsed2, set(allowlist))
-        status = final_status(guard1, guard2)
-        final, parsed, guard = (
-            (second, parsed2, guard2) if second is not None else (first, parsed1, guard1)
-        )
-        assert final is not None and parsed is not None and guard is not None
-        self.turn += 1
-        a = grounding.assembled
+        if not s.dry_run:
+            self.turn += 1
         record: dict[str, Any] = {
             "ts": datetime.now(UTC).isoformat(timespec="seconds"),
             "session_id": self.id,
@@ -574,60 +517,173 @@ class Session:
             "pool": s.pool,
             "budget": s.budget,
             "query": query,
-            "allowlist": allowlist,
-            "pool_bibcodes": grounding.pool_bibcodes,
-            "dropped_bibcodes": ctx.dropped,
-            "delivered_n": len(ctx.delivered),
-            "dropped_n": len(ctx.dropped),
-            "context_tokens": ctx.tokens,
-            "token_counter": self.count.source,
             "temperature": s.temperature,
             "max_tokens": s.max_tokens,
-            "answer": final.text,
-            "first_answer": first.text if second is not None else None,
-            "parsed": parsed.to_dict(),
-            "first_parsed": parsed1.to_dict() if second is not None else None,
-            "guard": {
-                "status": status,
-                "violations": guard.violations,
-                "first_violations": guard1.violations if second is not None else None,
-                "uncited_ok": guard.uncited_ok,
-                "regenerated": second is not None,
-                "abstain_with_citation": guard.abstain_with_citation,
-            },
-            "had_think": first.had_think or (second.had_think if second else False),
             "tag": tag,
-            "latency_ms": round((time.perf_counter() - t0) * 1000),
-            "llm_latency_ms": [first.latency_ms] + ([second.latency_ms] if second else []),
-            "usage": [first.usage] + ([second.usage] if second else []),
-            "finish_reason": final.finish_reason,
+            "tokenizer": s.tokenizer,
             "system_prompt_sha": SYSTEM_PROMPT_SHA,
-            "retriever_run_id": a.retriever_run_id,
-            "corpus_snapshot_hash": a.corpus_snapshot_hash,
         }
-        if live is not None:
-            record["live_bibcodes"] = live.bibcodes
-            record["live_dropped_no_abstract"] = live.dropped_no_abstract
-            record["live_dropped_budget"] = live.dropped_budget
-            record["live_dropped_duplicate"] = live.dropped_duplicate
-            record["live_tokens"] = live.tokens
+        try:
+            done = self._turn(query, record)
+        except Exception as exc:
+            if not s.dry_run:
+                record["error"] = {"type": type(exc).__name__, "message": str(exc)}
+                self._write(record, t0)
+            raise
+        if not done:
+            return None
+        self._write(record, t0)
+        self._report(record)
+        return record
+
+    def _write(self, record: dict[str, Any], t0: float) -> None:
+        record["latency_ms"] = round((time.perf_counter() - t0) * 1000)
         _append_jsonl(self.path, record)
 
-        print(final.text, flush=True)
-        if status == "flagged":
+    def _turn(self, query: str, record: dict[str, Any]) -> bool:
+        """Fill ``record`` stage by stage (so a failure keeps what exists). False on dry-run."""
+        s = self.s
+        grounding = self.retriever.retrieve(query, s.k, s.pool)
+        a = grounding.assembled
+        record.update(
+            pool_bibcodes=grounding.pool_bibcodes,
+            retriever_run_id=a.retriever_run_id,
+            corpus_snapshot_hash=a.corpus_snapshot_hash,
+        )
+        count = self.count_tokens()
+        ctx = build_grounded_context(grounding, self.retriever.snapshot, count, s.budget)
+        live: LiveContext | None = None
+        if self.live and self.tools is not None:
+            live = build_live_context(self.tools, query, ctx, count, s.budget)
+        allowlist = list(ctx.delivered) + (live.bibcodes if live else [])
+        record.update(
+            allowlist=allowlist,
+            dropped_bibcodes=ctx.dropped,
+            delivered_n=len(ctx.delivered),
+            dropped_n=len(ctx.dropped),
+            context_tokens=ctx.tokens,
+        )
+        if live is not None:
+            record.update(
+                live_bibcodes=live.bibcodes,
+                live_dropped_no_abstract=live.dropped_no_abstract,
+                live_dropped_budget=live.dropped_budget,
+                live_dropped_duplicate=live.dropped_duplicate,
+                live_tokens=live.tokens,
+            )
+        messages = build_messages(ctx.text, query, live.text if live else None)
+        if ctx.dropped:
+            err.print(
+                f"[yellow]budget: dropped {len(ctx.dropped)} abstract(s) from the bottom of the "
+                f"top-{s.k}: {', '.join(ctx.dropped)}[/yellow]",
+                highlight=False,
+            )
+        if s.dry_run:
+            err.print(f"[bold]DRY RUN[/bold] — no LLM call. {_summary(record)}", highlight=False)
+            body = chat_request_body(s.model, messages, s.temperature, s.max_tokens)
+            print(json.dumps(body, ensure_ascii=False, indent=2), flush=True)
+            return False
+
+        first = self._ask_llm(messages)
+        parsed1 = parse_answer(first.text)
+        guard1 = check_citations(parsed1, set(allowlist))
+        record.update(
+            answer=first.text,
+            first_answer=None,
+            parsed=parsed1.to_dict(),
+            first_parsed=None,
+            guard=_guard_view(final_status(guard1, None), guard1, first=None),
+            had_think=first.had_think,
+            llm_latency_ms=[first.latency_ms],
+            usage=[first.usage],
+            finish_reason=first.finish_reason,
+        )
+        if guard1.status == "pass":
+            return True
+
+        # Violation: the record already reads "flagged" with the first answer and its
+        # violations, so a failed regeneration leaves an honest record.
+        record.update(first_answer=first.text, first_parsed=parsed1.to_dict())
+        record["guard"]["first_violations"] = guard1.violations
+        err.print(
+            f"[yellow]citation guard: violation (not in context: "
+            f"{escape(', '.join(guard1.violations)) or '-'}; cites nothing inline: "
+            f"{not guard1.uncited_ok}) — regenerating once[/yellow]",
+            highlight=False,
+        )
+        retry = [
+            *messages,
+            {"role": "assistant", "content": first.text},
+            {"role": "user", "content": corrective_message(guard1)},
+        ]
+        try:
+            second = self._ask_llm(retry)
+        except httpx.HTTPError as exc:
+            record["error"] = {"type": type(exc).__name__, "message": str(exc)}
+            record["guard"]["regen_failed"] = True
+            err.print(
+                f"[red]regeneration failed ({type(exc).__name__}: {escape(str(exc))}); keeping "
+                "the first answer, flagged.[/red]"
+            )
+            return True
+        parsed2 = parse_answer(second.text)
+        guard2 = check_citations(parsed2, set(allowlist))
+        record.update(
+            answer=second.text,
+            parsed=parsed2.to_dict(),
+            guard=_guard_view(final_status(guard1, guard2), guard2, first=guard1),
+            had_think=first.had_think or second.had_think,
+            llm_latency_ms=[first.latency_ms, second.latency_ms],
+            usage=[first.usage, second.usage],
+            finish_reason=second.finish_reason,
+        )
+        return True
+
+    def _report(self, record: dict[str, Any]) -> None:
+        """Answer → stdout; guard warning + summary → stderr."""
+        guard = record["guard"]
+        print(record["answer"], flush=True)
+        if guard["status"] == "flagged":
             err.print(
                 f"[bold red]WARNING: citation guard FLAGGED this answer (not in context: "
-                f"{escape(', '.join(guard.violations)) or '-'}; cites nothing: "
-                f"{not guard.uncited_ok}). Treat it as unverified.[/bold red]",
+                f"{escape(', '.join(guard['violations'])) or '-'}; cites nothing inline: "
+                f"{not guard['uncited_ok']}). Treat it as unverified.[/bold red]",
                 highlight=False,
             )
         err.print(
-            f"[dim]guard={status} regenerated={second is not None} "
-            f"abstain={parsed.pure_abstention} {summary} latency={record['latency_ms']} ms "
-            f"→ {self.path}[/dim]",
+            f"[dim]guard={guard['status']} regenerated={guard['regenerated']} "
+            f"abstain={record['parsed']['pure_abstention']} {_summary(record)} "
+            f"latency={record['latency_ms']} ms → {self.path}[/dim]",
             highlight=False,
         )
-        return record
+
+
+def _guard_view(status: str, guard: GuardResult, *, first: GuardResult | None) -> dict[str, Any]:
+    """Transcript ``guard`` block for the answer that ``guard`` checked."""
+    return {
+        "status": status,
+        "violations": guard.violations,
+        "first_violations": first.violations if first is not None else None,
+        "uncited_ok": guard.uncited_ok,
+        "regenerated": first is not None,
+        "regen_failed": False,
+        "abstain_with_citation": guard.abstain_with_citation,
+    }
+
+
+def _summary(record: dict[str, Any]) -> str:
+    out = (
+        f"mode={record['mode']} k={record['k']} delivered={record['delivered_n']} "
+        f"dropped={record['dropped_n']} context_tokens={record['context_tokens']}/"
+        f"{record['budget']} tokenizer={record['tokenizer']}"
+    )
+    if "live_bibcodes" in record:
+        out += (
+            f" live={len(record['live_bibcodes'])} "
+            f"live_dropped_budget={len(record['live_dropped_budget'])} "
+            f"live_dropped_no_abstract={len(record['live_dropped_no_abstract'])}"
+        )
+    return out
 
 
 def _append_jsonl(path: Path, record: dict[str, Any]) -> None:
@@ -641,7 +697,7 @@ def _append_jsonl(path: Path, record: dict[str, Any]) -> None:
 
 def _settings(
     *, k: int, pool: int, budget: int, tag: Tag | None, live: bool, dry_run: bool,
-    max_tokens: int, temperature: float | None, corpus: Path,
+    max_tokens: int, temperature: float | None, corpus: Path, tokenizer: str,
 ) -> Settings:
     load_dotenv(REPO_ROOT / ".env")
     if pool != POOL:
@@ -660,6 +716,7 @@ def _settings(
         dry_run=dry_run,
         tag=tag.value if tag else None,
         corpus=corpus if corpus.is_absolute() else REPO_ROOT / corpus,
+        tokenizer=tokenizer,
     )
 
 
@@ -670,17 +727,18 @@ def _run_or_report(session: Session, query: str, tag: str | None) -> bool:
     except httpx.HTTPError as exc:
         err.print(
             f"[red]LLM call failed ({type(exc).__name__}: {escape(str(exc))}). Is llama-server "
-            f"running at {session.s.base_url}?[/red]"
+            f"running at {session.s.base_url}? (turn logged with its error)[/red]"
         )
         return False
-    except RuntimeError as exc:
-        err.print(f"[red]{escape(str(exc))}[/red]")
+    except Exception as exc:  # CLI boundary: report, keep the REPL alive; the turn is logged
+        err.print(f"[red]{type(exc).__name__}: {escape(str(exc))}[/red]")
         return False
     return True
 
 
 _K_HELP = "Serving context k: top-k of the fused pool ranking (default: context.K, the D1 value)."
 _TEMP_HELP = f"Sampling temperature (default: $LLM_TEMPERATURE or {DEFAULT_TEMPERATURE})."
+_TOKENIZER_HELP = "HF tokenizer for the D1 budget (the shared context_cut counter; no fallback)."
 _LIVE_HELP = "Live mode (flagged experiment): add live ADS results; separate transcript log."
 
 
@@ -697,11 +755,12 @@ def ask(
     temperature: float | None = typer.Option(None, help=_TEMP_HELP),
     simbad: str | None = typer.Option(None, help="Show a SIMBAD card (display only)."),
     corpus: Path = typer.Option(DEFAULT_CORPUS_PATH, help="Frozen corpus snapshot JSONL."),
+    tokenizer: str = typer.Option(QWEN_TOKENIZER, help=_TOKENIZER_HELP),
 ) -> None:
     """Answer one question (answer → stdout, everything else → stderr)."""
     settings = _settings(
         k=k, pool=pool, budget=budget, tag=tag, live=live, dry_run=dry_run,
-        max_tokens=max_tokens, temperature=temperature, corpus=corpus,
+        max_tokens=max_tokens, temperature=temperature, corpus=corpus, tokenizer=tokenizer,
     )
     session = Session(settings)
     if simbad:
@@ -726,11 +785,12 @@ def chat(
     max_tokens: int = typer.Option(DEFAULT_MAX_TOKENS, help="Answer token allowance."),
     temperature: float | None = typer.Option(None, help=_TEMP_HELP),
     corpus: Path = typer.Option(DEFAULT_CORPUS_PATH, help="Frozen corpus snapshot JSONL."),
+    tokenizer: str = typer.Option(QWEN_TOKENIZER, help=_TOKENIZER_HELP),
 ) -> None:
     """Interactive REPL (rich prompt on stderr; answers on stdout)."""
     settings = _settings(
         k=k, pool=pool, budget=budget, tag=tag, live=live, dry_run=dry_run,
-        max_tokens=max_tokens, temperature=temperature, corpus=corpus,
+        max_tokens=max_tokens, temperature=temperature, corpus=corpus, tokenizer=tokenizer,
     )
     session = Session(settings)
     err.print(

@@ -27,6 +27,7 @@ from __future__ import annotations
 import math
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
+from functools import lru_cache
 from statistics import median
 from typing import Any
 
@@ -153,14 +154,50 @@ def summarize(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
 
 @dataclass(frozen=True)
 class Selection:
-    """Outcome of the pre-registered D1 selection rule."""
+    """Outcome of the pre-registered D1 selection rule (literal), plus the strict reading."""
 
-    k: int | None  # the candidate k (None only if no cut fits on >= MIN_FIT_RATE of queries)
+    k: int | None  # the selected k under the LITERAL rule (the pre-registered selection)
     branch: str  # "within_tolerance" | "fallback_budget_fit" | "none"
     reference_recall: float  # delivered R@REFERENCE_K
     recall_gap: float | None  # reference_recall - delivered recall at k
-    literal_k: int | None  # the result if REFERENCE_K itself is eligible in the first branch
     reason: str
+    # Secondary, reported only: the "k < reference_k" reading, in which the reference cut cannot
+    # win the first branch against itself, so the fallback can fire. Never the selection.
+    strict_k: int | None
+    strict_branch: str
+    strict_recall_gap: float | None
+
+
+def _apply_rule(
+    candidates: Sequence[int],
+    delivered_recall: Mapping[int, float],
+    fit_rate: Mapping[int, float],
+    reference_k: int,
+    tolerance: float,
+    min_fit_rate: float,
+) -> tuple[int | None, str, float | None, str]:
+    """First branch over ``candidates``; fallback over every cut → (k, branch, gap, reason)."""
+    ref = delivered_recall[reference_k]
+    for k in sorted(candidates):
+        gap = ref - delivered_recall[k]
+        if gap <= tolerance + _EPS:
+            return k, "within_tolerance", gap, (
+                f"smallest k with delivered recall within {tolerance} of delivered "
+                f"R@{reference_k} ({ref:.3f}); gap {gap:+.3f}"
+            )
+    fitting = [k for k in delivered_recall if fit_rate[k] + _EPS >= min_fit_rate]
+    if not fitting:
+        return None, "none", None, (
+            f"no candidate within {tolerance} of delivered R@{reference_k} and no k fits the "
+            f"budget on >= {min_fit_rate:.0%} of queries"
+        )
+    k = max(fitting)
+    gap = ref - delivered_recall[k]
+    return k, "fallback_budget_fit", gap, (
+        f"no candidate within {tolerance} of delivered R@{reference_k} ({ref:.3f}); largest k "
+        f"fitting on >= {min_fit_rate:.0%} of queries (fit {fit_rate[k]:.1%}); recall gap "
+        f"{gap:+.3f}"
+    )
 
 
 def select_k(
@@ -171,44 +208,48 @@ def select_k(
     tolerance: float = TOLERANCE,
     min_fit_rate: float = MIN_FIT_RATE,
 ) -> Selection:
-    """The D1 rule: the smallest k whose delivered recall is within ``tolerance`` of delivered
-    R@``reference_k``; if none qualifies, the largest k that fits the budget on
-    >= ``min_fit_rate`` of queries, with the recall gap recorded.
+    """The D1 rule, literally: the smallest k in the cuts (``reference_k`` included) whose
+    delivered recall is within ``tolerance`` of delivered R@``reference_k``; if none qualifies,
+    the largest k that fits the budget on >= ``min_fit_rate`` of queries, with the recall gap.
 
-    Reading of the rule: the reference cut is trivially within tolerance of itself, so if it were
-    eligible in the first branch the fallback could never fire. The first branch therefore ranges
-    over the cuts *below* the reference; the fallback ranges over every cut, the reference
-    included. ``literal_k`` reports what the reading that lets the reference win the first branch
-    would choose (it differs only when the fallback fires and picks k < reference_k).
+    Because the reference cut is itself a candidate (gap 0), the literal fallback is unreachable;
+    it is kept for completeness. ``strict_k`` reports the "k < reference_k" reading, whose
+    fallback can fire — a secondary readout, never the selection.
     """
     if reference_k not in delivered_recall:
         raise ValueError(f"reference cut {reference_k} missing from delivered_recall")
     if set(delivered_recall) != set(fit_rate):
         raise ValueError("delivered_recall and fit_rate must cover the same cuts")
-    ref = delivered_recall[reference_k]
-    for k in sorted(c for c in delivered_recall if c < reference_k):
-        gap = ref - delivered_recall[k]
-        if gap <= tolerance + _EPS:
-            return Selection(
-                k=k, branch="within_tolerance", reference_recall=ref, recall_gap=gap,
-                literal_k=k,
-                reason=f"smallest k with delivered recall within {tolerance} of "
-                f"delivered R@{reference_k} ({ref:.3f}); gap {gap:+.3f}",
-            )
-    fitting = [k for k in delivered_recall if fit_rate[k] + _EPS >= min_fit_rate]
-    if not fitting:
-        return Selection(
-            k=None, branch="none", reference_recall=ref, recall_gap=None,
-            literal_k=reference_k,
-            reason=f"no k < {reference_k} within {tolerance} and no k fits the budget on "
-            f">= {min_fit_rate:.0%} of queries",
-        )
-    k = max(fitting)
-    gap = ref - delivered_recall[k]
-    return Selection(
-        k=k, branch="fallback_budget_fit", reference_recall=ref, recall_gap=gap,
-        literal_k=reference_k,
-        reason=f"no k < {reference_k} within {tolerance} of delivered R@{reference_k} "
-        f"({ref:.3f}); largest k fitting on >= {min_fit_rate:.0%} of queries "
-        f"(fit {fit_rate[k]:.1%}); recall gap {gap:+.3f}",
+    args = (delivered_recall, fit_rate, reference_k, tolerance, min_fit_rate)
+    k, branch, gap, reason = _apply_rule(list(delivered_recall), *args)
+    strict_k, strict_branch, strict_gap, _ = _apply_rule(
+        [c for c in delivered_recall if c < reference_k], *args
     )
+    return Selection(
+        k=k, branch=branch, reference_recall=delivered_recall[reference_k], recall_gap=gap,
+        reason=reason, strict_k=strict_k, strict_branch=strict_branch,
+        strict_recall_gap=strict_gap,
+    )
+
+
+# ── One token counter for every D1 path (measurement, authoring, serving) ──
+
+QWEN_TOKENIZER = "Qwen/Qwen3.5-4B"
+
+
+@lru_cache(maxsize=4)
+def load_tokenizer(name: str = QWEN_TOKENIZER) -> Any:
+    """The HF tokenizer (tokenizer files only, no weights); loaded once per process."""
+    from transformers import AutoTokenizer  # deferred: heavy, and the pure logic never needs it
+
+    return AutoTokenizer.from_pretrained(name)
+
+
+def qwen_token_counter(name: str = QWEN_TOKENIZER) -> Callable[[str], int]:
+    """The D1 token counter: ``len(tok.encode(text, add_special_tokens=False))``."""
+    tok = load_tokenizer(name)
+
+    def count_tokens(text: str) -> int:
+        return len(tok.encode(text, add_special_tokens=False))
+
+    return count_tokens
