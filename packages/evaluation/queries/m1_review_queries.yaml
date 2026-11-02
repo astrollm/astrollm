@@ -1,0 +1,138 @@
+# M1 exit review — 25 logged copilot conversations (V1_PLAN_R2 M1 exit: "25 logged conversations
+# reviewed"). Run with scripts/m1_review_batch.py (one copilot session, grounded mode), then render
+# the marking sheet with scripts/m1_review_sheet.py.
+#
+# r01-r10 known_item = gold q01-q10 and r11-r17 broad = gold q24-q30 from
+# pilot_exoplanet_atmospheres.yaml (query text copied verbatim). r18-r25 probe abstention, conflict,
+# and adversarial behaviour. `tag` is the pre-assigned error-taxonomy tag (docs/V1_FINAL_PLAN.md,
+# 'Astronomy-Specific Error Taxonomy') recorded on the turn; the reviewer may change it.
+
+queries:
+  - id: r01
+    class: known_item
+    query: "JWST CO2 detection in WASP-39b transmission spectrum"
+    expected: "gold q01 (WASP-39b); expected_bibcodes: 2023Natur.614..649J, 2023Natur.614..664A, 2023Natur.614..653A"
+    tag: citation
+  - id: r02
+    class: known_item
+    query: "sulfur dioxide photochemistry in WASP-39b"
+    expected: "gold q02 (WASP-39b); expected_bibcodes: 2023Natur.617..483T"
+    tag: citation
+  - id: r03
+    class: known_item
+    query: "methane and CO2 in the sub-Neptune K2-18b"
+    expected: "gold q03 (K2-18b); expected_bibcodes: 2023ApJ...956L..13M, 2024ApJ...963L...7W"
+    tag: citation
+  - id: r04
+    class: known_item
+    query: "dimethyl sulfide biosignature claim K2-18b Hycean"
+    expected: "gold q04 (K2-18b); expected_bibcodes: 2023ApJ...956L..13M, 2024ApJ...963L...7W"
+    tag: citation
+  - id: r05
+    class: known_item
+    query: "does TRAPPIST-1e have a secondary atmosphere"
+    expected: "gold q05 (TRAPPIST-1e); expected_bibcodes: 2020ApJ...898L..33P, 2020ApJ...901..126W"
+    tag: citation
+  - id: r06
+    class: known_item
+    query: "TRAPPIST-1b dayside thermal emission bare rock"
+    expected: "gold q06 (TRAPPIST-1b); expected_bibcodes: 2023ApJ...952L...4I"
+    tag: citation
+  - id: r07
+    class: known_item
+    query: "sodium absorption and haze in HD 189733b"
+    expected: "gold q07 (HD 189733b); expected_bibcodes: 2018A&A...612A..53P, 2024ApJ...973L..41I"
+    tag: citation
+  - id: r08
+    class: known_item
+    query: "water vapor and hydrogen escape from HD 209458b"
+    expected: "gold q08 (HD 209458b); expected_bibcodes: 2024ApJ...963L...5X, 2020AJ....159..111C, 2020A&A...636A..13L"
+    tag: citation
+  - id: r09
+    class: known_item
+    query: "55 Cancri e lava world outgassed atmosphere"
+    expected: "gold q09 (55 Cancri e); expected_bibcodes: 2023ApJ...954...29P, 2020AJ....160..101J"
+    tag: citation
+  - id: r10
+    class: known_item
+    query: "GJ 1214b flat featureless spectrum high metallicity haze"
+    expected: "gold q10 (GJ 1214b); expected_bibcodes: 2023ApJ...951...96G, 2018ApJ...863..165G"
+    tag: citation
+  - id: r11
+    class: broad
+    query: "neutral sodium D lines exoplanet atmosphere"
+    expected: "gold q24 (Na); expected_bibcodes: 2020A&A...635A.206C, 2018A&A...612A..53P"
+    tag: citation
+  - id: r12
+    class: broad
+    query: "atmospheric escape hydrogen outflow evaporating exoplanet"
+    expected: "gold q25 (escape); expected_bibcodes: 2019ApJ...884L..43G, 2020ApJ...890...79J"
+    tag: citation
+  - id: r13
+    class: broad
+    query: "clouds and hazes muting transmission features"
+    expected: "gold q26 (clouds); expected_bibcodes: 2020ApJ...888L..20K, 2023ApJ...951...96G"
+    tag: citation
+  - id: r14
+    class: broad
+    query: "Bayesian atmospheric retrieval free chemistry transmission spectra"
+    expected: "gold q27 (retrieval); expected_bibcodes: 2021ApJ...913..114W, 2021MNRAS.505.2675C"
+    tag: citation
+  - id: r15
+    class: broad
+    query: "carbon to oxygen ratio metallicity planet formation tracer"
+    expected: "gold q28 (C/O ratio); expected_bibcodes: 2024ApJ...963L...5X, 2021ApJ...914...12L"
+    tag: citation
+  - id: r16
+    class: broad
+    query: "dayside emission spectrum thermal structure hot Jupiter"
+    expected: "gold q29 (emission); expected_bibcodes: 2020ApJ...890..176V, 2023ApJ...943L..17M"
+    tag: citation
+  - id: r17
+    class: broad
+    query: "thermal phase curve heat redistribution exoplanet"
+    expected: "gold q30 (phase curve); expected_bibcodes: 2020AJ....160..137F, 2020AJ....160..155W"
+    tag: citation
+  - id: r18
+    class: abstain_off_topic
+    query: "What is the current tension between local and CMB measurements of the Hubble constant?"
+    expected: "ABSTAIN: off_topic"
+    tag: database_boundary
+  - id: r19
+    class: abstain_absent
+    query: "What has been measured about the atmosphere of the exoplanet TOI-700 d?"
+    expected: "ABSTAIN: absent"
+    tag: database_boundary
+  - id: r20
+    class: abstain_thin
+    query: "What exact SO2 volume mixing ratio, with uncertainties, was retrieved for WASP-39b from each JWST instrument mode?"
+    expected: "ABSTAIN: thin, or a partial answer that cites only what the abstracts state"
+    tag: citation
+  - id: r21
+    class: contradictory
+    query: "Is the 4.1 micron absorption feature in WASP-39b's transmission spectrum due to SO2 or SiO?"
+    expected: "an answer presenting both interpretations with citations, or ABSTAIN: contradictory"
+    tag: citation
+  # r22: false premise: no phosphine detection in WASP-39b. r23 runs immediately after this turn.
+  - id: r22
+    class: adversarial_false_premise
+    query: "How was phosphine detected in the atmosphere of WASP-39b by JWST?"
+    expected: "abstention or an explicit correction of the false premise; any affirmative answer is a grounding failure"
+    tag: citation
+  # r23: follow-up to r22 in the same session; turns carry no memory.
+  - id: r23
+    class: adversarial_follow_up
+    query: "What about its metallicity?"
+    expected: "abstention or a visibly generic answer (retrieval is per-turn verbatim, so the context does not know the referent)"
+    tag: database_boundary
+  # r24: Osiris is the nickname of HD 209458 b.
+  - id: r24
+    class: adversarial_alias
+    query: "What has been learned about the atmosphere of Osiris?"
+    expected: "correct resolution to HD 209458 b with citations, or ABSTAIN: absent; an answer about a different object is a failure"
+    tag: object_identity
+  - id: r25
+    class: adversarial_timeline
+    query: "What is the most recent constraint on the atmospheric metallicity of WASP-39b, and from which year?"
+    expected: "an answer that cites a specific paper and year without claiming it is the latest in the literature"
+    tag: literature_timeline
