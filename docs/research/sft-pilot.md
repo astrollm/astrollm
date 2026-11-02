@@ -286,6 +286,15 @@ does not override the gates.
        next to every eval table.
     5. **Scope unchanged.** Three families, abstention over-weighted, no tool-call or object-QA
        examples, nothing from Phase A ships.
+    6. **Teacher-selection-bias control.** Teacher drafting chooses *which* claims enter a record,
+       and human verification of those claims does not recover what the teacher omitted. Therefore
+       (a) every calibration **negative** and at least **25% of calibration positives** are
+       human-authored from scratch (`provenance.drafting_model: null`) — an independent *challenge
+       subset*; (b) for every teacher-drafted record the human performs a **context-wide
+       answerability review**: confirm the answerable/abstention label against the whole rendered
+       context and add any claim the teacher omitted when a contradicting or additional relevant
+       abstract is present; (c) H5 precision/recall are reported on the challenge subset separately
+       from the full calibration partition, and the verifier trust gate (≥ 0.85) must hold on both.
 
 ---
 

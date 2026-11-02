@@ -27,11 +27,13 @@ recommendations and the adjustments they produced.*
 candidate recall, is the bottleneck). The gold-seed harness is well engineered and tested. The
 research log's pre-registration and amendment discipline is a genuine asset.
 
-**Wrong.** Revision 1's risk register puts "motivation loss from invisible progress" first and
-mitigates it with a week-4 demo. The demo was skipped on 2026-06-01; both pauses followed. The
+**Wrong.** The Master Plan's risk register puts "motivation loss from invisible progress" first
+for Phases 1–2 and mitigates it with the week-4 demo that Revision 1 lists among its protected
+milestones. The demo was skipped on 2026-06-01; both pauses followed. The
 critical path then required hand-authoring 150–250 examples, each over a 100-abstract worksheet
-(≈ 50–150 solo hours), for a Phase-A fine-tune that by pre-registration never ships. Three of the
-last four PRs were documentation about process.
+(≈ 50–150 solo hours), for a Phase-A fine-tune that by pre-registration never ships. Two of the
+last four merged PRs were documentation about process; the other two built and tested a harness
+that has produced zero examples.
 
 **A latent contradiction found during the review.** The harness freezes the *full* pool-100
 output (≈ 25–30K tokens) as each example's context (`context.py`, `K = 100`), while all three
@@ -81,7 +83,7 @@ is what R2 / A2 / EXP-005 actually say as a result.
 | 3 | **Agentic retrieval breaks the train/serve contract.** A multi-call loop at serving time, with single-shot contexts at training time, re-creates the distribution mismatch EXP-004 was designed to avoid. | Real and important. | R2 scope: single-shot top-k is the serving default; multi-call loops are a flagged experiment, not the product path, until training contexts are assembled the same way. |
 | 4 | **The 100-abstract context does not fit the training sequence length.** | Real (found during this review). | D1: serving context k chosen by measurement before EXP-000; full pool kept for provenance; `max_seq_length` raised to fit. |
 | 5 | **Depending on an external v0.1 MCP server is fragile.** | Real but cheap to contain. | Pin the version; call astroquery directly inside the serving loop; MCP is the interface for Claude clients, not the serving path. |
-| 6 | **60–95 examples is not a "benchmark".** | Fair. | Called *eval set v0*; n and bootstrap CIs reported everywhere. |
+| 6 | **About a hundred examples (the eval partition minimum is 95) is not a "benchmark".** | Fair. | Called *eval set v0*; n and bootstrap CIs reported everywhere. |
 | 7 | **Lightening process could erode the rigor that makes the project publishable.** | Partly real. | Pre-registration kept for GPU runs and ship gates (where it matters); dropped for harness/labeling/UI work; research-log conventions untouched. |
 | 8 | **Adding Gemma 4 12B dilutes a tiny budget.** | Real. | Watch list only. |
 | 9 | **No-think may handicap the RL arm** (Ground-GRPO finds reasoning helps on unanswerables). | Plausible. | EXP-005 keeps no-think for the primary mode-matched comparison; a C-think variant is a pre-registered secondary arm if budget remains. |
@@ -91,8 +93,31 @@ is what R2 / A2 / EXP-005 actually say as a result.
 
 ## 5. External (Codex) review
 
-*Filled in after the Codex round on this PR: findings, triage (real? caused by this change? cure
-worth it?), and what changed.*
+Targeted plan-review rounds (design only), run on the committed diff against `main` under the
+local review policy (`CODEX_ROUND=targeted:v1-plan-r2`, effort high, read-only).
+
+### Round 1 — verdict NEEDS-ATTENTION: 2 P1, 8 P2, 3 P3. All accepted.
+
+| # | Sev | Finding (file) | Change made |
+|---|-----|----------------|-------------|
+| F3 | P1 | EXP-005's outcome rule "T-H1 or T-H2" let arm C validate a recipe by merely matching arm B, even if both failed the inherited gates (`training-pilot.md`) | Validation is now per recipe, each arm on its own vs arm A: SFT-H1 ∧ H2 ∧ H3-cap ∧ T-H3 ∧ T-H4. T-H2′ only chooses between validated recipes |
+| F9 | P1 | R2 said AstroMLab-1 is "never the ship gate", contradicting A1's open-book retention gate and closed-book ship-block (`V1_PLAN_R2.md`) | Rewritten: open-book slice = Phase-A retention gate; closed-book catastrophe thresholds = ship-block; only ordinary closed-book drift is ungated |
+| F1 | P2 | D1 was not operationalized: no tokenizer, overflow policy, prompt/answer reserve, or fallback when no k qualifies; recall scored on ranks, not delivered context | D1 now fixes the 16,384-token delivered-context budget, reserves, whole-abstract overflow drops, delivered-context recall, selection rule and fallback, all before any model output |
+| F2 | P2 | Human verification of teacher-chosen claims does not recover what the teacher omitted; H5 could certify a verifier on teacher-shaped examples (`sft-pilot.md` A2) | A2 point 6: human-authored challenge subset (all calibration negatives + ≥ 25% of positives), context-wide answerability review per record, H5 reported and gated on the challenge subset separately |
+| F4 | P2 | "CI does not exclude 0 in B's favour" turned failure to detect inferiority into non-inferiority | T-H2′: non-inferior iff lower 95% CI bound of (C − B) > −0.05; superior iff CI > 0; otherwise inconclusive and B preferred |
+| F5 | P2 | Only cited sentences became claims, so the policy controlled what the reward examined; zero-claim answers undefined | Every declarative sentence is a claim; uncited = unsupported; zero claims or zero citations on a non-abstention = reward floor |
+| F6 | P2 | "Prompts only" hid a required labelled dataset: the abstention reward needs answerability labels for 500–1,000 prompts | New section: teacher-proposed labels with evidence pointers, 100% human audit of non-answerable and 20% of answerable, > 10% error ⇒ arm C not run, reward-only metadata, budgeted |
+| F7 | P2 | T-H3 "±1.5 × IQR" had no centre, no unit, and a zero-IQR failure mode for binary abstention | Per-query median ± 1.5 IQR (or ± 0.5 median if IQR = 0) for density and claim count; one-sided +0.10 proportion band for abstention; hacking direction defined; bands fixed from arm A first |
+| F8 | P2 | The human reward audit had no size, sampling unit or consequence | Blinded, paired 30-query audit per arm, 0.85 per-arm agreement floor, verifier numbers invalid below it; T-H2′ always uses the human rate |
+| F10 | P2 | Live ADS evidence had no defined relationship to the D1 context contract or the citation guard | R2 evidence contract: grounded mode (frozen top-k only; default; the evaluated path) vs live mode (opt-in; separate log; never evaluated or trained on); SIMBAD = display only |
+| — | P3 | Risk register misattributed to Revision 1 (it is `MASTER_PLAN.md`); "three of the last four PRs" (it is two); "60–95 examples" (eval minimum is 95) | Fixed here, in R2 and in the Decision Log rows |
+
+Three-questions triage: every P1/P2 was judged real, introduced by this diff, and worth curing;
+none was deferred.
+
+### Round 2
+
+*Pending.*
 
 ---
 

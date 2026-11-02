@@ -37,25 +37,49 @@ reward** beats the **verifier as a filter**.
 |-----|-----------------|-------------|
 | **A. base** | none (prompted) | — |
 | **B. SFT** | teacher-synthesized `(query + context) → cited answer`, verifier-filtered (EXP-004 recipe) | teacher API calls; verifier passes |
-| **C. GRPO** | on-policy rollouts from `(query + context)` prompts scored by a programmatic reward | prompts only (machine-assembled); verifier as reward |
+| **C. GRPO** | on-policy rollouts from `(query + context)` prompts scored by a programmatic reward | machine-assembled `(query, context)` prompts **plus human-audited answerability labels** (next section); verifier as reward |
 
 Arm C runs **only if** the verifier passed the H5 trust gate (precision ≥ 0.85 on the calibration
-partition). Below that, the reward is too noisy to be a training signal and arm C is recorded as
-"not run — verifier below gate", not skipped silently.
+partition, including on the human-authored challenge subset of EXP-004-A2) **and** the
+answerability-label audit below passes. Otherwise the reward is too noisy to be a training signal
+and arm C is recorded as "not run — verifier below gate" / "not run — label audit failed", not
+skipped silently.
+
+## Prompt set and answerability labels (arm C)
+
+RL needs ~500–1,000 `(query, context)` prompts. Retrieval assembles the context deterministically,
+but the **abstention term of the reward needs an answerability label per prompt**, and no retriever
+supplies one. The labels are a labelled dataset in their own right, built and audited before the run:
+
+- **Construction.** Queries are drawn from the same candidate pool and family mix as the gold seed
+  (~45/35/20) and are disjoint from every eval-partition query. For each prompt the teacher proposes
+  `answerable | thin | contradictory | off_topic | absent` with an evidence pointer (the bibcodes
+  that make it answerable, or why none do). Absent-object prompts are additionally verified by the
+  corpus grep used for the gold candidates.
+- **Audit.** A human verifies **100% of prompts labelled non-answerable** (≈ 20%, 100–200 prompts)
+  and a **20% random sample of the answerable ones**, blind to the teacher's reasoning. If the label
+  error rate in the audited sample exceeds **10%**, arm C is not run. Budget ≈ 5–8 hours, added to M4.
+- **Storage.** Labels are reward-only metadata on the prompt record (`answerability`, `evidence`,
+  `audited`); they are never used as eval labels and never shipped.
 
 ## Reward specification (arm C) — committed before the run, in this order
 
 The reward is a weighted sum of components that are each independently checkable; weights are
 committed in the run config and reported.
 
+0. **Claim extraction is not under the policy's control.** Every declarative sentence of a
+   non-abstaining answer is a claim, cited or not (sentence splitting by a fixed rule; quotations
+   and a trailing "sources" line excluded). A non-abstaining answer with zero claims, or with zero
+   citations, receives the reward floor. An abstaining answer is scored by component 3 only.
 1. **Citation validity** (hard): every bibcode in the answer ∈ serving context. Any invalid
    citation → reward floor for the sample.
-2. **Claim support** (dense): fraction of extracted claims whose cited abstract supports them per
-   the calibrated verifier. Claims are extracted by a fixed rule (one claim per sentence carrying a
-   citation), never by the policy model.
-3. **Abstention correctness** (two-sided): +1 for correctly abstaining on thin/absent/contradictory
-   context (as labeled in the prompt set), −1 for abstaining on an answerable prompt. The prompt set
-   mirrors the eval-seed family mix (~45/35/20) so over-abstention cannot pay.
+2. **Claim support and coverage** (dense): the fraction of extracted claims that are *both* cited
+   *and* supported by the cited abstract per the calibrated verifier. An uncited claim counts as
+   unsupported, so attaching valid citations to easy sentences while leaving substantive assertions
+   uncited lowers the reward instead of evading it.
+3. **Abstention correctness** (two-sided, from the audited answerability labels): +1 for correctly
+   abstaining on a thin/absent/contradictory/off-topic prompt, −1 for abstaining on an answerable
+   prompt, 0 otherwise. The prompt-set family mix mirrors the eval seed so over-abstention cannot pay.
 4. **Format**: cited-answer shape, length band, no reproduced abstract text beyond quotation
    length.
 
@@ -66,23 +90,33 @@ buy faithfulness and it would reintroduce the teacher/judge shared bias).
 
 Comparison is paired on the eval partition with bootstrap CIs, all arms no-think, judge ≠ teacher.
 
-- **T-H1 (SFT lift).** Arm B meets SFT-H1 and SFT-H2 vs arm A. *(This is EXP-004's original
-  prediction, restated so EXP-005 cannot pass on arm C alone.)*
-- **T-H2 (reward ≥ filter).** Arm C's claim-support rate and faithfulness are ≥ arm B's (CI on
-  C − B does not exclude 0 in B's favour), **and** arm C's false-refusal rate ≤ 0.10.
-- **T-H3 (no reward hacking).** For arms B and C, citation density, claims per answer and
-  abstention rate on answerable prompts stay within bands fixed from arm A's distribution
-  (±1.5 × arm-A interquartile range). An arm outside any band **fails** regardless of T-H1/T-H2.
-- **T-H4 (retention).** EXP-004-A1's open-book overlap gate and closed-book backstop apply to
-  every trained arm.
+- **T-H1 (SFT lift).** Arm B meets SFT-H1 and SFT-H2 vs arm A (EXP-004's prediction, restated).
+- **T-H2 (RL lift).** Arm C meets SFT-H1 and SFT-H2 vs arm A **independently** — matching arm B
+  is not sufficient — and its false-refusal rate is ≤ 0.10 (the SFT-H3 cap).
+- **T-H2′ (reward vs filter; between validated arms only).** Arm C is *non-inferior* to arm B on
+  the human-audited claim-support rate iff the lower bound of the paired-bootstrap 95% CI on
+  (C − B) is > **−0.05** absolute, and *superior* iff the whole CI is > 0. A CI that straddles both
+  is **inconclusive** and B is preferred; a wide CI never counts as equivalence.
+- **T-H3 (no reward hacking).** Sampling unit = eval query; statistics per arm over the eval
+  partition: (a) citations per 100 words, (b) claims per answer, (c) abstention rate on answerable
+  queries. Bands are fixed from arm A **before** arms B/C are scored: (a) and (b): arm-A median
+  ± 1.5 × the arm-A interquartile range of per-query values, or ± 0.5 × the arm-A median if that
+  IQR is 0; (c) is a proportion, not a per-query statistic: band = [0, arm-A rate + 0.10],
+  one-sided. Violations in the hacking direction — (a) above band, (b) below band, (c) above band
+  — **fail the arm regardless of T-H1/T-H2**; (a) below band or (b) above band is reported, not
+  failed.
+- **T-H4 (retention).** EXP-004-A1's open-book overlap gate, its minimum-power fallback and its
+  closed-book backstop (a ship-block) apply to every trained arm.
 
-## Kill criteria and what ships
+## Validation rule and what ships
 
-Nothing from EXP-005 ships (EXP-004-A1 §4). The outcomes are:
+Nothing from EXP-005 ships (EXP-004-A1 §4). A recipe is **validated** only if its arm clears, on
+its own against arm A: SFT-H1 ∧ SFT-H2 ∧ the SFT-H3 cap ∧ T-H3 ∧ T-H4. T-H2′ never validates a
+recipe; it only chooses between two validated ones.
 
-- **recipe validated** (T-H1 or T-H2 with T-H3 and T-H4) → Phase B re-runs *that* recipe on the
-  widened corpus with its own retention gate;
-- **SFT only** (T-H1 holds, T-H2 fails or arm C not run) → Phase B uses the SFT recipe;
+- **both validated** → Phase B re-runs arm C's recipe if T-H2′ is superior or non-inferior,
+  otherwise arm B's (simpler and cheaper);
+- **one validated** → Phase B re-runs that recipe;
 - **neither** → "RAG-grounded beta on the base model, training iterating"; M6 ships base + RAG.
 
 ## Compute and budget
@@ -104,9 +138,13 @@ never substituted for the primary mode-matched comparison.
 
 ## Confounds and controls (added to EXP-004's)
 
-- **Reward/judge leakage.** The verifier is the reward (arm C) *and* the H2 instrument. H2 is
-  therefore also spot-checked by a human on a fixed random slice with the pre-stated agreement
-  floor; the human number is the one reported for T-H2.
+- **Reward/judge leakage.** The verifier is the reward (arm C) *and* the H2 instrument. Control:
+  a **blinded, paired human audit** — the same 30 randomly drawn eval queries for every arm (A, B,
+  C), arm identity hidden, every extracted claim labelled supported/unsupported by the human.
+  Per-arm agreement with the verifier must be ≥ 0.85 (percent agreement on claims). If an arm falls
+  below the floor, its verifier-scored H2/T-H2 numbers are **invalid**; the human-labelled rate on
+  the audited slice, with its CI, is the only number that can clear the gate for that arm. T-H2′
+  compares the human-audited rate in every case.
 - **Prompt-set / eval-set disjointness.** RL prompts and SFT queries are disjoint from the eval
   partition at the query level and, where the corpus allows, drawn on held-out abstracts.
 - **Sequence-length confound.** All arms train and are evaluated at the D1 context; any arm that

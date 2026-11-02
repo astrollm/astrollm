@@ -16,9 +16,9 @@ frozen too: changes go in a Revision 3 plus a Decision Log row (see `.claude/rul
 
 Seven months after Revision 1 the project has a well-ablated retriever, a tested gold-seed
 harness, a disciplined research log, zero gold examples, no model call anywhere in the pipeline,
-and two long pauses. Revision 1's own risk register put "motivation loss from invisible progress"
-first and mitigated it with a week-4 demo; the demo was skipped on 2026-06-01 and both pauses
-followed. The current critical path (hand-author 150–250 examples, each over 100 abstracts, for a
+and two long pauses. The Master Plan's risk register puts "motivation loss from invisible progress"
+first for Phases 1–2 and mitigates it with the week-4 demo that Revision 1 lists among its protected
+milestones; the demo was skipped on 2026-06-01 and both pauses followed. The current critical path (hand-author 150–250 examples, each over 100 abstracts, for a
 fine-tune that by pre-registration never ships) makes the next visible artifact months away.
 
 Three things also changed in the field since March (verified 2026-10-23, see the review):
@@ -62,6 +62,10 @@ free-running autonomous agent.
 - Live tools **adopted, not built**: SIMBAD and ADS through the NASA-IMPACT `astroquery-mcp`
   server (pinned version), with `mcp-server-ads` for citation-graph queries if needed. The
   project's own retriever is also published as an MCP server so Claude Code / Desktop can use it.
+  Live tools and the frozen retriever meet under one **evidence contract** (Architecture, below):
+  in grounded mode the only citable evidence is the frozen top-k context; live ADS results are
+  evidence only in a separately logged live mode that is never evaluated against the gates or used
+  as training data; SIMBAD returns object cards for display, not evidence for claims.
 - An **inference-time citation guard**: every bibcode in an answer must be in the retrieved
   context (hard rule from day one); claim-support checking once the verifier exists (M3).
 - Evaluation: the EXP-004 eval seed (lit_qa / summarization / abstention) + the EXP-004-A1
@@ -97,13 +101,23 @@ query ─► [SIMBAD alias expand: astroquery-mcp]
 Serving: llama.cpp GGUF Q4_K_M on Apple Silicon or a hosted Qwen3.5-9B endpoint for v0 (same
 weights; quantization noted in every eval row). vLLM when the web beta needs throughput.
 
+### Evidence contract (grounded mode vs live mode)
+
+| | **Grounded mode** (default; the only evaluated product path) | **Live mode** (opt-in flag; flagged experiment) |
+|---|---|---|
+| Retrieval input | the user query verbatim — no alias expansion in the retrieval path, so serving matches authoring (`author.py prepare`) exactly | query plus SIMBAD alias expansion and/or live ADS search |
+| Citable evidence | the frozen retriever's top-k (D1) only | frozen top-k ∪ live ADS results, each tagged with its source |
+| Citation-guard allowlist | the top-k bibcodes | the union above |
+| SIMBAD | object card shown to the user; never cited as evidence | same |
+| Transcript | the product log; eligible for eval review and (M4+) training prompts | a separate log; never evaluated against the gates, never used as training data |
+
 ---
 
 ## Pre-registered constants to lock before EXP-000
 
 | ID | Decision | How it is decided | Why it blocks |
 |----|----------|-------------------|---------------|
-| **D1** | Serving context **k** (top-k of the fused pool-100 ranking) | Score fused hybrid recall at cuts {10, 20, 30, 50} on the frozen 29-query gold with the pool-sweep harness (today it scores only 10 and 50: 0.592 / 0.862 overall at pool 100). Pick the smallest k whose recall is within 0.05 of R@50, under a hard context budget of 16K tokens (so k ≤ ~50). | The harness currently freezes **all 100** abstracts (~25–30K tokens) as context while every training config caps sequences at 4,096 tokens. Train and serve must see the same context. Gold records keep all 100 for provenance; the labeler/teacher/model see top-k. |
+| **D1** | Serving context **k** (top-k of the fused pool-100 ranking) and the context token budget | Extend the pool-sweep harness to score fused hybrid recall at cuts {10, 20, 30, 50} on the frozen 29-query gold (today it scores only 10 and 50: 0.592 / 0.862 overall at pool 100) **and** to render each cut exactly as the model will see it (bibcode line + title + abstract) and count tokens with the Qwen3.5 tokenizer. Budget: **16,384 context tokens** per query; prompt overhead (system + question) reserved at 1,024 and answer allowance 2,048, so `max_seq_length` = 20,480. Overflow policy: k is a fixed count; if a query's top-k rendering exceeds the budget, drop whole abstracts from the bottom of the ranking until it fits, never truncate inside an abstract, and log the drop. Recall is scored on the *delivered* context after overflow handling. Selection rule: the smallest k ∈ {10, 20, 30, 50} whose delivered-context recall is within 0.05 of delivered R@50; if none qualifies, the largest k that fits the budget on ≥ 95% of queries, with the recall gap recorded. All of this is committed, and the chosen k reported, before any model output is seen. | The harness currently freezes **all 100** abstracts (~25–30K tokens) as context while every training config caps sequences at 4,096 tokens. Train and serve must see the same context. Gold records keep all 100 for provenance; the labeler/teacher/model see top-k. |
 | **D2** | No-think template mechanism verified against the real tokenizer | Rider 2 of the 2026-07-21 decision | Must precede the first base-model eval, not just the fine-tune |
 | **D3** | Teacher, judge, verifier identities | Teacher = Claude Opus 5.5 (`claude-opus-5-5`). Judge for H1/H3 = a different family (open-weight 27–31B via a provider, or human). Verifier = NLI cross-encoder + bibcode rule, calibrated per H5. Drafting model recorded in every gold record's provenance. | The pre-registered shared-bias control |
 
@@ -117,9 +131,10 @@ one lab note. Calendar dates are re-committed at the end of each milestone (gate
 ### M1 — Copilot v0 (the skipped R1 week-4 demo)
 
 Build: base Qwen3.5-9B behind a CLI chat; the retriever as a tool returning top-k with bibcodes;
-`astroquery-mcp` for SIMBAD object lookup and live ADS search; the citation-enforcing system
-prompt; the bibcode citation guard; conversation logging with error-taxonomy tags. No training,
-no agent loop, no web.
+`astroquery-mcp` for SIMBAD object cards and, behind a flag, live ADS search (per the evidence
+contract: grounded mode is the default and the only evaluated path); the citation-enforcing system
+prompt; the bibcode citation guard; conversation logging with error-taxonomy tags and the mode
+recorded per transcript. No training, no agent loop, no web.
 
 Exit: D1 and D2 locked; 25 logged conversations reviewed; `QUICKSTART.md` has a working
 end-to-end command. Spend: $0–20.
@@ -153,7 +168,8 @@ Pre-registered in [training-pilot.md](research/training-pilot.md). Arms on Qwen3
 **GRPO** with the calibrated verifier as reward. Gates H1–H4 as amended. The GRPO arm runs only
 if the verifier passed its trust gate. Nothing from Phase A ships.
 
-Exit: EXP-005 results appended; recipe validated or killed. Spend: $50–150 (GPU).
+Exit: EXP-005 results appended; each recipe independently validated or killed against the
+inherited gates. Spend: $50–150 (GPU).
 
 ### M5 — Phase B (recipe frozen, corpus widened) — only if M4 validates a recipe
 
@@ -188,7 +204,11 @@ page, feedback form, failed-query log. Target: 5 beta users.
 - Addition for EXP-005: reward-hacking tripwires (citation density, claims per answer, abstention
   rate on answerable queries) reported for every arm; any arm outside the pre-stated bands fails
   regardless of headline metrics.
-- AstroMLab-1 remains the external comparability number; it is never the ship gate.
+- AstroMLab-1 remains the external comparability number. Per EXP-004-A1 its **open-book
+  topic-overlap slice is the Phase-A retention gate** and its **closed-book catastrophe thresholds
+  (> 10 pp drop, or < 35% on 4-option MCQ) are a ship-block**; only the ordinary closed-book score
+  is reported as expected drift rather than gated. The comprehensive general-astronomy retention
+  gate belongs to Phase B.
 
 ---
 
